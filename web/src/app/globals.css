@@ -25,3 +25,8 @@ body {
         )
         rgb(var(--background-start-rgb));
 }
+
+input {
+    border-radius: 0.375rem;
+    padding: 0.25rem;
+}
