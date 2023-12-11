@@ -13,7 +13,15 @@ export default async function Rooms() {
         <div>
             {roomList.map((room) => (
                 <div key={room.slug}>
-                    <Link href={`/rooms/${room.slug}`}>{room.slug}</Link>
+                    <Link href={`/rooms/${room.slug}`}>
+                        <div className="w-fit border px-4 py-2">
+                            <div className="pb-3 text-2xl font-bold">
+                                {room.name}
+                            </div>
+                            <div className="text-md">{room.game}</div>
+                            <div className="text-sm">{room.slug}</div>
+                        </div>
+                    </Link>
                 </div>
             ))}
         </div>
