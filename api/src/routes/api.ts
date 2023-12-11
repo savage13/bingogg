@@ -1,6 +1,9 @@
 import { Router } from 'express';
+import rooms from './rooms/Rooms';
 
 const api = Router();
+
+api.use('/rooms', rooms);
 
 api.get('/games', (req, res) => {
     res.send([

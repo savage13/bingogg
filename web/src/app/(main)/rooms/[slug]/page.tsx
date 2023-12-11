@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const board = [
     [
@@ -40,6 +40,25 @@ export default function Room({
         [false, false, false, false, false],
         [false, false, false, false, false],
     ]);
+    const [messages, setMessages] = useState<string[]>([]);
+    const [connected, setConnected] = useState(false);
+
+    useEffect(() => {
+        const ws = new WebSocket(`ws://localhost:8000/rooms/${slug}`);
+        ws.addEventListener('open', () => {
+            setConnected(true);
+        });
+        ws.addEventListener('close', () => {
+            setConnected(false);
+        });
+        ws.addEventListener('message', (message) => {
+            setMessages((curr) => [...curr, message.data]);
+        });
+        return () => {
+            console.log('closing socket');
+            ws.close();
+        };
+    }, [slug]);
 
     const toggleSpace = (row: number, col: number) => {
         setBoardState(
@@ -58,13 +77,12 @@ export default function Room({
     };
 
     return (
-        <div>
-            {slug}
-            <div>
+        <div className="flex gap-x-2">
+            <div className="block">
                 {board.map((row, rowIndex) => (
                     <div
                         key={row.join()}
-                        className="flex w-1/2 items-center justify-center text-center"
+                        className="flex w-full items-center justify-center text-center"
                     >
                         {row.map((goal, colIndex) => (
                             <div
@@ -81,6 +99,49 @@ export default function Room({
                         ))}
                     </div>
                 ))}
+            </div>
+            <div>
+                <div>
+                    Socket Status: {connected ? 'Connected' : 'Disconnected'}
+                </div>
+                {/* {!connected && (
+                    <button
+                        className="bg-gray-200 px-2 py-1 text-black"
+                        onClick={() => {
+                            console.log(slug);
+                            console.log('opening ws connection');
+                            const ws = new WebSocket(
+                                `ws://localhost:8000/rooms/${slug}`,
+                            );
+                            ws.addEventListener('open', () => {
+                                setSocket(ws);
+                            });
+                            ws.addEventListener('message', (message) => {
+                                setMessages((curr) => [...curr, message.data]);
+                            });
+                        }}
+                    >
+                        Connect
+                    </button>
+                )}
+                {connected && (
+                    <button
+                        className="bg-gray-200 px-2 py-1 text-black"
+                        onClick={() => {
+                            if (socket) {
+                                socket.close();
+                                setSocket(undefined);
+                            }
+                        }}
+                    >
+                        Disconnect
+                    </button>
+                )} */}
+                <div>
+                    {messages.map((message, index) => (
+                        <div key={`${message}-${index}`}>{message}</div>
+                    ))}
+                </div>
             </div>
         </div>
     );
