@@ -78,8 +78,8 @@ export default function Room({
     };
 
     return (
-        <div className="flex gap-x-2">
-            <div className="block">
+        <div className="flex gap-x-8">
+            <div className="block w-1/2">
                 {board.map((row, rowIndex) => (
                     <div
                         key={row.join()}
@@ -101,9 +101,10 @@ export default function Room({
                     </div>
                 ))}
             </div>
-            <div className="flex w-full flex-col border px-2 py-2">
+            <div className="grow" />
+            <div className="flex flex-col border px-2 py-2">
                 <div>Socket Status: {connectionStatus}</div>
-                <div className="grow">
+                <div className="h-96 overflow-y-scroll">
                     {messages.map((message, index) => (
                         <div key={`${message}-${index}`}>{message}</div>
                     ))}
@@ -112,6 +113,13 @@ export default function Room({
                     <input
                         value={message}
                         onChange={(event) => setMessage(event.target.value)}
+                        onKeyUp={(event) => {
+                            if (event.key === 'Enter') {
+                                sendMessage(message);
+                                setMessage('');
+                            }
+                        }}
+                        className="grow"
                     />
                     <button
                         className="bg-gray-200 px-2 py-2"
