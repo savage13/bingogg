@@ -1,6 +1,6 @@
 'use client';
-
 import { useEffect, useState } from 'react';
+import useWebSocket, { ReadyState } from 'react-use-websocket';
 
 const board = [
     [
@@ -41,24 +41,25 @@ export default function Room({
         [false, false, false, false, false],
     ]);
     const [messages, setMessages] = useState<string[]>([]);
-    const [connected, setConnected] = useState(false);
+    const [message, setMessage] = useState('');
+
+    const { sendMessage, readyState, lastMessage, getWebSocket } = useWebSocket(
+        `ws://localhost:8000/rooms/${slug}`,
+    );
 
     useEffect(() => {
-        const ws = new WebSocket(`ws://localhost:8000/rooms/${slug}`);
-        ws.addEventListener('open', () => {
-            setConnected(true);
-        });
-        ws.addEventListener('close', () => {
-            setConnected(false);
-        });
-        ws.addEventListener('message', (message) => {
-            setMessages((curr) => [...curr, message.data]);
-        });
-        return () => {
-            console.log('closing socket');
-            ws.close();
-        };
-    }, [slug]);
+        if (lastMessage !== null) {
+            setMessages((prev) => [...prev, lastMessage.data]);
+        }
+    }, [lastMessage, setMessages]);
+
+    const connectionStatus = {
+        [ReadyState.CONNECTING]: 'Connecting',
+        [ReadyState.OPEN]: 'Connected',
+        [ReadyState.CLOSING]: 'Closing',
+        [ReadyState.CLOSED]: 'Disconnected',
+        [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
+    }[readyState];
 
     const toggleSpace = (row: number, col: number) => {
         setBoardState(
@@ -100,47 +101,27 @@ export default function Room({
                     </div>
                 ))}
             </div>
-            <div>
-                <div>
-                    Socket Status: {connected ? 'Connected' : 'Disconnected'}
-                </div>
-                {/* {!connected && (
-                    <button
-                        className="bg-gray-200 px-2 py-1 text-black"
-                        onClick={() => {
-                            console.log(slug);
-                            console.log('opening ws connection');
-                            const ws = new WebSocket(
-                                `ws://localhost:8000/rooms/${slug}`,
-                            );
-                            ws.addEventListener('open', () => {
-                                setSocket(ws);
-                            });
-                            ws.addEventListener('message', (message) => {
-                                setMessages((curr) => [...curr, message.data]);
-                            });
-                        }}
-                    >
-                        Connect
-                    </button>
-                )}
-                {connected && (
-                    <button
-                        className="bg-gray-200 px-2 py-1 text-black"
-                        onClick={() => {
-                            if (socket) {
-                                socket.close();
-                                setSocket(undefined);
-                            }
-                        }}
-                    >
-                        Disconnect
-                    </button>
-                )} */}
-                <div>
+            <div className="flex w-full flex-col border px-2 py-2">
+                <div>Socket Status: {connectionStatus}</div>
+                <div className="grow">
                     {messages.map((message, index) => (
                         <div key={`${message}-${index}`}>{message}</div>
                     ))}
+                </div>
+                <div className="flex gap-x-2 text-black">
+                    <input
+                        value={message}
+                        onChange={(event) => setMessage(event.target.value)}
+                    />
+                    <button
+                        className="bg-gray-200 px-2 py-2"
+                        onClick={() => {
+                            sendMessage(message);
+                            setMessage('');
+                        }}
+                    >
+                        Send
+                    </button>
                 </div>
             </div>
         </div>

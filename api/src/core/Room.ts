@@ -16,12 +16,25 @@ export default class Room {
 
         // initialize the websocket server
         this.websocketServer = new WebSocketServer({ noServer: true });
-        setInterval(() => {
-            this.websocketServer.clients.forEach((client) => {
-                if (client.readyState === OPEN) {
-                    client.send('message');
-                }
+        this.websocketServer.on('connection', (ws) => {
+            this.sendMessageToAll('join');
+            ws.on('message', (message) => {
+                this.sendMessageToAll(message.toString());
             });
-        }, 1000);
+            ws.on('close', () => {
+                this.sendMessageToAll('leave');
+            });
+        });
+        this.websocketServer.on('close', () => {
+            this.sendMessageToAll('leave');
+        });
+    }
+
+    sendMessageToAll(message: string) {
+        this.websocketServer.clients.forEach((client) => {
+            if (client.readyState === OPEN) {
+                client.send(message.toString());
+            }
+        });
     }
 }
