@@ -1,0 +1,63 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "anyOf": [
+        {
+            "required": ["action"],
+            "additionalProperties": false,
+            "properties": {
+                "action": "join"
+            }
+        },
+        {
+            "required": ["action"],
+            "additionalProperties": false,
+            "properties": {
+                "action": "leave"
+            }
+        },
+        {
+            "required": ["action", "payload"],
+            "additionalProperties": false,
+            "properties": {
+                "action": "chat",
+                "payload": {
+                    "required": ["message"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "message": "string"
+                    }
+                }
+            }
+        },
+        {
+            "required": ["action", "payload"],
+            "additionalProperties": false,
+            "properties": {
+                "action": "mark",
+                "payload": {
+                    "required": ["index"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "index": "number"
+                    }
+                }
+            }
+        },
+        {
+            "required": ["action", "payload"],
+            "additionalProperties": false,
+            "properties": {
+                "action": "unmark",
+                "payload": {
+                    "required": ["index"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "index": "number"
+                    }
+                }
+            }
+        }
+    ]
+}
