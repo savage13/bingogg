@@ -6,6 +6,13 @@ import api from './routes/api';
 import { allRooms } from './routes/rooms/Rooms';
 
 const app = express();
+
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', '*');
+    res.header('Access-Control-Allow-Methods', '*');
+    next();
+});
 app.use(bodyParser.json());
 
 app.use('/api', api);

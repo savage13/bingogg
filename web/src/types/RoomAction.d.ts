@@ -5,7 +5,7 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export type RoomAction =
+export type RoomAction = (
   | {
       action: "join";
     }
@@ -29,4 +29,7 @@ export type RoomAction =
       payload: {
         index: "number";
       };
-    };
+    }
+) & {
+  authToken: string;
+};

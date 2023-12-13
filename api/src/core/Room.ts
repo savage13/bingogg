@@ -1,4 +1,6 @@
 import { OPEN, WebSocketServer } from 'ws';
+import { RoomAction } from '../types';
+import { verifyRoomToken } from '../auth/RoomAuth';
 
 /**
  * Represents a room in the bingo.gg service. A room is container for a single
@@ -23,7 +25,18 @@ export default class Room {
         this.websocketServer.on('connection', (ws) => {
             this.sendMessageToAll('join');
             ws.on('message', (message) => {
-                this.sendMessageToAll(message.toString());
+                const action: RoomAction = JSON.parse(message.toString());
+                try {
+                    const identity = verifyRoomToken(action.authToken);
+                    switch (action.action) {
+                        case 'join':
+                            this.sendMessageToAll(
+                                `${identity.nickname} has joined.`,
+                            );
+                    }
+                } catch {
+                    return;
+                }
             });
             ws.on('close', () => {
                 this.sendMessageToAll('leave');

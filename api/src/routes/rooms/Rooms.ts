@@ -56,7 +56,7 @@ rooms.post('/:slug/authorize', (req, res) => {
         return;
     }
     const token = createRoomToken(nickname, room);
-    res.status(200).send(token);
+    res.status(200).send({ authToken: token });
 });
 
 export default rooms;
