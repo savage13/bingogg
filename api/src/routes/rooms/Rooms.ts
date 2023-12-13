@@ -1,6 +1,7 @@
 import { randomInt } from 'crypto';
 import { Router } from 'express';
 import Room from '../../core/Room';
+import { createRoomToken } from '../../auth/RoomAuth';
 
 const rooms = Router();
 
@@ -21,7 +22,7 @@ const slugList = [
 export const allRooms = new Map<string, Room>();
 allRooms.set(
     'cool-wheat-3271',
-    new Room('Test Room', 'Ori and the Bling Forest'),
+    new Room('Test Room', 'Ori and the Bling Forest', 'cool-wheat-3271'),
 );
 
 rooms.get('/', (req, res) => {
@@ -38,8 +39,24 @@ rooms.post('/', (req, res) => {
     const slug = `${slugList[randomInt(0, slugList.length)]}-${
         slugList[randomInt(0, slugList.length)]
     }-${randomInt(1000, 10000)}`;
-    allRooms.set(slug, new Room(name, game));
+    allRooms.set(slug, new Room(name, game, slug));
     res.status(200).send(slug);
+});
+
+rooms.post('/:slug/authorize', (req, res) => {
+    const { slug } = req.params;
+    const { nickname, password } = req.body;
+    const room = allRooms.get(slug);
+    if (!room) {
+        res.sendStatus(404);
+        return;
+    }
+    if (password !== room.password) {
+        res.sendStatus(403);
+        return;
+    }
+    const token = createRoomToken(nickname, room);
+    res.status(200).send(token);
 });
 
 export default rooms;

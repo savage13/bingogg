@@ -8,11 +8,15 @@ import { OPEN, WebSocketServer } from 'ws';
 export default class Room {
     name: string;
     game: string;
+    password: string;
+    slug: string;
     websocketServer: WebSocketServer;
 
-    constructor(name: string, game: string) {
+    constructor(name: string, game: string, slug: string) {
         this.name = name;
         this.game = game;
+        this.password = 'password';
+        this.slug = slug;
 
         // initialize the websocket server
         this.websocketServer = new WebSocketServer({ noServer: true });
