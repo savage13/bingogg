@@ -82,53 +82,53 @@ export default function Room({
     const [nickname, setNickname] = useState('');
     const [password, setPassword] = useState('');
 
-    // if (!authToken) {
-    //     return (
-    //         <div className="flex flex-col gap-y-4">
-    //             <label>
-    //                 Nickname
-    //                 <input
-    //                     className="text-black"
-    //                     value={nickname}
-    //                     onChange={(event) => setNickname(event.target.value)}
-    //                 />
-    //             </label>
-    //             <label>
-    //                 Password
-    //                 <input
-    //                     type="password"
-    //                     className="text-black"
-    //                     value={password}
-    //                     onChange={(event) => setPassword(event.target.value)}
-    //                 />
-    //             </label>
-    //             <button
-    //                 type="submit"
-    //                 className="bg-gray-200 text-black"
-    //                 onClick={async () => {
-    //                     const res = await fetch(
-    //                         `http://localhost:8000/api/rooms/${slug}/authorize`,
-    //                         {
-    //                             method: 'POST',
-    //                             headers: { 'Content-Type': 'application/json' },
-    //                             body: JSON.stringify({ nickname, password }),
-    //                         },
-    //                     );
-    //                     const token = await res.json();
-    //                     setAuthToken(token.authToken);
-    //                     sendMessage(
-    //                         JSON.stringify({
-    //                             action: 'join',
-    //                             authToken: token.authToken,
-    //                         }),
-    //                     );
-    //                 }}
-    //             >
-    //                 Join Room
-    //             </button>
-    //         </div>
-    //     );
-    // }
+    if (!authToken) {
+        return (
+            <div className="flex flex-col gap-y-4">
+                <label>
+                    Nickname
+                    <input
+                        className="text-black"
+                        value={nickname}
+                        onChange={(event) => setNickname(event.target.value)}
+                    />
+                </label>
+                <label>
+                    Password
+                    <input
+                        type="password"
+                        className="text-black"
+                        value={password}
+                        onChange={(event) => setPassword(event.target.value)}
+                    />
+                </label>
+                <button
+                    type="submit"
+                    className="bg-gray-200 text-black"
+                    onClick={async () => {
+                        const res = await fetch(
+                            `http://localhost:8000/api/rooms/${slug}/authorize`,
+                            {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ nickname, password }),
+                            },
+                        );
+                        const token = await res.json();
+                        setAuthToken(token.authToken);
+                        sendMessage(
+                            JSON.stringify({
+                                action: 'join',
+                                authToken: token.authToken,
+                            }),
+                        );
+                    }}
+                >
+                    Join Room
+                </button>
+            </div>
+        );
+    }
 
     const colors = [
         'indigo',
