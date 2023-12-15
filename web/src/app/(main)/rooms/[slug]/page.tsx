@@ -16,7 +16,7 @@ const board = [
         'Discover Persia',
         'Invent Religion',
         'C O N Q U E S T',
-        'Meet Marco',
+        'this is a really long goal name because sometimes these will exist and it needs to be tested against',
     ],
     [
         'Return to Madagascar',
@@ -129,6 +129,30 @@ export default function Room({
         );
     }
 
+    const colors = [
+        'indigo',
+        'darkorange',
+        'maroon',
+        // 'purple',
+        // 'forestgreen',
+        // 'aqua',
+        // 'violet',
+        // 'red',
+        // 'white',
+        // 'lime',
+        // 'gray',
+        // 'yellow',
+        // '#2d587e',
+        // '#54f7e5',
+        // '#548715',
+        // '#58fe87',
+        // '#5e8a78',
+        // '#54a841',
+        // '#a7e452',
+        // '#157854',
+    ];
+    const colorPortion = 360 / colors.length;
+
     return (
         <div className="flex gap-x-8">
             <div className="block w-1/2">
@@ -140,14 +164,31 @@ export default function Room({
                         {row.map((goal, colIndex) => (
                             <div
                                 key={goal}
-                                className={`${
-                                    boardState[rowIndex][colIndex]
-                                        ? 'bg-red-500'
-                                        : ''
-                                } aspect-square w-1/5 cursor-pointer border p-4 hover:bg-gray-300 hover:bg-opacity-25`}
+                                // className={`${
+                                //     boardState[rowIndex][colIndex]
+                                //         ? 'bg-red-500'
+                                //         : ''
+                                // } aspect-square w-1/5 cursor-pointer border p-4 hover:bg-gray-300 hover:bg-opacity-25`}
+                                className="relative aspect-square w-1/5 overflow-hidden border"
                                 onClick={() => toggleSpace(rowIndex, colIndex)}
                             >
-                                {goal}
+                                <div className="absolute z-10 flex h-full w-full items-center justify-center p-2">
+                                    <div className="bg-gray-700 bg-opacity-75 p-1">
+                                        {goal}
+                                    </div>
+                                </div>
+                                {colors.map((color, index) => (
+                                    <div
+                                        key={color}
+                                        className="absolute h-full w-full"
+                                        style={{
+                                            backgroundImage: `conic-gradient(from ${
+                                                colorPortion * index
+                                            }deg, ${color} 0deg, ${color} ${colorPortion}deg, rgba(0,0,0,0) ${colorPortion}deg)`,
+                                        }}
+                                    />
+                                ))}
+                                {/* <div className="box absolute h-full w-full origin-top skew-x-[-0.84007rad] bg-green-400" /> */}
                             </div>
                         ))}
                     </div>
