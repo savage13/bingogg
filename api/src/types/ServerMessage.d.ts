@@ -11,19 +11,30 @@
 export type ServerMessage = (
   | {
       action: "chat";
-      message: "string";
+      message: string;
     }
   | {
       action: "cellUpdate";
       row: number;
       col: number;
-      colors: string[];
+      cell?: Cell;
     }
   | {
       action: "syncBoard";
-      board: {
-        goal: string;
-        colors: string[];
-      }[][];
+      board: Board;
     }
 ) & {};
+
+/**
+ * An incoming websocket message from the server telling the client of a change in room state or instructing it to take an action
+ */
+export interface Cell {
+  goal: string;
+  colors: string[];
+}
+/**
+ * An incoming websocket message from the server telling the client of a change in room state or instructing it to take an action
+ */
+export interface Board {
+  board: Cell[][];
+}

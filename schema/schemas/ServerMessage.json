@@ -11,7 +11,7 @@
             "additionalProperties": false,
             "properties": {
                 "action": "chat",
-                "message": "string"
+                "message": {"type": "string"}
             }
         },
         {
@@ -21,7 +21,7 @@
                 "action": "cellUpdate",
                 "row": {"type": "number"},
                 "col": {"type": "number"},
-                "colors": {"type": "array", "items": {"type": "string"}}
+                "cell": {"$ref": "./Cell.json"}
             }
         },
         {
@@ -29,14 +29,7 @@
             "additionalProperties": false,
             "properties": {
                 "action": "syncBoard",
-                "board": {"type": "array", "items": {"type": "array", "items": {
-                    "required": ["goal", "colors"],
-                    "additionalProperties": false,
-                    "properties": {
-                        "goal": {"type": "string"},
-                        "colors": {"type": "array", "items": {"type": "string"}}
-                    }
-                }}}
+                "board": {"$ref": "./Board.json"}
             }
         }
     ]

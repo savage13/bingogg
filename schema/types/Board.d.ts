@@ -8,33 +8,13 @@
 /**
  * An incoming websocket message from the server telling the client of a change in room state or instructing it to take an action
  */
-export type ServerMessage = (
-  | {
-      action: "chat";
-      message: string;
-    }
-  | {
-      action: "cellUpdate";
-      row: number;
-      col: number;
-      cell?: Cell;
-    }
-  | {
-      action: "syncBoard";
-      board: Board;
-    }
-) & {};
-
+export interface Board {
+  board: Cell[][];
+}
 /**
  * An incoming websocket message from the server telling the client of a change in room state or instructing it to take an action
  */
 export interface Cell {
   goal: string;
   colors: string[];
-}
-/**
- * An incoming websocket message from the server telling the client of a change in room state or instructing it to take an action
- */
-export interface Board {
-  board: Cell[][];
 }

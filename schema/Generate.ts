@@ -20,14 +20,14 @@ try {
         }
     });
 
-    const index: string[] = [];
-    filesProcessed.forEach((file) => {
-        index.push(`export * from './${file}';`);
-    });
+    // const index: string[] = [];
+    // filesProcessed.forEach((file) => {
+    //     index.push(`export * from './${file}';`);
+    // });
 
-    writeFileSync('./types/index.d.ts', `${index.join('\n')}\n`);
-    writeFileSync('../api/src/types/index.d.ts', `${index.join('\n')}\n`);
-    writeFileSync('../web/src/types/index.d.ts', `${index.join('\n')}\n`);
+    // writeFileSync('./types/index.d.ts', `${index.join('\n')}\n`);
+    // writeFileSync('../api/src/types/index.d.ts', `${index.join('\n')}\n`);
+    // writeFileSync('../web/src/types/index.d.ts', `${index.join('\n')}\n`);
 } catch (err) {
     console.log('no schemas');
 }

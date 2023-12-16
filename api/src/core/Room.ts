@@ -1,6 +1,6 @@
 import { OPEN, WebSocketServer } from 'ws';
-import { RoomAction } from '../types';
 import { verifyRoomToken } from '../auth/RoomAuth';
+import { RoomAction } from '../types/RoomAction';
 
 /**
  * Represents a room in the bingo.gg service. A room is container for a single
