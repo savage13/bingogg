@@ -3,8 +3,9 @@
     "type": "object",
     "additionalProperties": false,
     "required": ["authToken"],
+    "description": "An outgoing client websocket message sent when a client performs an action in a room",
     "properties": {
-        "authToken": {"type": "string"}
+        "authToken": {"type": "string", "description": "JWT for the room obtained from the server"}
     },
     "anyOf": [
         {
@@ -30,7 +31,7 @@
                     "required": ["message"],
                     "additionalProperties": false,
                     "properties": {
-                        "message": "string"
+                        "message": {"type": "string"}
                     }
                 }
             }
@@ -41,10 +42,11 @@
             "properties": {
                 "action": "mark",
                 "payload": {
-                    "required": ["index"],
+                    "required": ["row", "col"],
                     "additionalProperties": false,
                     "properties": {
-                        "index": "number"
+                        "row": {"type": "number"},
+                        "col": {"type": "number"}
                     }
                 }
             }
@@ -55,10 +57,11 @@
             "properties": {
                 "action": "unmark",
                 "payload": {
-                    "required": ["index"],
+                    "required": ["row", "col"],
                     "additionalProperties": false,
                     "properties": {
-                        "index": "number"
+                        "row": {"type": "number"},
+                        "col": {"type": "number"}
                     }
                 }
             }

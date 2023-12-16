@@ -64,17 +64,28 @@ export default function Room({
     }[readyState];
 
     const toggleSpace = (row: number, col: number) => {
-        setBoardState(
-            boardState.map((rowData, rowIndex) => {
-                if (rowIndex == row) {
-                    return rowData.map((colData, colIndex) => {
-                        if (colIndex === col) {
-                            return !colData;
-                        }
-                        return colData;
-                    });
-                }
-                return rowData;
+        // setBoardState(
+        //     boardState.map((rowData, rowIndex) => {
+        //         if (rowIndex == row) {
+        //             return rowData.map((colData, colIndex) => {
+        //                 if (colIndex === col) {
+        //                     return !colData;
+        //                 }
+        //                 return colData;
+        //             });
+        //         }
+        //         return rowData;
+        //     }),
+        // );
+        console.log('marking');
+        sendMessage(
+            JSON.stringify({
+                action: 'mark',
+                authToken: authToken,
+                payload: {
+                    row,
+                    col,
+                },
             }),
         );
     };
@@ -170,13 +181,13 @@ export default function Room({
                                 //         ? 'bg-red-500'
                                 //         : ''
                                 // } aspect-square w-1/5 cursor-pointer border p-4 hover:bg-gray-300 hover:bg-opacity-25`}
-                                className="relative aspect-square w-1/5 overflow-hidden border"
+                                className="relative aspect-square w-1/5 cursor-pointer overflow-hidden border transition-all duration-300 hover:z-10 hover:scale-110 hover:shadow-xl"
                                 onClick={() => toggleSpace(rowIndex, colIndex)}
                             >
                                 <div className="absolute z-10 flex h-full w-full items-center justify-center p-2">
                                     <TextFit
                                         text={goal}
-                                        className=" bg-gray-700 bg-opacity-50 p-1"
+                                        className="p-1 drop-shadow-[2px_2px_2px_rgba(0,0,0)]"
                                     />
                                 </div>
                                 {colors.map((color, index) => (

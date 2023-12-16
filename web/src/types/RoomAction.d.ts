@@ -5,6 +5,9 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
+/**
+ * An outgoing client websocket message sent when a client performs an action in a room
+ */
 export type RoomAction = (
   | {
       action: "join";
@@ -15,21 +18,26 @@ export type RoomAction = (
   | {
       action: "chat";
       payload: {
-        message: "string";
+        message: string;
       };
     }
   | {
       action: "mark";
       payload: {
-        index: "number";
+        row: number;
+        col: number;
       };
     }
   | {
       action: "unmark";
       payload: {
-        index: "number";
+        row: number;
+        col: number;
       };
     }
 ) & {
+  /**
+   * JWT for the room obtained from the server
+   */
   authToken: string;
 };

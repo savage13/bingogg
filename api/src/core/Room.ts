@@ -33,6 +33,13 @@ export default class Room {
                             this.sendMessageToAll(
                                 `${identity.nickname} has joined.`,
                             );
+                            break;
+                        case 'mark':
+                            const { row, col } = action.payload;
+                            this.sendMessageToAll(
+                                `${identity.nickname} is marking (${row},${col})`,
+                            );
+                            break;
                     }
                 } catch {
                     return;

@@ -1,0 +1,43 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [],
+    "description": "An incoming websocket message from the server telling the client of a change in room state or instructing it to take an action",
+    "properties": {},
+    "anyOf": [
+        {
+            "required": ["action", "message"],
+            "additionalProperties": false,
+            "properties": {
+                "action": "chat",
+                "message": "string"
+            }
+        },
+        {
+            "required": ["action", "row", "col", "colors"],
+            "additionalProperties": false,
+            "properties": {
+                "action": "cellUpdate",
+                "row": {"type": "number"},
+                "col": {"type": "number"},
+                "colors": {"type": "array", "items": {"type": "string"}}
+            }
+        },
+        {
+            "required": ["action", "board"],
+            "additionalProperties": false,
+            "properties": {
+                "action": "syncBoard",
+                "board": {"type": "array", "items": {"type": "array", "items": {
+                    "required": ["goal", "colors"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "goal": {"type": "string"},
+                        "colors": {"type": "array", "items": {"type": "string"}}
+                    }
+                }}}
+            }
+        }
+    ]
+}
