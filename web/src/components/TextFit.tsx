@@ -15,14 +15,12 @@ export default function TextFit({
     const [transform, setTransform] = useState('');
 
     const fit = useCallback(() => {
-        console.log('fitting');
         const container = containerRef.current;
         const content = contentRef.current;
         if (!container || !content) return;
         let scaleX = container.clientWidth / content.clientWidth;
         let scaleY = container.clientHeight / content.clientHeight;
         const fontSize = window.getComputedStyle(content).fontSize;
-        console.log(scaleX + ' ' + scaleY);
         if (scaleY < 0.8 || scaleX < 0.7) {
             setOptimizedFontSize(`calc(${fontSize} * 0.9)`);
             return;
