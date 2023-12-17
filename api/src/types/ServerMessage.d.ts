@@ -17,7 +17,7 @@ export type ServerMessage = (
       action: "cellUpdate";
       row: number;
       col: number;
-      cell?: Cell;
+      cell: Cell;
     }
   | {
       action: "syncBoard";

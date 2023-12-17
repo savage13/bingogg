@@ -1,7 +1,9 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
-import TextFit from '../../../../components/TextFit';
+import Board from '@/components/board/Board';
+import RoomLogin from '@/components/room/RoomLogin';
+import { ConnectionStatus, RoomContext } from '@/context/RoomContext';
 
 const board = [
     [
@@ -34,6 +36,7 @@ export default function Room({
 }: {
     params: { slug: string };
 }) {
+    const { connectionStatus } = useContext(RoomContext);
     const [boardState, setBoardState] = useState([
         [false, false, false, false, false],
         [false, false, false, false, false],
@@ -43,7 +46,6 @@ export default function Room({
     ]);
     const [messages, setMessages] = useState<string[]>([]);
     const [message, setMessage] = useState('');
-    const [authToken, setAuthToken] = useState();
 
     const { sendMessage, readyState, lastMessage, getWebSocket } = useWebSocket(
         `ws://localhost:8000/rooms/${slug}`,
@@ -55,90 +57,8 @@ export default function Room({
         }
     }, [lastMessage, setMessages]);
 
-    const connectionStatus = {
-        [ReadyState.CONNECTING]: 'Connecting',
-        [ReadyState.OPEN]: 'Connected',
-        [ReadyState.CLOSING]: 'Closing',
-        [ReadyState.CLOSED]: 'Disconnected',
-        [ReadyState.UNINSTANTIATED]: 'Uninstantiated',
-    }[readyState];
-
-    const toggleSpace = (row: number, col: number) => {
-        // setBoardState(
-        //     boardState.map((rowData, rowIndex) => {
-        //         if (rowIndex == row) {
-        //             return rowData.map((colData, colIndex) => {
-        //                 if (colIndex === col) {
-        //                     return !colData;
-        //                 }
-        //                 return colData;
-        //             });
-        //         }
-        //         return rowData;
-        //     }),
-        // );
-        console.log('marking');
-        sendMessage(
-            JSON.stringify({
-                action: 'mark',
-                authToken: authToken,
-                payload: {
-                    row,
-                    col,
-                },
-            }),
-        );
-    };
-
-    const [nickname, setNickname] = useState('');
-    const [password, setPassword] = useState('');
-
-    if (!authToken) {
-        return (
-            <div className="flex flex-col gap-y-4">
-                <label>
-                    Nickname
-                    <input
-                        className="text-black"
-                        value={nickname}
-                        onChange={(event) => setNickname(event.target.value)}
-                    />
-                </label>
-                <label>
-                    Password
-                    <input
-                        type="password"
-                        className="text-black"
-                        value={password}
-                        onChange={(event) => setPassword(event.target.value)}
-                    />
-                </label>
-                <button
-                    type="submit"
-                    className="bg-gray-200 text-black"
-                    onClick={async () => {
-                        const res = await fetch(
-                            `http://localhost:8000/api/rooms/${slug}/authorize`,
-                            {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ nickname, password }),
-                            },
-                        );
-                        const token = await res.json();
-                        setAuthToken(token.authToken);
-                        sendMessage(
-                            JSON.stringify({
-                                action: 'join',
-                                authToken: token.authToken,
-                            }),
-                        );
-                    }}
-                >
-                    Join Room
-                </button>
-            </div>
-        );
+    if (connectionStatus === ConnectionStatus.UNINITIALIZED) {
+        return <RoomLogin />;
     }
 
     const colors = [
@@ -168,44 +88,7 @@ export default function Room({
     return (
         <div className="flex gap-x-8">
             <div className="block w-1/2">
-                {board.map((row, rowIndex) => (
-                    <div
-                        key={row.join()}
-                        className="flex w-full items-center justify-center text-center"
-                    >
-                        {row.map((goal, colIndex) => (
-                            <div
-                                key={goal}
-                                // className={`${
-                                //     boardState[rowIndex][colIndex]
-                                //         ? 'bg-red-500'
-                                //         : ''
-                                // } aspect-square w-1/5 cursor-pointer border p-4 hover:bg-gray-300 hover:bg-opacity-25`}
-                                className="relative aspect-square w-1/5 cursor-pointer overflow-hidden border transition-all duration-300 hover:z-10 hover:scale-110 hover:shadow-xl"
-                                onClick={() => toggleSpace(rowIndex, colIndex)}
-                            >
-                                <div className="absolute z-10 flex h-full w-full items-center justify-center p-2">
-                                    <TextFit
-                                        text={goal}
-                                        className="p-1 drop-shadow-[2px_2px_2px_rgba(0,0,0)]"
-                                    />
-                                </div>
-                                {colors.map((color, index) => (
-                                    <div
-                                        key={color}
-                                        className="absolute h-full w-full"
-                                        style={{
-                                            backgroundImage: `conic-gradient(from ${
-                                                colorPortion * index
-                                            }deg, ${color} 0deg, ${color} ${colorPortion}deg, rgba(0,0,0,0) ${colorPortion}deg)`,
-                                        }}
-                                    />
-                                ))}
-                                {/* <div className="box absolute h-full w-full origin-top skew-x-[-0.84007rad] bg-green-400" /> */}
-                            </div>
-                        ))}
-                    </div>
-                ))}
+                <Board />
             </div>
             <div className="grow" />
             <div className="flex flex-col border px-2 py-2">

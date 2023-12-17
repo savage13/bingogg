@@ -5,12 +5,14 @@ import { roomTokenSecret } from '../Environment';
 export type RoomTokenPayload = {
     roomSlug: string;
     nickname: string;
+    color: string;
 };
 
 export const createRoomToken = (nickname: string, room: Room) => {
     const payload: RoomTokenPayload = {
         roomSlug: room.slug,
         nickname,
+        color: 'blue',
     };
     const token = sign(payload, roomTokenSecret);
     return token;
