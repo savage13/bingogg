@@ -1,6 +1,5 @@
 'use client';
-import { useContext, useEffect, useState } from 'react';
-import useWebSocket, { ReadyState } from 'react-use-websocket';
+import { useContext, useState } from 'react';
 import Board from '@/components/board/Board';
 import RoomLogin from '@/components/room/RoomLogin';
 import { ConnectionStatus, RoomContext } from '@/context/RoomContext';

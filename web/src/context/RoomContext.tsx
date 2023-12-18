@@ -95,6 +95,16 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
         dispatchBoard({ action: 'board', board });
     }, []);
     // actions
+    const join = useCallback(() => {
+        if (websocket) {
+            websocket.send(
+                JSON.stringify({
+                    action: 'join',
+                    authToken: authToken,
+                }),
+            );
+        }
+    }, [websocket, authToken]);
     const connect = useCallback(
         async (nickname: string, password: string) => {
             const newSocket = new WebSocket(
@@ -110,12 +120,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
             );
             const token = await res.json();
             setAuthToken(token.authToken);
-            newSocket.send(
-                JSON.stringify({
-                    action: 'join',
-                    authToken: token.authToken,
-                }),
-            );
+            localStorage.setItem(`authToken-${slug}`, token.authToken);
             setWebsocket(newSocket);
             setConnectionStatus(ConnectionStatus.CONNECTING);
         },
@@ -175,21 +180,27 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
     // effects
     // slug changed, try to establish initial connection from storage
     useEffect(() => {
-        // load a cached token and use it if present
-        const storedToken = localStorage.getItem(`authToken-${slug}`);
-        if (storedToken) {
-            setAuthToken(storedToken);
-            console.log('websocket created from localstorage');
-            setWebsocket(new WebSocket(`ws://localhost:8000/rooms/${slug}`));
+        if (connectionStatus === ConnectionStatus.UNINITIALIZED) {
+            // load a cached token and use it if present
+            const storedToken = localStorage.getItem(`authToken-${slug}`);
+            if (storedToken) {
+                setAuthToken(storedToken);
+                console.log('websocket created from localstorage');
+                setWebsocket(
+                    new WebSocket(`ws://localhost:8000/rooms/${slug}`),
+                );
+                setConnectionStatus(ConnectionStatus.CONNECTING);
+            }
         }
-    }, [slug]);
+    }, [slug, connectionStatus]);
 
     // websocket changed, attach listeners and prepare cleanup
     useEffect(() => {
         console.log('websocket changed');
         if (websocket) {
             websocket.addEventListener('open', () => {
-                console.log('websocket connection opened');
+                console.log('websocket on')
+                join();
             });
             websocket.addEventListener('close', () => {
                 console.log('websocket closed');
@@ -230,7 +241,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
                 websocket.close();
             }
         };
-    }, [websocket, onChatMessage, onCellUpdate, onSyncBoard]);
+    }, [websocket, onChatMessage, onCellUpdate, onSyncBoard, join]);
 
     return (
         <RoomContext.Provider
