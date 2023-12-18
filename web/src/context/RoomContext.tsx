@@ -159,7 +159,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
             if (websocket) {
                 websocket.send(
                     JSON.stringify({
-                        action: 'mark',
+                        action: 'unmark',
                         authToken,
                         payload: {
                             row,

@@ -82,6 +82,10 @@ export default class Room {
                             );
                             this.sendChat(`${identity.nickname} has joined.`);
                             break;
+                        case 'leave':
+                            this.sendChat(`${identity.nickname} has left.`);
+                            ws.close();
+                            break;
                         case 'mark':
                             const { row, col } = action.payload;
                             if (row === undefined || col === undefined) return;
@@ -99,6 +103,23 @@ export default class Room {
                                 `${identity.nickname} is marking (${row},${col})`,
                             );
                             break;
+                        case 'unmark':
+                            const { row: unRow, col: unCol } = action.payload;
+                            if (unRow === undefined || unCol === undefined)
+                                return;
+                            this.board.board[unRow][unCol].colors =
+                                this.board.board[unRow][unCol].colors.filter(
+                                    (color) => color !== identity.color,
+                                );
+                            this.sendCellUpdate(unRow, unCol);
+                            this.sendChat(
+                                `${identity.nickname} is unmarking (${unRow},${unCol})`,
+                            );
+                            break;
+                        case 'chat':
+                            const { message: chatMessage } = action.payload;
+                            if (!message) return;
+                            this.sendChat(chatMessage);
                     }
                 } catch {
                     return;
