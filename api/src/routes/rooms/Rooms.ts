@@ -45,7 +45,7 @@ rooms.post('/', (req, res) => {
 
 rooms.post('/:slug/authorize', (req, res) => {
     const { slug } = req.params;
-    const { nickname, password } = req.body;
+    const { password } = req.body;
     const room = allRooms.get(slug);
     if (!room) {
         res.sendStatus(404);
@@ -55,7 +55,7 @@ rooms.post('/:slug/authorize', (req, res) => {
         res.sendStatus(403);
         return;
     }
-    const token = createRoomToken(nickname, room);
+    const token = createRoomToken(room);
     res.status(200).send({ authToken: token });
 });
 

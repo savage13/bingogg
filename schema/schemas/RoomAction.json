@@ -9,10 +9,17 @@
     },
     "anyOf": [
         {
-            "required": ["action"],
+            "required": ["action", "payload"],
             "additionalProperties": false,
             "properties": {
-                "action": "join"
+                "action": "join",
+                "payload": {
+                    "required": ["nickname"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "nickname": {"type": "string"}
+                    }
+                }
             }
         },
         {
@@ -62,6 +69,20 @@
                     "properties": {
                         "row": {"type": "number"},
                         "col": {"type": "number"}
+                    }
+                }
+            }
+        },
+        {
+            "required": ["action", "payload"],
+            "additionalProperties": false,
+            "properties": {
+                "action": "changeColor",
+                "payload": {
+                    "required": ["color"],
+                    "additionalProperties": false,
+                    "properties": {
+                        "color": {"type": "string"}
                     }
                 }
             }

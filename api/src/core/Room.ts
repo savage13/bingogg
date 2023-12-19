@@ -1,7 +1,12 @@
 import { OPEN, WebSocketServer } from 'ws';
-import { verifyRoomToken } from '../auth/RoomAuth';
+import { invalidateToken, verifyRoomToken } from '../auth/RoomAuth';
 import { RoomAction } from '../types/RoomAction';
 import { Board, ServerMessage } from '../types/ServerMessage';
+
+type RoomIdentity = {
+    nickname: string;
+    color: string;
+};
 
 /**
  * Represents a room in the bingo.gg service. A room is container for a single
@@ -57,72 +62,91 @@ export default class Room {
             ],
         ],
     };
+    identities: Map<string, RoomIdentity>;
 
     constructor(name: string, game: string, slug: string) {
         this.name = name;
         this.game = game;
         this.password = 'password';
         this.slug = slug;
+        this.identities = new Map();
 
         // initialize the websocket server
         this.websocketServer = new WebSocketServer({ noServer: true });
         this.websocketServer.on('connection', (ws) => {
-            this.sendChat('join');
             ws.on('message', (message) => {
                 const action: RoomAction = JSON.parse(message.toString());
-                try {
-                    const identity = verifyRoomToken(action.authToken);
-                    switch (action.action) {
-                        case 'join':
-                            ws.send(
-                                JSON.stringify({
-                                    action: 'syncBoard',
-                                    board: this.board,
-                                }),
-                            );
-                            this.sendChat(`${identity.nickname} has joined.`);
-                            break;
-                        case 'leave':
-                            this.sendChat(`${identity.nickname} has left.`);
-                            ws.close();
-                            break;
-                        case 'mark':
-                            const { row, col } = action.payload;
-                            if (row === undefined || col === undefined) return;
-                            if (
-                                this.board.board[row][col].colors.includes(
-                                    identity.color,
-                                )
-                            )
-                                return;
-                            this.board.board[row][col].colors.push(
-                                identity.color,
-                            );
-                            this.sendCellUpdate(row, col);
-                            this.sendChat(
-                                `${identity.nickname} is marking (${row},${col})`,
-                            );
-                            break;
-                        case 'unmark':
-                            const { row: unRow, col: unCol } = action.payload;
-                            if (unRow === undefined || unCol === undefined)
-                                return;
-                            this.board.board[unRow][unCol].colors =
-                                this.board.board[unRow][unCol].colors.filter(
-                                    (color) => color !== identity.color,
-                                );
-                            this.sendCellUpdate(unRow, unCol);
-                            this.sendChat(
-                                `${identity.nickname} is unmarking (${unRow},${unCol})`,
-                            );
-                            break;
-                        case 'chat':
-                            const { message: chatMessage } = action.payload;
-                            if (!message) return;
-                            this.sendChat(chatMessage);
-                    }
-                } catch {
+                const payload = verifyRoomToken(action.authToken, this.slug);
+                if (!payload) {
                     return;
+                }
+                const identity = this.identities.get(payload.uuid);
+                if (action.action === 'join') {
+                    this.identities.set(payload.uuid, {
+                        nickname: action.payload.nickname,
+                        color: 'blue',
+                    });
+                    ws.send(
+                        JSON.stringify({
+                            action: 'syncBoard',
+                            board: this.board,
+                        }),
+                    );
+                    this.sendChat(`${action.payload.nickname} has joined.`);
+                    return;
+                }
+                if (!identity) {
+                    return;
+                }
+                switch (action.action) {
+                    case 'leave':
+                        this.sendChat(`${identity.nickname} has left.`);
+                        invalidateToken(action.authToken);
+                        this.identities.delete(payload.uuid);
+                        ws.close();
+                        break;
+                    case 'mark':
+                        const { row, col } = action.payload;
+                        if (row === undefined || col === undefined) return;
+                        if (
+                            this.board.board[row][col].colors.includes(
+                                identity.color,
+                            )
+                        )
+                            return;
+                        this.board.board[row][col].colors.push(identity.color);
+                        this.sendCellUpdate(row, col);
+                        this.sendChat(
+                            `${identity.nickname} is marking (${row},${col})`,
+                        );
+                        break;
+                    case 'unmark':
+                        const { row: unRow, col: unCol } = action.payload;
+                        if (unRow === undefined || unCol === undefined) return;
+                        this.board.board[unRow][unCol].colors =
+                            this.board.board[unRow][unCol].colors.filter(
+                                (color) => color !== identity.color,
+                            );
+                        this.sendCellUpdate(unRow, unCol);
+                        this.sendChat(
+                            `${identity.nickname} is unmarking (${unRow},${unCol})`,
+                        );
+                        break;
+                    case 'chat':
+                        const { message: chatMessage } = action.payload;
+                        if (!chatMessage) return;
+                        this.sendChat(chatMessage);
+                        break;
+                    case 'changeColor':
+                        const { color } = action.payload;
+                        if (!color) {
+                            return;
+                        }
+                        this.identities.set(payload.uuid, {
+                            ...identity,
+                            color,
+                        });
+                        break;
                 }
             });
             ws.on('close', () => {
@@ -145,6 +169,10 @@ export default class Room {
             col,
             cell: this.board.board[row][col],
         });
+    }
+
+    sendSyncBoard() {
+        this.sendServerMessage({ action: 'syncBoard', board: this.board });
     }
 
     private sendServerMessage(message: ServerMessage) {

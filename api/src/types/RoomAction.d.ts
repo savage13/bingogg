@@ -11,6 +11,9 @@
 export type RoomAction = (
   | {
       action: "join";
+      payload: {
+        nickname: string;
+      };
     }
   | {
       action: "leave";
@@ -33,6 +36,12 @@ export type RoomAction = (
       payload: {
         row: number;
         col: number;
+      };
+    }
+  | {
+      action: "changeColor";
+      payload: {
+        color: string;
       };
     }
 ) & {

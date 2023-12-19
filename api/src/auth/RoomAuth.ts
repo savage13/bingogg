@@ -1,23 +1,44 @@
-import { JwtPayload, sign, verify } from 'jsonwebtoken';
+import { sign, verify } from 'jsonwebtoken';
 import Room from '../core/Room';
 import { roomTokenSecret } from '../Environment';
+import { randomUUID } from 'crypto';
 
 export type RoomTokenPayload = {
     roomSlug: string;
-    nickname: string;
-    color: string;
+    uuid: string;
 };
 
-export const createRoomToken = (nickname: string, room: Room) => {
+const tokenStore: string[] = [];
+
+export const createRoomToken = (room: Room) => {
     const payload: RoomTokenPayload = {
         roomSlug: room.slug,
-        nickname,
-        color: 'blue',
+        uuid: randomUUID(),
     };
     const token = sign(payload, roomTokenSecret);
+    tokenStore.push(token);
     return token;
 };
 
-export const verifyRoomToken = (token: string) => {
-    return verify(token, roomTokenSecret) as JwtPayload;
+export const invalidateToken = (token: string) => {
+    tokenStore.splice(tokenStore.findIndex((t) => t === token));
+};
+
+export const verifyRoomToken = (
+    token: string,
+    room: string,
+): RoomTokenPayload | false => {
+    try {
+        if (!tokenStore.includes(token)) {
+            return false;
+        }
+        const payload = verify(token, roomTokenSecret) as RoomTokenPayload;
+        if (payload.roomSlug !== room) {
+            invalidateToken(token);
+            return false;
+        }
+        return payload;
+    } catch (e) {
+        return false;
+    }
 };

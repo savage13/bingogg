@@ -3,6 +3,7 @@ import { useContext, useState } from 'react';
 import Board from '@/components/board/Board';
 import RoomLogin from '@/components/room/RoomLogin';
 import { ConnectionStatus, RoomContext } from '@/context/RoomContext';
+import ColorSelect from '@/components/room/ColorSelect';
 
 export default function Room() {
     const { connectionStatus, sendChatMessage, messages } =
@@ -16,6 +17,9 @@ export default function Room() {
     return (
         <div className="flex gap-x-8">
             <div className="block w-1/2">
+                <div className="pb-4">
+                    <ColorSelect />
+                </div>
                 <Board />
             </div>
             <div className="grow" />

@@ -27,6 +27,7 @@ interface RoomContext {
     sendChatMessage: (message: string) => void;
     markGoal: (row: number, col: number) => void;
     unmarkGoal: (row: number, col: number) => void;
+    changeColor: (color: string) => void;
 }
 
 export const RoomContext = createContext<RoomContext>({
@@ -37,6 +38,7 @@ export const RoomContext = createContext<RoomContext>({
     sendChatMessage(message) {},
     markGoal(row, col) {},
     unmarkGoal(row, col) {},
+    changeColor() {},
 });
 
 interface RoomContextProps {
@@ -65,6 +67,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
         ConnectionStatus.UNINITIALIZED,
     );
     const [authToken, setAuthToken] = useState<string>();
+    const [nickname, setNickname] = useState('');
 
     const [board, dispatchBoard] = useReducer(
         (currBoard: Board, event: BoardEvent) => {
@@ -101,10 +104,11 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
                 JSON.stringify({
                     action: 'join',
                     authToken: authToken,
+                    payload: { nickname },
                 }),
             );
         }
-    }, [websocket, authToken]);
+    }, [websocket, authToken, nickname]);
     const connect = useCallback(
         async (nickname: string, password: string) => {
             const newSocket = new WebSocket(
@@ -115,7 +119,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nickname, password }),
+                    body: JSON.stringify({ password }),
                 },
             );
             const token = await res.json();
@@ -123,6 +127,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
             localStorage.setItem(`authToken-${slug}`, token.authToken);
             setWebsocket(newSocket);
             setConnectionStatus(ConnectionStatus.CONNECTING);
+            setNickname(nickname);
         },
         [slug],
     );
@@ -176,6 +181,21 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
         },
         [websocket, authToken],
     );
+    const changeColor = useCallback(
+        (color: string) => {
+            if (websocket) {
+                console.log('changing color');
+                websocket.send(
+                    JSON.stringify({
+                        action: 'changeColor',
+                        authToken,
+                        payload: { color },
+                    }),
+                );
+            }
+        },
+        [websocket, authToken],
+    );
 
     // effects
     // slug changed, try to establish initial connection from storage
@@ -199,7 +219,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
         console.log('websocket changed');
         if (websocket) {
             websocket.addEventListener('open', () => {
-                console.log('websocket on')
+                console.log('websocket on');
                 join();
             });
             websocket.addEventListener('close', () => {
@@ -232,6 +252,9 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
                         break;
                 }
             });
+            if (websocket.readyState === WebSocket.OPEN) {
+                join();
+            }
         }
         // cleanup the connection
         return () => {
@@ -253,6 +276,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
                 sendChatMessage,
                 markGoal,
                 unmarkGoal,
+                changeColor,
             }}
         >
             {children}
