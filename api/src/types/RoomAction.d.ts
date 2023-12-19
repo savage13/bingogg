@@ -11,7 +11,7 @@
 export type RoomAction = (
   | {
       action: "join";
-      payload: {
+      payload?: {
         nickname: string;
       };
     }

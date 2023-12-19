@@ -31,6 +31,23 @@
                 "action": "syncBoard",
                 "board": {"$ref": "./Board.json"}
             }
+        },
+        {
+            "required": ["action", "board", "chatHistory"],
+            "additionalProperties": false,
+            "properties": {
+                "action": "connected",
+                "board": {"$ref": "./Board.json"},
+                "chatHistory": {"type": "array", "items": {"type": "string"} },
+                "nickname": {"type": "string"}
+            }
+        },
+        {
+            "required": ["action"],
+            "additionalProperties": false,
+            "properties": {
+                "action": "unauthorized"
+            }
         }
     ]
 }

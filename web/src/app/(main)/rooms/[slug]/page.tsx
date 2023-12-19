@@ -14,6 +14,15 @@ export default function Room() {
         return <RoomLogin />;
     }
 
+    if (connectionStatus === ConnectionStatus.CLOSED) {
+        return (
+            <>
+                The connection has been closed. Try logging in again.
+                <RoomLogin />
+            </>
+        );
+    }
+
     return (
         <div className="flex gap-x-8">
             <div className="block w-1/2">

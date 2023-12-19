@@ -23,6 +23,15 @@ export type ServerMessage = (
       action: "syncBoard";
       board: Board;
     }
+  | {
+      action: "connected";
+      board: Board;
+      chatHistory: string[];
+      nickname?: string;
+    }
+  | {
+      action: "unauthorized";
+    }
 ) & {};
 
 /**

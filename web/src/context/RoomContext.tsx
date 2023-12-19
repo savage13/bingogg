@@ -14,7 +14,6 @@ export enum ConnectionStatus {
     UNINITIALIZED, // the room connection is uninitialized and there is no authentication data present
     CONNECTING, // the server has confirmed the password, but has not yet confirmed the room connection
     CONNECTED, // actively connected to the server with valid authentication
-    UNAUTHORIZED, // the current authentication has been invalidated by the server
     CLOSING, // the connection is in the process of closing
     CLOSED, // connection was manually closed, and the user is completely disconnected
 }
@@ -97,6 +96,24 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
     const onSyncBoard = useCallback((board: Board) => {
         dispatchBoard({ action: 'board', board });
     }, []);
+    const onConnected = useCallback(
+        (board: Board, chatHistory: string[], nickname?: string) => {
+            if (nickname) {
+                setNickname(nickname);
+            }
+            dispatchBoard({ action: 'board', board });
+            setMessages(chatHistory);
+            setConnectionStatus(ConnectionStatus.CONNECTED);
+        },
+        [],
+    );
+    const onUnauthorized = useCallback(() => {
+        setAuthToken('');
+        if (websocket) {
+            websocket.close();
+        }
+        setWebsocket(undefined);
+    }, [websocket]);
     // actions
     const join = useCallback(() => {
         if (websocket) {
@@ -184,7 +201,6 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
     const changeColor = useCallback(
         (color: string) => {
             if (websocket) {
-                console.log('changing color');
                 websocket.send(
                     JSON.stringify({
                         action: 'changeColor',
@@ -250,6 +266,17 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
                         if (!payload.board) return;
                         onSyncBoard(payload.board);
                         break;
+                    case 'connected':
+                        if (!payload.board || !payload.chatHistory) return;
+                        onConnected(
+                            payload.board,
+                            payload.chatHistory,
+                            payload.nickname,
+                        );
+                        break;
+                    case 'unauthorized':
+                        onUnauthorized();
+                        break;
                 }
             });
             if (websocket.readyState === WebSocket.OPEN) {
@@ -264,7 +291,15 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
                 websocket.close();
             }
         };
-    }, [websocket, onChatMessage, onCellUpdate, onSyncBoard, join]);
+    }, [
+        websocket,
+        onChatMessage,
+        onCellUpdate,
+        onSyncBoard,
+        join,
+        onConnected,
+        onUnauthorized,
+    ]);
 
     return (
         <RoomContext.Provider

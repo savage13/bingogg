@@ -9,7 +9,7 @@
     },
     "anyOf": [
         {
-            "required": ["action", "payload"],
+            "required": ["action"],
             "additionalProperties": false,
             "properties": {
                 "action": "join",

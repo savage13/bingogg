@@ -78,24 +78,39 @@ export default class Room {
                 const action: RoomAction = JSON.parse(message.toString());
                 const payload = verifyRoomToken(action.authToken, this.slug);
                 if (!payload) {
+                    ws.send(JSON.stringify({ action: 'unauthorized' }));
                     return;
                 }
-                const identity = this.identities.get(payload.uuid);
                 if (action.action === 'join') {
-                    this.identities.set(payload.uuid, {
-                        nickname: action.payload.nickname,
-                        color: 'blue',
-                    });
+                    let identity: RoomIdentity | undefined;
+                    if (action.payload) {
+                        identity = {
+                            nickname: action.payload.nickname,
+                            color: 'blue',
+                        };
+                        this.identities.set(payload.uuid, identity);
+                    } else {
+                        identity = this.identities.get(payload.uuid);
+                        if (!identity) {
+                            ws.send(JSON.stringify({ action: 'unauthorized' }));
+                            return;
+                        }
+                    }
                     ws.send(
                         JSON.stringify({
-                            action: 'syncBoard',
+                            action: 'connected',
                             board: this.board,
+                            chatHistory: [],
+                            nickname: identity.nickname,
                         }),
                     );
-                    this.sendChat(`${action.payload.nickname} has joined.`);
+                    this.sendChat(`${identity.nickname} has joined.`);
                     return;
                 }
+
+                const identity = this.identities.get(payload.uuid);
                 if (!identity) {
+                    ws.send(JSON.stringify({ action: 'unauthorized' }));
                     return;
                 }
                 switch (action.action) {
