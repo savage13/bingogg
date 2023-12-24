@@ -187,6 +187,9 @@ export default class Room {
             ...identity,
             color,
         });
+        this.sendChat(
+            `${identity.nickname} has changed their color to ${color}`,
+        );
     }
 
     sendChat(message: string) {
