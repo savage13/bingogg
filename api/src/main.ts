@@ -46,15 +46,26 @@ server.on('upgrade', (req, socket, head) => {
     }
 });
 
-const cleanup = () => {
+const cleanup = async () => {
     logDebug('Server shutting down');
-    server.close(() => {
-        logDebug('HTTP server closed');
-        roomWebSocketServer.close(() => {
-            logDebug('Room WebSocket server closed');
-            process.exit(0);
-        });
+    roomWebSocketServer.clients.forEach((client) => {
+        client.close();
     });
+    await Promise.all([
+        new Promise((resolve) => {
+            roomWebSocketServer.close(() => {
+                logDebug('Room WebSocket server closed');
+                resolve(undefined);
+            });
+        }),
+        new Promise((resolve) =>
+            server.close(() => {
+                logDebug('HTTP server closed');
+                resolve(undefined);
+            }),
+        ),
+    ]);
+    process.exit(0);
 };
 
 process.on('exit', () => {
@@ -65,8 +76,4 @@ process.on('SIGHUP', cleanup);
 process.on('SIGINT', cleanup);
 process.on('SIGTERM', cleanup);
 
-process.on('SIGUSR1', cleanup);
-process.on('SIGUSR2', cleanup);
-
-process.on('uncaughtException', cleanup);
-process.on('unhandledRejection', cleanup);
+process.once('SIGUSR2', cleanup);
