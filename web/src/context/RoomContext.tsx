@@ -83,6 +83,16 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
     );
 
     // callbacks
+    //misc callbacks
+    const updateWebsocket = useCallback(
+        (newSocket: WebSocket) => {
+            if (websocket) {
+                websocket.close();
+            }
+            setWebsocket(newSocket);
+        },
+        [websocket],
+    );
     // incoming messages
     const onChatMessage = useCallback((message: string) => {
         setMessages((curr) => [...curr, message]);
@@ -121,16 +131,13 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
                 JSON.stringify({
                     action: 'join',
                     authToken: authToken,
-                    payload: { nickname },
+                    payload: nickname ? { nickname } : undefined,
                 }),
             );
         }
     }, [websocket, authToken, nickname]);
     const connect = useCallback(
         async (nickname: string, password: string) => {
-            const newSocket = new WebSocket(
-                `ws://localhost:8000/rooms/${slug}`,
-            );
             const res = await fetch(
                 `http://localhost:8000/api/rooms/${slug}/authorize`,
                 {
@@ -142,11 +149,11 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
             const token = await res.json();
             setAuthToken(token.authToken);
             localStorage.setItem(`authToken-${slug}`, token.authToken);
-            setWebsocket(newSocket);
+            updateWebsocket(new WebSocket(`ws://localhost:8000/rooms/${slug}`));
             setConnectionStatus(ConnectionStatus.CONNECTING);
             setNickname(nickname);
         },
-        [slug],
+        [slug, updateWebsocket],
     );
     const sendChatMessage = useCallback(
         (message: string) => {
@@ -221,25 +228,21 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
             const storedToken = localStorage.getItem(`authToken-${slug}`);
             if (storedToken) {
                 setAuthToken(storedToken);
-                console.log('websocket created from localstorage');
-                setWebsocket(
+                updateWebsocket(
                     new WebSocket(`ws://localhost:8000/rooms/${slug}`),
                 );
                 setConnectionStatus(ConnectionStatus.CONNECTING);
             }
         }
-    }, [slug, connectionStatus]);
+    }, [slug, connectionStatus, updateWebsocket]);
 
     // websocket changed, attach listeners and prepare cleanup
     useEffect(() => {
-        console.log('websocket changed');
         if (websocket) {
             websocket.addEventListener('open', () => {
-                console.log('websocket on');
                 join();
             });
             websocket.addEventListener('close', () => {
-                console.log('websocket closed');
                 setAuthToken('');
                 setConnectionStatus(ConnectionStatus.CLOSED);
             });
@@ -279,18 +282,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
                         break;
                 }
             });
-            if (websocket.readyState === WebSocket.OPEN) {
-                join();
-            }
         }
-        // cleanup the connection
-        return () => {
-            if (websocket) {
-                console.log('closing websocket');
-                setConnectionStatus(ConnectionStatus.CLOSING);
-                websocket.close();
-            }
-        };
     }, [
         websocket,
         onChatMessage,
@@ -300,6 +292,16 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
         onConnected,
         onUnauthorized,
     ]);
+    // cleanup
+    useEffect(() => {
+        // cleanup the connection
+        return () => {
+            if (websocket) {
+                setConnectionStatus(ConnectionStatus.CLOSING);
+                websocket.close();
+            }
+        };
+    }, [websocket]);
 
     return (
         <RoomContext.Provider
