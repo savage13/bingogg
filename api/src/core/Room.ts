@@ -1,6 +1,13 @@
-import { OPEN, WebSocketServer } from 'ws';
-import { invalidateToken, verifyRoomToken } from '../auth/RoomAuth';
-import { RoomAction } from '../types/RoomAction';
+import { OPEN, WebSocket } from 'ws';
+import { RoomTokenPayload, invalidateToken } from '../auth/RoomAuth';
+import {
+    ChangeColorAction,
+    ChatAction,
+    JoinAction,
+    LeaveAction,
+    MarkAction,
+    UnmarkAction,
+} from '../types/RoomAction';
 import { Board, ServerMessage } from '../types/ServerMessage';
 
 type RoomIdentity = {
@@ -18,7 +25,8 @@ export default class Room {
     game: string;
     password: string;
     slug: string;
-    websocketServer: WebSocketServer;
+    // websocketServer: WebSocketServer;
+    connections: Map<string, WebSocket>;
     board: Board = {
         board: [
             [
@@ -70,106 +78,114 @@ export default class Room {
         this.password = 'password';
         this.slug = slug;
         this.identities = new Map();
+        this.connections = new Map();
+    }
 
-        // initialize the websocket server
-        this.websocketServer = new WebSocketServer({ noServer: true });
-        this.websocketServer.on('connection', (ws) => {
-            ws.on('message', (message) => {
-                const action: RoomAction = JSON.parse(message.toString());
-                const payload = verifyRoomToken(action.authToken, this.slug);
-                if (!payload) {
-                    ws.send(JSON.stringify({ action: 'unauthorized' }));
-                    return;
-                }
-                if (action.action === 'join') {
-                    let identity: RoomIdentity | undefined;
-                    if (action.payload) {
-                        identity = {
-                            nickname: action.payload.nickname,
-                            color: 'blue',
-                        };
-                        this.identities.set(payload.uuid, identity);
-                    } else {
-                        identity = this.identities.get(payload.uuid);
-                        if (!identity) {
-                            ws.send(JSON.stringify({ action: 'unauthorized' }));
-                            return;
-                        }
-                    }
-                    ws.send(
-                        JSON.stringify({
-                            action: 'connected',
-                            board: this.board,
-                            chatHistory: [],
-                            nickname: identity.nickname,
-                        }),
-                    );
-                    this.sendChat(`${identity.nickname} has joined.`);
-                    return;
-                }
+    handleJoin(
+        action: JoinAction,
+        auth: RoomTokenPayload,
+        socket: WebSocket,
+    ): ServerMessage {
+        let identity: RoomIdentity | undefined;
+        if (action.payload) {
+            identity = {
+                nickname: action.payload.nickname,
+                color: 'blue',
+            };
+            this.identities.set(auth.uuid, identity);
+        } else {
+            identity = this.identities.get(auth.uuid);
+            if (!identity) {
+                return { action: 'unauthorized' };
+            }
+        }
+        this.sendChat(`${identity.nickname} has joined.`);
+        this.connections.set(auth.uuid, socket);
+        return {
+            action: 'connected',
+            board: this.board,
+            chatHistory: [],
+            nickname: identity.nickname,
+        };
+    }
 
-                const identity = this.identities.get(payload.uuid);
-                if (!identity) {
-                    ws.send(JSON.stringify({ action: 'unauthorized' }));
-                    return;
-                }
-                switch (action.action) {
-                    case 'leave':
-                        this.sendChat(`${identity.nickname} has left.`);
-                        invalidateToken(action.authToken);
-                        this.identities.delete(payload.uuid);
-                        ws.close();
-                        break;
-                    case 'mark':
-                        const { row, col } = action.payload;
-                        if (row === undefined || col === undefined) return;
-                        if (
-                            this.board.board[row][col].colors.includes(
-                                identity.color,
-                            )
-                        )
-                            return;
-                        this.board.board[row][col].colors.push(identity.color);
-                        this.sendCellUpdate(row, col);
-                        this.sendChat(
-                            `${identity.nickname} is marking (${row},${col})`,
-                        );
-                        break;
-                    case 'unmark':
-                        const { row: unRow, col: unCol } = action.payload;
-                        if (unRow === undefined || unCol === undefined) return;
-                        this.board.board[unRow][unCol].colors =
-                            this.board.board[unRow][unCol].colors.filter(
-                                (color) => color !== identity.color,
-                            );
-                        this.sendCellUpdate(unRow, unCol);
-                        this.sendChat(
-                            `${identity.nickname} is unmarking (${unRow},${unCol})`,
-                        );
-                        break;
-                    case 'chat':
-                        const { message: chatMessage } = action.payload;
-                        if (!chatMessage) return;
-                        this.sendChat(chatMessage);
-                        break;
-                    case 'changeColor':
-                        const { color } = action.payload;
-                        if (!color) {
-                            return;
-                        }
-                        this.identities.set(payload.uuid, {
-                            ...identity,
-                            color,
-                        });
-                        break;
-                }
-            });
-            ws.on('close', () => {
-                this.sendChat('leave');
-            });
-        });
-        this.websocketServer.on('close', () => {
-            this.sendChat('leave');
+    handleLeave(
+        action: LeaveAction,
+        auth: RoomTokenPayload,
+        token: string,
+    ): ServerMessage {
+        const identity = this.identities.get(auth.uuid);
+        if (!identity) {
+            return { action: 'unauthorized' };
+        }
+        this.sendChat(`${identity.nickname} has left.`);
+        invalidateToken(token);
+        this.identities.delete(auth.uuid);
+        this.connections.delete(auth.uuid);
+        return { action: 'disconnected' };
+    }
+
+    handleChat(
+        action: ChatAction,
+        auth: RoomTokenPayload,
+    ): ServerMessage | undefined {
+        const identity = this.identities.get(auth.uuid);
+        if (!identity) {
+            return { action: 'unauthorized' };
+        }
+        const { message: chatMessage } = action.payload;
+        if (!chatMessage) return;
+        this.sendChat(chatMessage);
+    }
+
+    handleMark(
+        action: MarkAction,
+        auth: RoomTokenPayload,
+    ): ServerMessage | undefined {
+        const identity = this.identities.get(auth.uuid);
+        if (!identity) {
+            return { action: 'unauthorized' };
+        }
+        const { row, col } = action.payload;
+        if (row === undefined || col === undefined) return;
+        if (this.board.board[row][col].colors.includes(identity.color)) return;
+        this.board.board[row][col].colors.push(identity.color);
+        this.sendCellUpdate(row, col);
+        this.sendChat(`${identity.nickname} is marking (${row},${col})`);
+    }
+
+    handleUnmark(
+        action: UnmarkAction,
+        auth: RoomTokenPayload,
+    ): ServerMessage | undefined {
+        const identity = this.identities.get(auth.uuid);
+        if (!identity) {
+            return { action: 'unauthorized' };
+        }
+        const { row: unRow, col: unCol } = action.payload;
+        if (unRow === undefined || unCol === undefined) return;
+        this.board.board[unRow][unCol].colors = this.board.board[unRow][
+            unCol
+        ].colors.filter((color) => color !== identity.color);
+        this.sendCellUpdate(unRow, unCol);
+        this.sendChat(`${identity.nickname} is unmarking (${unRow},${unCol})`);
+    }
+
+    handleChangeColor(
+        action: ChangeColorAction,
+        auth: RoomTokenPayload,
+    ): ServerMessage | undefined {
+        const identity = this.identities.get(auth.uuid);
+        if (!identity) {
+            return { action: 'unauthorized' };
+        }
+        const { color } = action.payload;
+        if (!color) {
+            return;
+        }
+        this.identities.set(auth.uuid, {
+            ...identity,
+            color,
         });
     }
 
@@ -191,7 +207,7 @@ export default class Room {
     }
 
     private sendServerMessage(message: ServerMessage) {
-        this.websocketServer.clients.forEach((client) => {
+        this.connections.forEach((client) => {
             if (client.readyState === OPEN) {
                 client.send(JSON.stringify(message));
             }

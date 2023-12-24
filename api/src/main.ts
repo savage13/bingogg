@@ -1,9 +1,9 @@
 import bodyParser from 'body-parser';
 import express from 'express';
-import { logInfo } from './Logger';
+import { logDebug, logInfo } from './Logger';
 import { port } from './Environment';
 import api from './routes/api';
-import { allRooms } from './routes/rooms/Rooms';
+import { allRooms, roomWebSocketServer } from './core/RoomServer';
 
 const app = express();
 
@@ -38,10 +38,35 @@ server.on('upgrade', (req, socket, head) => {
         if (!room) {
             return;
         }
-        room.websocketServer.handleUpgrade(req, socket, head, (ws) => {
-            room.websocketServer.emit('connection', ws, req);
+        roomWebSocketServer.handleUpgrade(req, socket, head, (ws) => {
+            roomWebSocketServer.emit('connection', ws, req);
         });
     } else {
         socket.destroy();
     }
 });
+
+const cleanup = () => {
+    logDebug('Server shutting down');
+    server.close(() => {
+        logDebug('HTTP server closed');
+        roomWebSocketServer.close(() => {
+            logDebug('Room WebSocket server closed');
+            process.exit(0);
+        });
+    });
+};
+
+process.on('exit', () => {
+    logInfo('API server shut down');
+});
+
+process.on('SIGHUP', cleanup);
+process.on('SIGINT', cleanup);
+process.on('SIGTERM', cleanup);
+
+process.on('SIGUSR1', cleanup);
+process.on('SIGUSR2', cleanup);
+
+process.on('uncaughtException', cleanup);
+process.on('unhandledRejection', cleanup);

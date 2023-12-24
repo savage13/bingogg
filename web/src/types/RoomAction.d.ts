@@ -8,45 +8,45 @@
 /**
  * An outgoing client websocket message sent when a client performs an action in a room
  */
-export type RoomAction = (
-  | {
-      action: "join";
-      payload?: {
-        nickname: string;
-      };
-    }
-  | {
-      action: "leave";
-    }
-  | {
-      action: "chat";
-      payload: {
-        message: string;
-      };
-    }
-  | {
-      action: "mark";
-      payload: {
-        row: number;
-        col: number;
-      };
-    }
-  | {
-      action: "unmark";
-      payload: {
-        row: number;
-        col: number;
-      };
-    }
-  | {
-      action: "changeColor";
-      payload: {
-        color: string;
-      };
-    }
-) & {
+export type RoomAction = (JoinAction | LeaveAction | ChatAction | MarkAction | UnmarkAction | ChangeColorAction) & {
   /**
    * JWT for the room obtained from the server
    */
   authToken: string;
 };
+
+export interface JoinAction {
+  action: "join";
+  payload?: {
+    nickname: string;
+  };
+}
+export interface LeaveAction {
+  action: "leave";
+}
+export interface ChatAction {
+  action: "chat";
+  payload: {
+    message: string;
+  };
+}
+export interface MarkAction {
+  action: "mark";
+  payload: {
+    row: number;
+    col: number;
+  };
+}
+export interface UnmarkAction {
+  action: "unmark";
+  payload: {
+    row: number;
+    col: number;
+  };
+}
+export interface ChangeColorAction {
+  action: "changeColor";
+  payload: {
+    color: string;
+  };
+}

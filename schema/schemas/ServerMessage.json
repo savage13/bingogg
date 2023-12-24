@@ -48,6 +48,13 @@
             "properties": {
                 "action": "unauthorized"
             }
+        },
+        {
+            "required": ["action"],
+            "additionalProperties": false,
+            "properties": {
+                "action": "disconnected"
+            }
         }
     ]
 }

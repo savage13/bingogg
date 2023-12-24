@@ -32,6 +32,9 @@ export type ServerMessage = (
   | {
       action: "unauthorized";
     }
+  | {
+      action: "disconnected";
+    }
 ) & {};
 
 /**

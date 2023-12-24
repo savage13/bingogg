@@ -2,6 +2,7 @@ import { randomInt } from 'crypto';
 import { Router } from 'express';
 import Room from '../../core/Room';
 import { createRoomToken } from '../../auth/RoomAuth';
+import { allRooms } from '../../core/RoomServer';
 
 const rooms = Router();
 
@@ -18,12 +19,6 @@ const slugList = [
     'flour',
     'wheat',
 ];
-
-export const allRooms = new Map<string, Room>();
-allRooms.set(
-    'cool-wheat-3271',
-    new Room('Test Room', 'Ori and the Bling Forest', 'cool-wheat-3271'),
-);
 
 rooms.get('/', (req, res) => {
     const roomList: { name: string; game: string; slug: string }[] = [];
