@@ -22,6 +22,7 @@ interface RoomContext {
     connectionStatus: ConnectionStatus;
     board: Board;
     messages: string[];
+    color: string;
     connect: (nickname: string, password: string) => void;
     sendChatMessage: (message: string) => void;
     markGoal: (row: number, col: number) => void;
@@ -33,6 +34,7 @@ export const RoomContext = createContext<RoomContext>({
     connectionStatus: ConnectionStatus.UNINITIALIZED,
     board: { board: [] },
     messages: [],
+    color: 'blue',
     connect() {},
     sendChatMessage(message) {},
     markGoal(row, col) {},
@@ -67,6 +69,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
     );
     const [authToken, setAuthToken] = useState<string>();
     const [nickname, setNickname] = useState('');
+    const [color, setColor] = useState('blue');
 
     const [board, dispatchBoard] = useReducer(
         (currBoard: Board, event: BoardEvent) => {
@@ -207,6 +210,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
     );
     const changeColor = useCallback(
         (color: string) => {
+            setColor(color);
             if (websocket) {
                 websocket.send(
                     JSON.stringify({
@@ -309,6 +313,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
                 connectionStatus,
                 board,
                 messages,
+                color,
                 connect,
                 sendChatMessage,
                 markGoal,

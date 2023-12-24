@@ -12,21 +12,16 @@ interface CellProps {
 
 export default function Cell({ cell: { goal, colors }, row, col }: CellProps) {
     // context
-    const { markGoal, unmarkGoal } = useContext(RoomContext);
-
-    // state
-    const [marked, setMarked] = useState(false);
+    const { color, markGoal, unmarkGoal } = useContext(RoomContext);
 
     // callbacks
     const toggleSpace = useCallback(() => {
-        if (marked) {
+        if (colors.includes(color)) {
             unmarkGoal(row, col);
-            setMarked(false);
         } else {
             markGoal(row, col);
-            setMarked(true);
         }
-    }, [row, col, markGoal, unmarkGoal, marked]);
+    }, [row, col, markGoal, unmarkGoal, color, colors]);
 
     // calculations
     const colorPortion = 360 / colors.length;
