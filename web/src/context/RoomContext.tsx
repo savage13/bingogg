@@ -25,7 +25,10 @@ interface RoomContext {
     board: Board;
     messages: string[];
     color: string;
-    connect: (nickname: string, password: string) => void;
+    connect: (
+        nickname: string,
+        password: string,
+    ) => Promise<{ success: boolean; message?: string }>;
     sendChatMessage: (message: string) => void;
     markGoal: (row: number, col: number) => void;
     unmarkGoal: (row: number, col: number) => void;
@@ -37,7 +40,9 @@ export const RoomContext = createContext<RoomContext>({
     board: { board: [] },
     messages: [],
     color: 'blue',
-    connect() {},
+    async connect() {
+        return { success: false };
+    },
     sendChatMessage(message) {},
     markGoal(row, col) {},
     unmarkGoal(row, col) {},
@@ -187,12 +192,22 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
                     body: JSON.stringify({ password }),
                 },
             );
+            if (!res.ok) {
+                if (res.status === 403) {
+                    return { success: false, message: 'Incorrect password' };
+                }
+                return {
+                    success: false,
+                    message: 'An error occurred while processing your request.',
+                };
+            }
             const token = await res.json();
             setAuthToken(token.authToken);
             localStorage.setItem(`authToken-${slug}`, token.authToken);
             setConnectionStatus(ConnectionStatus.CONNECTING);
             setNickname(nickname);
             join(token.authToken, nickname);
+            return { success: true };
         },
         [slug, join],
     );
