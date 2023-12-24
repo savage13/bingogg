@@ -9,11 +9,13 @@ import {
 } from 'react';
 import { Board, Cell } from '../types/Board';
 import { ServerMessage } from '../types/ServerMessage';
+import useWebSocket from 'react-use-websocket';
 
 export enum ConnectionStatus {
     UNINITIALIZED, // the room connection is uninitialized and there is no authentication data present
     CONNECTING, // the server has confirmed the password, but has not yet confirmed the room connection
     CONNECTED, // actively connected to the server with valid authentication
+    UNAUTHORIZED, // received an unauthorized message from the server
     CLOSING, // the connection is in the process of closing
     CLOSED, // connection was manually closed, and the user is completely disconnected
 }
@@ -61,9 +63,7 @@ type BoardEvent =
 
 export function RoomContextProvider({ slug, children }: RoomContextProps) {
     // state
-    // const [board, setBoard] = useState<Board>({ board: [] });
     const [messages, setMessages] = useState<string[]>([]);
-    const [websocket, setWebsocket] = useState<WebSocket>();
     const [connectionStatus, setConnectionStatus] = useState(
         ConnectionStatus.UNINITIALIZED,
     );
@@ -85,17 +85,6 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
         { board: [] },
     );
 
-    // callbacks
-    //misc callbacks
-    const updateWebsocket = useCallback(
-        (newSocket: WebSocket) => {
-            if (websocket) {
-                websocket.close();
-            }
-            setWebsocket(newSocket);
-        },
-        [websocket],
-    );
     // incoming messages
     const onChatMessage = useCallback((message: string) => {
         setMessages((curr) => [...curr, message]);
@@ -122,135 +111,17 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
     );
     const onUnauthorized = useCallback(() => {
         setAuthToken('');
-        if (websocket) {
-            websocket.close();
-        }
-        setWebsocket(undefined);
-    }, [websocket]);
-    // actions
-    const join = useCallback(() => {
-        if (websocket) {
-            websocket.send(
-                JSON.stringify({
-                    action: 'join',
-                    authToken: authToken,
-                    payload: nickname ? { nickname } : undefined,
-                }),
-            );
-        }
-    }, [websocket, authToken, nickname]);
-    const connect = useCallback(
-        async (nickname: string, password: string) => {
-            const res = await fetch(
-                `http://localhost:8000/api/rooms/${slug}/authorize`,
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password }),
-                },
-            );
-            const token = await res.json();
-            setAuthToken(token.authToken);
-            localStorage.setItem(`authToken-${slug}`, token.authToken);
-            updateWebsocket(new WebSocket(`ws://localhost:8000/rooms/${slug}`));
-            setConnectionStatus(ConnectionStatus.CONNECTING);
-            setNickname(nickname);
-        },
-        [slug, updateWebsocket],
-    );
-    const sendChatMessage = useCallback(
-        (message: string) => {
-            if (websocket) {
-                websocket.send(
-                    JSON.stringify({
-                        action: 'chat',
-                        authToken,
-                        payload: {
-                            message,
-                        },
-                    }),
-                );
-            }
-        },
-        [websocket, authToken],
-    );
-    const markGoal = useCallback(
-        (row: number, col: number) => {
-            if (websocket) {
-                websocket.send(
-                    JSON.stringify({
-                        action: 'mark',
-                        authToken,
-                        payload: {
-                            row,
-                            col,
-                        },
-                    }),
-                );
-            }
-        },
-        [websocket, authToken],
-    );
-    const unmarkGoal = useCallback(
-        (row: number, col: number) => {
-            if (websocket) {
-                websocket.send(
-                    JSON.stringify({
-                        action: 'unmark',
-                        authToken,
-                        payload: {
-                            row,
-                            col,
-                        },
-                    }),
-                );
-            }
-        },
-        [websocket, authToken],
-    );
-    const changeColor = useCallback(
-        (color: string) => {
-            setColor(color);
-            if (websocket) {
-                websocket.send(
-                    JSON.stringify({
-                        action: 'changeColor',
-                        authToken,
-                        payload: { color },
-                    }),
-                );
-            }
-        },
-        [websocket, authToken],
-    );
+        setConnectionStatus(ConnectionStatus.UNAUTHORIZED);
+        localStorage.removeItem(`authToken-${slug}`);
+    }, [slug]);
 
-    // effects
-    // slug changed, try to establish initial connection from storage
-    useEffect(() => {
-        if (connectionStatus === ConnectionStatus.UNINITIALIZED) {
-            // load a cached token and use it if present
-            const storedToken = localStorage.getItem(`authToken-${slug}`);
-            if (storedToken) {
-                setAuthToken(storedToken);
-                updateWebsocket(
-                    new WebSocket(`ws://localhost:8000/rooms/${slug}`),
-                );
-                setConnectionStatus(ConnectionStatus.CONNECTING);
-            }
-        }
-    }, [slug, connectionStatus, updateWebsocket]);
-
-    // websocket changed, attach listeners and prepare cleanup
-    useEffect(() => {
-        if (websocket) {
-            websocket.addEventListener('open', () => {
-                join();
-            });
-            websocket.addEventListener('close', () => {
-                setAuthToken('');
-                setConnectionStatus(ConnectionStatus.CLOSED);
-            });
-            websocket.addEventListener('message', (message) => {
+    // websocket
+    const { sendJsonMessage } = useWebSocket(
+        `ws://localhost:8000/rooms/${slug}`,
+        {
+            share: true,
+            onOpen() {},
+            onMessage(message) {
                 const payload = JSON.parse(message.data) as ServerMessage;
                 if (!payload.action) {
                     return;
@@ -285,27 +156,109 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
                         onUnauthorized();
                         break;
                 }
+            },
+            onClose() {
+                setAuthToken('');
+                setConnectionStatus(ConnectionStatus.CLOSED);
+            },
+        },
+        connectionStatus === ConnectionStatus.CONNECTING ||
+            connectionStatus === ConnectionStatus.CONNECTED,
+    );
+
+    // actions
+    const join = useCallback(
+        (token: string, nickname?: string) => {
+            sendJsonMessage({
+                action: 'join',
+                authToken: token,
+                payload: nickname ? { nickname } : undefined,
             });
-        }
-    }, [
-        websocket,
-        onChatMessage,
-        onCellUpdate,
-        onSyncBoard,
-        join,
-        onConnected,
-        onUnauthorized,
-    ]);
-    // cleanup
+        },
+        [sendJsonMessage],
+    );
+    const connect = useCallback(
+        async (nickname: string, password: string) => {
+            const res = await fetch(
+                `http://localhost:8000/api/rooms/${slug}/authorize`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password }),
+                },
+            );
+            const token = await res.json();
+            setAuthToken(token.authToken);
+            localStorage.setItem(`authToken-${slug}`, token.authToken);
+            setConnectionStatus(ConnectionStatus.CONNECTING);
+            setNickname(nickname);
+            join(token.authToken, nickname);
+        },
+        [slug, join],
+    );
+    const sendChatMessage = useCallback(
+        (message: string) => {
+            sendJsonMessage({
+                action: 'chat',
+                authToken,
+                payload: {
+                    message,
+                },
+            });
+        },
+        [authToken, sendJsonMessage],
+    );
+    const markGoal = useCallback(
+        (row: number, col: number) => {
+            sendJsonMessage({
+                action: 'mark',
+                authToken,
+                payload: {
+                    row,
+                    col,
+                },
+            });
+        },
+        [authToken, sendJsonMessage],
+    );
+    const unmarkGoal = useCallback(
+        (row: number, col: number) => {
+            sendJsonMessage({
+                action: 'unmark',
+                authToken,
+                payload: {
+                    row,
+                    col,
+                },
+            });
+        },
+        [authToken, sendJsonMessage],
+    );
+    const changeColor = useCallback(
+        (color: string) => {
+            setColor(color);
+            sendJsonMessage({
+                action: 'changeColor',
+                authToken,
+                payload: { color },
+            });
+        },
+        [authToken, sendJsonMessage],
+    );
+
+    // effects
+    // slug changed, try to establish initial connection from storage
     useEffect(() => {
-        // cleanup the connection
-        return () => {
-            if (websocket) {
-                setConnectionStatus(ConnectionStatus.CLOSING);
-                websocket.close();
+        if (connectionStatus === ConnectionStatus.UNINITIALIZED) {
+            // load a cached token and use it if present
+            const storedToken = localStorage.getItem(`authToken-${slug}`);
+            if (storedToken) {
+                setAuthToken(storedToken);
+                setConnectionStatus(ConnectionStatus.CONNECTING);
+                join(storedToken);
             }
-        };
-    }, [websocket]);
+        }
+    }, [slug, connectionStatus, join]);
 
     return (
         <RoomContext.Provider
