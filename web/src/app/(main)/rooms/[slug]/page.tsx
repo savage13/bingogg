@@ -4,6 +4,7 @@ import Board from '@/components/board/Board';
 import RoomLogin from '@/components/room/RoomLogin';
 import { ConnectionStatus, RoomContext } from '@/context/RoomContext';
 import ColorSelect from '@/components/room/ColorSelect';
+import RoomInfo from '../../../../components/room/RoomInfo';
 
 export default function Room() {
     const { connectionStatus, sendChatMessage, messages } =
@@ -32,34 +33,39 @@ export default function Room() {
                 <Board />
             </div>
             <div className="grow" />
-            <div className="flex flex-col border px-2 py-2">
-                <div>Socket Status: {connectionStatus}</div>
-                <div className="h-96 overflow-y-scroll">
-                    {messages.map((message, index) => (
-                        <div key={`${message}-${index}`}>{message}</div>
-                    ))}
+            <div>
+                <div className="pb-8">
+                    <RoomInfo />
                 </div>
-                <div className="flex gap-x-2 text-black">
-                    <input
-                        value={message}
-                        onChange={(event) => setMessage(event.target.value)}
-                        onKeyUp={(event) => {
-                            if (event.key === 'Enter') {
+                <div className="flex flex-col border px-2 py-2">
+                    <div>Socket Status: {connectionStatus}</div>
+                    <div className="h-96 overflow-y-scroll">
+                        {messages.map((message, index) => (
+                            <div key={`${message}-${index}`}>{message}</div>
+                        ))}
+                    </div>
+                    <div className="flex gap-x-2 text-black">
+                        <input
+                            value={message}
+                            onChange={(event) => setMessage(event.target.value)}
+                            onKeyUp={(event) => {
+                                if (event.key === 'Enter') {
+                                    sendChatMessage(message);
+                                    setMessage('');
+                                }
+                            }}
+                            className="grow"
+                        />
+                        <button
+                            className="bg-gray-200 px-2 py-2"
+                            onClick={() => {
                                 sendChatMessage(message);
                                 setMessage('');
-                            }
-                        }}
-                        className="grow"
-                    />
-                    <button
-                        className="bg-gray-200 px-2 py-2"
-                        onClick={() => {
-                            sendChatMessage(message);
-                            setMessage('');
-                        }}
-                    >
-                        Send
-                    </button>
+                            }}
+                        >
+                            Send
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

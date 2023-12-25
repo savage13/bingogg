@@ -10,6 +10,7 @@ import {
 import { Board, Cell } from '../types/Board';
 import { ServerMessage } from '../types/ServerMessage';
 import useWebSocket from 'react-use-websocket';
+import { RoomData } from '../types/RoomData';
 
 export enum ConnectionStatus {
     UNINITIALIZED, // the room connection is uninitialized and there is no authentication data present
@@ -25,6 +26,7 @@ interface RoomContext {
     board: Board;
     messages: string[];
     color: string;
+    roomData?: RoomData;
     connect: (
         nickname: string,
         password: string,
@@ -75,6 +77,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
     const [authToken, setAuthToken] = useState<string>();
     const [nickname, setNickname] = useState('');
     const [color, setColor] = useState('blue');
+    const [roomData, setRoomData] = useState<RoomData>();
 
     const [board, dispatchBoard] = useReducer(
         (currBoard: Board, event: BoardEvent) => {
@@ -104,13 +107,19 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
         dispatchBoard({ action: 'board', board });
     }, []);
     const onConnected = useCallback(
-        (board: Board, chatHistory: string[], nickname?: string) => {
+        (
+            board: Board,
+            chatHistory: string[],
+            roomData: RoomData,
+            nickname?: string,
+        ) => {
             if (nickname) {
                 setNickname(nickname);
             }
             dispatchBoard({ action: 'board', board });
             setMessages(chatHistory);
             setConnectionStatus(ConnectionStatus.CONNECTED);
+            setRoomData(roomData);
         },
         [],
     );
@@ -150,10 +159,16 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
                         onSyncBoard(payload.board);
                         break;
                     case 'connected':
-                        if (!payload.board || !payload.chatHistory) return;
+                        if (
+                            !payload.board ||
+                            !payload.chatHistory ||
+                            !payload.roomData
+                        )
+                            return;
                         onConnected(
                             payload.board,
                             payload.chatHistory,
+                            payload.roomData,
                             payload.nickname,
                         );
                         break;
@@ -282,6 +297,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
                 board,
                 messages,
                 color,
+                roomData,
                 connect,
                 sendChatMessage,
                 markGoal,

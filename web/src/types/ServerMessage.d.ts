@@ -28,6 +28,7 @@ export type ServerMessage = (
       board: Board;
       chatHistory: string[];
       nickname?: string;
+      roomData?: RoomData;
     }
   | {
       action: "unauthorized";
@@ -49,4 +50,12 @@ export interface Cell {
  */
 export interface Board {
   board: Cell[][];
+}
+/**
+ * Basic information about a room
+ */
+export interface RoomData {
+  name: string;
+  game: string;
+  slug: string;
 }

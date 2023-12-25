@@ -1,0 +1,12 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["name", "game", "slug"],
+    "description": "Basic information about a room",
+    "properties": {
+        "name": { "type": "string"},
+        "game": { "type": "string"},
+        "slug": { "type": "string"}
+    }
+}

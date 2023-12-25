@@ -25,7 +25,7 @@
             }
         },
         {
-            "required": ["action", "board"],
+            "required": ["action", "board", "roomData"],
             "additionalProperties": false,
             "properties": {
                 "action": "syncBoard",
@@ -39,7 +39,8 @@
                 "action": "connected",
                 "board": {"$ref": "./Board.json"},
                 "chatHistory": {"type": "array", "items": {"type": "string"} },
-                "nickname": {"type": "string"}
+                "nickname": {"type": "string"},
+                "roomData": {"$ref": "./RoomData.json"}
             }
         },
         {
