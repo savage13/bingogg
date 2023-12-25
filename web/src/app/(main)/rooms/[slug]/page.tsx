@@ -4,8 +4,9 @@ import Board from '@/components/board/Board';
 import RoomLogin from '@/components/room/RoomLogin';
 import { ConnectionStatus, RoomContext } from '@/context/RoomContext';
 import ColorSelect from '@/components/room/ColorSelect';
-import RoomInfo from '../../../../components/room/RoomInfo';
-import ConnectionState from '../../../../components/room/ConnectionState';
+import RoomInfo from '@/components/room/RoomInfo';
+import ConnectionState from '@/components/room/ConnectionState';
+import RoomChat from '@/components/room/RoomChat';
 
 export default function Room() {
     const { connectionStatus, sendChatMessage, messages } =
@@ -41,34 +42,8 @@ export default function Room() {
                 <div>
                     <ConnectionState />
                 </div>
-                <div className="flex grow flex-col border px-8 py-2">
-                    <div className="h-96 grow overflow-y-scroll">
-                        {messages.map((message, index) => (
-                            <div key={`${message}-${index}`}>{message}</div>
-                        ))}
-                    </div>
-                    <div className="flex gap-x-2 text-black">
-                        <input
-                            value={message}
-                            onChange={(event) => setMessage(event.target.value)}
-                            onKeyUp={(event) => {
-                                if (event.key === 'Enter') {
-                                    sendChatMessage(message);
-                                    setMessage('');
-                                }
-                            }}
-                            className="grow"
-                        />
-                        <button
-                            className="bg-gray-200 px-2 py-2"
-                            onClick={() => {
-                                sendChatMessage(message);
-                                setMessage('');
-                            }}
-                        >
-                            Send
-                        </button>
-                    </div>
+                <div>
+                    <RoomChat />
                 </div>
             </div>
         </div>
