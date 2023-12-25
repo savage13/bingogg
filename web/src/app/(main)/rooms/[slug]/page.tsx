@@ -5,6 +5,7 @@ import RoomLogin from '@/components/room/RoomLogin';
 import { ConnectionStatus, RoomContext } from '@/context/RoomContext';
 import ColorSelect from '@/components/room/ColorSelect';
 import RoomInfo from '../../../../components/room/RoomInfo';
+import ConnectionState from '../../../../components/room/ConnectionState';
 
 export default function Room() {
     const { connectionStatus, sendChatMessage, messages } =
@@ -15,14 +16,14 @@ export default function Room() {
         return <RoomLogin />;
     }
 
-    if (connectionStatus === ConnectionStatus.CLOSED) {
-        return (
-            <>
-                The connection has been closed. Try logging in again.
-                <RoomLogin />
-            </>
-        );
-    }
+    // if (connectionStatus === ConnectionStatus.CLOSED) {
+    //     return (
+    //         <>
+    //             The connection has been closed. Try logging in again.
+    //             <RoomLogin />
+    //         </>
+    //     );
+    // }
 
     return (
         <div className="flex gap-x-8">
@@ -33,13 +34,15 @@ export default function Room() {
                 <Board />
             </div>
             <div className="grow" />
-            <div>
-                <div className="pb-8">
+            <div className="flex flex-col gap-y-4">
+                <div>
                     <RoomInfo />
                 </div>
-                <div className="flex flex-col border px-2 py-2">
-                    <div>Socket Status: {connectionStatus}</div>
-                    <div className="h-96 overflow-y-scroll">
+                <div>
+                    <ConnectionState />
+                </div>
+                <div className="flex grow flex-col border px-8 py-2">
+                    <div className="h-96 grow overflow-y-scroll">
                         {messages.map((message, index) => (
                             <div key={`${message}-${index}`}>{message}</div>
                         ))}
