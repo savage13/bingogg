@@ -99,7 +99,10 @@ export default class Room {
                 return { action: 'unauthorized' };
             }
         }
-        this.sendChat(`${identity.nickname} has joined.`);
+        this.sendChat([
+            { contents: identity.nickname, color: identity.color },
+            ' has joined.',
+        ]);
         this.connections.set(auth.uuid, socket);
         return {
             action: 'connected',
@@ -123,7 +126,10 @@ export default class Room {
         if (!identity) {
             return { action: 'unauthorized' };
         }
-        this.sendChat(`${identity.nickname} has left.`);
+        this.sendChat([
+            { contents: identity.nickname, color: identity.color },
+            ' has left.',
+        ]);
         invalidateToken(token);
         this.identities.delete(auth.uuid);
         this.connections.delete(auth.uuid);
@@ -179,7 +185,10 @@ export default class Room {
             unCol
         ].colors.filter((color) => color !== identity.color);
         this.sendCellUpdate(unRow, unCol);
-        this.sendChat(`${identity.nickname} is unmarking (${unRow},${unCol})`);
+        this.sendChat([
+            { contents: identity.nickname, color: identity.color },
+            ` is unmarking (${unRow},${unCol})`,
+        ]);
     }
 
     handleChangeColor(
@@ -198,9 +207,11 @@ export default class Room {
             ...identity,
             color,
         });
-        this.sendChat(
-            `${identity.nickname} has changed their color to ${color}`,
-        );
+        this.sendChat([
+            { contents: identity.nickname, color: identity.color },
+            ' has changed their color to ',
+            { contents: color, color },
+        ]);
     }
 
     sendChat(message: string): void;
