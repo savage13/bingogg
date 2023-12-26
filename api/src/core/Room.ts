@@ -161,6 +161,7 @@ export default class Room {
         if (row === undefined || col === undefined) return;
         if (this.board.board[row][col].colors.includes(identity.color)) return;
         this.board.board[row][col].colors.push(identity.color);
+        this.board.board[row][col].colors.sort((a, b) => a.localeCompare(b));
         this.sendCellUpdate(row, col);
         this.sendChat([
             {
