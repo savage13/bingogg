@@ -146,7 +146,7 @@ export default class Room {
         }
         const { message: chatMessage } = action.payload;
         if (!chatMessage) return;
-        this.sendChat(chatMessage);
+        this.sendChat(`${identity.nickname}: ${chatMessage}`);
     }
 
     handleMark(
