@@ -4,6 +4,7 @@ import { logDebug, logInfo } from './Logger';
 import { port } from './Environment';
 import api from './routes/api';
 import { allRooms, roomWebSocketServer } from './core/RoomServer';
+import { disconnect } from './database/Database';
 
 const app = express();
 
@@ -64,6 +65,11 @@ const cleanup = async () => {
                 resolve(undefined);
             }),
         ),
+        new Promise(async (resolve) => {
+            await disconnect();
+            logDebug('Disconnected from database');
+            resolve(undefined);
+        }),
     ]);
     process.exit(0);
 };
