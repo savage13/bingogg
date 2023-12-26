@@ -17,7 +17,27 @@ export default function RoomChat() {
         <div className="flex grow flex-col gap-y-1 rounded-md border px-4 py-3">
             <div className="h-96 grow overflow-y-scroll rounded-md border bg-gray-800 bg-opacity-50 px-4 py-2">
                 {messages.map((message, index) => (
-                    <div key={`${message}-${index}`}>{message}</div>
+                    <div key={index}>
+                        {message.map((messageContents, contentIndex) => {
+                            if (typeof messageContents === 'string') {
+                                return (
+                                    <span key={`${contentIndex}`} style={{}}>
+                                        {messageContents}
+                                    </span>
+                                );
+                            }
+                            return (
+                                <span
+                                    key={`${contentIndex}`}
+                                    style={{
+                                        color: messageContents.color,
+                                    }}
+                                >
+                                    {messageContents.contents}
+                                </span>
+                            );
+                        })}
+                    </div>
                 ))}
                 <div ref={chatDivRef} />
             </div>

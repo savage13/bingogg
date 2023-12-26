@@ -11,7 +11,7 @@
             "additionalProperties": false,
             "properties": {
                 "action": "chat",
-                "message": {"type": "string"}
+                "message": {"$ref": "./ChatMessage.json"}
             }
         },
         {
@@ -38,7 +38,7 @@
             "properties": {
                 "action": "connected",
                 "board": {"$ref": "./Board.json"},
-                "chatHistory": {"type": "array", "items": {"type": "string"} },
+                "chatHistory": {"type": "array", "items": {"$ref": "./ChatMessage.json"} },
                 "nickname": {"type": "string"},
                 "roomData": {"$ref": "./RoomData.json"}
             }

@@ -8,7 +8,7 @@ import {
     MarkAction,
     UnmarkAction,
 } from '../types/RoomAction';
-import { Board, ServerMessage } from '../types/ServerMessage';
+import { Board, ChatMessage, ServerMessage } from '../types/ServerMessage';
 
 type RoomIdentity = {
     nickname: string;
@@ -156,7 +156,13 @@ export default class Room {
         if (this.board.board[row][col].colors.includes(identity.color)) return;
         this.board.board[row][col].colors.push(identity.color);
         this.sendCellUpdate(row, col);
-        this.sendChat(`${identity.nickname} is marking (${row},${col})`);
+        this.sendChat([
+            {
+                contents: identity.nickname,
+                color: identity.color,
+            },
+            ` is marking (${row},${col})`,
+        ]);
     }
 
     handleUnmark(
@@ -197,8 +203,15 @@ export default class Room {
         );
     }
 
-    sendChat(message: string) {
-        this.sendServerMessage({ action: 'chat', message });
+    sendChat(message: string): void;
+    sendChat(message: ChatMessage): void;
+
+    sendChat(message: string | ChatMessage) {
+        if (typeof message === 'string') {
+            this.sendServerMessage({ action: 'chat', message: [message] });
+        } else {
+            this.sendServerMessage({ action: 'chat', message: message });
+        }
     }
 
     sendCellUpdate(row: number, col: number) {

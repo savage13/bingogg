@@ -11,7 +11,7 @@
 export type ServerMessage = (
   | {
       action: "chat";
-      message: string;
+      message: ChatMessage;
     }
   | {
       action: "cellUpdate";
@@ -26,7 +26,7 @@ export type ServerMessage = (
   | {
       action: "connected";
       board: Board;
-      chatHistory: string[];
+      chatHistory: ChatMessage[];
       nickname?: string;
       roomData?: RoomData;
     }
@@ -37,6 +37,13 @@ export type ServerMessage = (
       action: "disconnected";
     }
 ) & {};
+export type ChatMessage = (
+  | string
+  | {
+      contents: string;
+      color: string;
+    }
+)[];
 
 /**
  * An incoming websocket message from the server telling the client of a change in room state or instructing it to take an action

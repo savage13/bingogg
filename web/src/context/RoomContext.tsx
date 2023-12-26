@@ -8,7 +8,7 @@ import {
     useState,
 } from 'react';
 import { Board, Cell } from '../types/Board';
-import { ServerMessage } from '../types/ServerMessage';
+import { ChatMessage, ServerMessage } from '../types/ServerMessage';
 import useWebSocket from 'react-use-websocket';
 import { RoomData } from '../types/RoomData';
 
@@ -24,7 +24,7 @@ export enum ConnectionStatus {
 interface RoomContext {
     connectionStatus: ConnectionStatus;
     board: Board;
-    messages: string[];
+    messages: ChatMessage[];
     color: string;
     roomData?: RoomData;
     connect: (
@@ -70,7 +70,7 @@ type BoardEvent =
 
 export function RoomContextProvider({ slug, children }: RoomContextProps) {
     // state
-    const [messages, setMessages] = useState<string[]>([]);
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [connectionStatus, setConnectionStatus] = useState(
         ConnectionStatus.UNINITIALIZED,
     );
@@ -94,7 +94,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
     );
 
     // incoming messages
-    const onChatMessage = useCallback((message: string) => {
+    const onChatMessage = useCallback((message: ChatMessage) => {
         setMessages((curr) => [...curr, message]);
     }, []);
     const onCellUpdate = useCallback(
@@ -109,7 +109,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
     const onConnected = useCallback(
         (
             board: Board,
-            chatHistory: string[],
+            chatHistory: ChatMessage[],
             roomData: RoomData,
             nickname?: string,
         ) => {
