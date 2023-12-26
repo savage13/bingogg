@@ -9,22 +9,18 @@ import ConnectionState from '@/components/room/ConnectionState';
 import RoomChat from '@/components/room/RoomChat';
 
 export default function Room() {
-    const { connectionStatus, sendChatMessage, messages } =
-        useContext(RoomContext);
-    const [message, setMessage] = useState('');
+    const { connectionStatus, roomData } = useContext(RoomContext);
 
     if (connectionStatus === ConnectionStatus.UNINITIALIZED) {
         return <RoomLogin />;
     }
 
-    // if (connectionStatus === ConnectionStatus.CLOSED) {
-    //     return (
-    //         <>
-    //             The connection has been closed. Try logging in again.
-    //             <RoomLogin />
-    //         </>
-    //     );
-    // }
+    // something went wrong attempting to connect to the server, show the login
+    // page which when submitted will restart the connection process, or show an
+    // adequate error message on failure
+    if (connectionStatus === ConnectionStatus.CLOSED && !roomData) {
+        return <RoomLogin />;
+    }
 
     return (
         <div className="flex gap-x-8">
