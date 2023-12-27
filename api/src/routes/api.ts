@@ -1,17 +1,10 @@
 import { Router } from 'express';
 import rooms from './rooms/Rooms';
+import games from './games/Games';
 
 const api = Router();
 
 api.use('/rooms', rooms);
-
-api.get('/games', (req, res) => {
-    res.send([
-        'The Legend of Zelda: Breath of the Wild',
-        'Super Mario 64',
-        'Genshin Impact',
-        'Ori and the Blind Forest',
-    ]);
-});
+api.use('/games', games);
 
 export default api;
