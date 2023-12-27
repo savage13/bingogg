@@ -11,27 +11,23 @@ datasource db {
 }
 
 model Goal {
-  id          String        @id @unique @default(cuid())
+  id          String  @id @unique @default(cuid())
   goal        String?
   description String?
-  GoalVariant GoalVariant[]
 }
 
 model GoalVariant {
   id          String   @id @unique @default(cuid())
-  goal        Goal     @relation(fields: [goalId], references: [id])
-  goalText    String?
   description String?
   active      Boolean?
-  goalId      String
   Variant     Variant? @relation(fields: [variantId], references: [id])
   variantId   String?
 }
 
 model Variant {
   id          String        @id @unique @default(cuid())
-  name        String?
-  description String?
+  name        String
+  description String
   goals       GoalVariant[]
   Game        Game?         @relation(fields: [gameId], references: [id])
   gameId      String?
@@ -74,11 +70,11 @@ model Connection {
 }
 
 model Room {
-  id        String   @id @unique @default(cuid())
-  variant   Variant? @relation(fields: [variantId], references: [id])
-  private   Boolean?
+  id        String  @id @unique @default(cuid())
+  variant   Variant @relation(fields: [variantId], references: [id])
+  private   Boolean
   password  String?
-  variantId String?
+  variantId String
 }
 
 enum ConnectionService {
