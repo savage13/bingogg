@@ -49,25 +49,29 @@ server.on('upgrade', (req, socket, head) => {
 
 const cleanup = async () => {
     logDebug('Server shutting down');
-    roomWebSocketServer.clients.forEach((client) => {
-        client.close();
-    });
     await Promise.all([
         new Promise((resolve) => {
             roomWebSocketServer.close(() => {
                 logDebug('Room WebSocket server closed');
                 resolve(undefined);
             });
+            logDebug('Closing open websocket connections');
+            roomWebSocketServer.clients.forEach((client) => {
+                client.close();
+            });
         }),
-        new Promise((resolve) =>
+        new Promise((resolve) => {
             server.close(() => {
                 logDebug('HTTP server closed');
                 resolve(undefined);
-            }),
-        ),
+            });
+            logDebug('Closing open server connections');
+            server.closeAllConnections();
+        }),
         new Promise(async (resolve) => {
+            logDebug('Closing database connection');
             await disconnect();
-            logDebug('Disconnected from database');
+            logDebug('Database connection closed');
             resolve(undefined);
         }),
     ]);
