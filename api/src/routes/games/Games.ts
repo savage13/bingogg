@@ -6,6 +6,7 @@ import {
     updateGameCover,
     updateGameName,
 } from '../../database/games/Games';
+import { createGoal, goalsForGame } from '../../database/games/Goals';
 
 const games = Router();
 
@@ -56,6 +57,23 @@ games.post('/:slug', (req, res) => {
     }
 
     res.status(200).json(result);
+});
+
+games.get('/:slug/goals', async (req, res) => {
+    const { slug } = req.params;
+    const goals = await goalsForGame(slug);
+    res.status(200).json(goals);
+});
+
+games.post('/:slug/goals', async (req, res) => {
+    const { slug } = req.params;
+    const { goal, description } = req.body;
+    if (!goal) {
+        res.status(400).send('Missing goal text');
+        return;
+    }
+    const newGoal = await createGoal(slug, goal, description);
+    res.status(200).json(newGoal);
 });
 
 export default games;

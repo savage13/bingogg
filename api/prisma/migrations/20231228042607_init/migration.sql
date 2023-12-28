@@ -4,8 +4,9 @@ CREATE TYPE "ConnectionService" AS ENUM ('TWITCH', 'DISCORD', 'RACETIME');
 -- CreateTable
 CREATE TABLE "Goal" (
     "id" TEXT NOT NULL,
-    "goal" TEXT,
+    "goal" TEXT NOT NULL,
     "description" TEXT,
+    "gameId" TEXT NOT NULL,
 
     CONSTRAINT "Goal_pkey" PRIMARY KEY ("id")
 );
@@ -13,11 +14,11 @@ CREATE TABLE "Goal" (
 -- CreateTable
 CREATE TABLE "GoalVariant" (
     "id" TEXT NOT NULL,
-    "goalText" TEXT,
+    "goal" TEXT,
     "description" TEXT,
     "active" BOOLEAN,
     "goalId" TEXT NOT NULL,
-    "variantId" TEXT,
+    "variantId" TEXT NOT NULL,
 
     CONSTRAINT "GoalVariant_pkey" PRIMARY KEY ("id")
 );
@@ -25,8 +26,8 @@ CREATE TABLE "GoalVariant" (
 -- CreateTable
 CREATE TABLE "Variant" (
     "id" TEXT NOT NULL,
-    "name" TEXT,
-    "description" TEXT,
+    "name" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
     "gameId" TEXT,
 
     CONSTRAINT "Variant_pkey" PRIMARY KEY ("id")
@@ -67,7 +68,7 @@ CREATE TABLE "Connection" (
     "service" "ConnectionService" NOT NULL,
     "serviceId" TEXT NOT NULL,
     "refreshToken" TEXT,
-    "userId" TEXT,
+    "userId" TEXT NOT NULL,
 
     CONSTRAINT "Connection_pkey" PRIMARY KEY ("id")
 );
@@ -75,9 +76,9 @@ CREATE TABLE "Connection" (
 -- CreateTable
 CREATE TABLE "Room" (
     "id" TEXT NOT NULL,
-    "private" BOOLEAN,
+    "private" BOOLEAN NOT NULL,
     "password" TEXT,
-    "variantId" TEXT,
+    "variantId" TEXT NOT NULL,
 
     CONSTRAINT "Room_pkey" PRIMARY KEY ("id")
 );
@@ -113,10 +114,13 @@ CREATE UNIQUE INDEX "Connection_id_key" ON "Connection"("id");
 CREATE UNIQUE INDEX "Room_id_key" ON "Room"("id");
 
 -- AddForeignKey
+ALTER TABLE "Goal" ADD CONSTRAINT "Goal_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "Game"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "GoalVariant" ADD CONSTRAINT "GoalVariant_goalId_fkey" FOREIGN KEY ("goalId") REFERENCES "Goal"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "GoalVariant" ADD CONSTRAINT "GoalVariant_variantId_fkey" FOREIGN KEY ("variantId") REFERENCES "Variant"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "GoalVariant" ADD CONSTRAINT "GoalVariant_variantId_fkey" FOREIGN KEY ("variantId") REFERENCES "Variant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Variant" ADD CONSTRAINT "Variant_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "Game"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -128,7 +132,7 @@ ALTER TABLE "GamePermission" ADD CONSTRAINT "GamePermission_userId_fkey" FOREIGN
 ALTER TABLE "GamePermission" ADD CONSTRAINT "GamePermission_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "Game"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Connection" ADD CONSTRAINT "Connection_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Connection" ADD CONSTRAINT "Connection_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Room" ADD CONSTRAINT "Room_variantId_fkey" FOREIGN KEY ("variantId") REFERENCES "Variant"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Room" ADD CONSTRAINT "Room_variantId_fkey" FOREIGN KEY ("variantId") REFERENCES "Variant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

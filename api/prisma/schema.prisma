@@ -11,17 +11,23 @@ datasource db {
 }
 
 model Goal {
-  id          String  @id @unique @default(cuid())
-  goal        String?
+  id          String        @id @unique @default(cuid())
+  goal        String
   description String?
+  game        Game          @relation(fields: [gameId], references: [id])
+  variants    GoalVariant[]
+  gameId      String
 }
 
 model GoalVariant {
   id          String   @id @unique @default(cuid())
+  goal        String?
   description String?
   active      Boolean?
-  Variant     Variant? @relation(fields: [variantId], references: [id])
-  variantId   String?
+  baseGoal    Goal     @relation(fields: [goalId], references: [id])
+  variant     Variant  @relation(fields: [variantId], references: [id])
+  goalId      String
+  variantId   String
 }
 
 model Variant {
@@ -35,12 +41,13 @@ model Variant {
 }
 
 model Game {
-  id             String           @id @unique @default(cuid())
-  name           String
-  slug           String           @unique
-  coverImage     String?
-  variants       Variant[]
-  GamePermission GamePermission[]
+  id          String           @id @unique @default(cuid())
+  name        String
+  slug        String           @unique
+  coverImage  String?
+  variants    Variant[]
+  goals       Goal[]
+  permissions GamePermission[]
 }
 
 model GamePermission {
@@ -53,11 +60,11 @@ model GamePermission {
 }
 
 model User {
-  id             String           @id @unique @default(cuid())
-  username       String           @unique
-  password       String
-  connections    Connection[]
-  GamePermission GamePermission[]
+  id          String           @id @unique @default(cuid())
+  username    String           @unique
+  password    String
+  connections Connection[]
+  permissions GamePermission[]
 }
 
 model Connection {
@@ -65,8 +72,8 @@ model Connection {
   service      ConnectionService
   serviceId    String
   refreshToken String?
-  User         User?             @relation(fields: [userId], references: [id])
-  userId       String?
+  user         User              @relation(fields: [userId], references: [id])
+  userId       String
 }
 
 model Room {

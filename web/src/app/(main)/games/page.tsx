@@ -26,9 +26,10 @@ export default async function Games() {
             </div>
             <div className="flex flex-wrap gap-x-4 gap-y-4 pt-2">
                 {games.map((game) => (
-                    <div
+                    <Link
                         key={game.slug}
                         className="flex basis-1/6 flex-col gap-y-1"
+                        href={`/games/${game.slug}`}
                     >
                         {game.coverImage && (
                             <div
@@ -46,7 +47,7 @@ export default async function Games() {
                             </div>
                         )}
                         <div>{game.name}</div>
-                    </div>
+                    </Link>
                 ))}
             </div>
         </>
