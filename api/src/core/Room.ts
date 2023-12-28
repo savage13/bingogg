@@ -54,6 +54,7 @@ export default class Room {
                 rowGoals.map((goal) => ({ goal: goal.goal, colors: [] })),
             ),
         };
+        this.sendSyncBoard();
     }
 
     handleJoin(
