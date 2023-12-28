@@ -8,10 +8,14 @@ export const roomWebSocketServer: WebSocketServer = new WebSocketServer({
 });
 
 export const allRooms = new Map<string, Room>();
-allRooms.set(
+const defRoom = new Room(
+    'Test Room',
+    'The Legend of Zelda: Skyward Sword',
+    'lozss',
     'cool-wheat-3271',
-    new Room('Test Room', 'Ori and the Bling Forest', 'cool-wheat-3271'),
 );
+defRoom.generateBoard();
+allRooms.set('cool-wheat-3271', defRoom);
 
 roomWebSocketServer.on('connection', (ws, req) => {
     if (!req.url) {

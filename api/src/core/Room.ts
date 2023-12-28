@@ -9,6 +9,8 @@ import {
     UnmarkAction,
 } from '../types/RoomAction';
 import { Board, ChatMessage, ServerMessage } from '../types/ServerMessage';
+import { goalsForGame } from '../database/games/Goals';
+import { chunk, shuffle } from '../util/Array';
 
 type RoomIdentity = {
     nickname: string;
@@ -17,68 +19,41 @@ type RoomIdentity = {
 
 /**
  * Represents a room in the bingo.gg service. A room is container for a single
- * "game" of bingo, containing, the board, game state, history, and all other
+ * "game" of bingo, containing the board, game state, history, and all other
  * game level data.
  */
 export default class Room {
     name: string;
     game: string;
+    gameSlug: string;
     password: string;
     slug: string;
-    // websocketServer: WebSocketServer;
     connections: Map<string, WebSocket>;
-    board: Board = {
-        board: [
-            [
-                { goal: 'Collect 5 things', colors: [] },
-                { goal: 'Talk to 10 people', colors: [] },
-                { goal: 'A pointy device', colors: [] },
-                { goal: 'Obtain a hammer', colors: [] },
-                { goal: 'YELL', colors: [] },
-            ],
-            [
-                { goal: '10 Wells', colors: [] },
-                { goal: '15 flames', colors: [] },
-                { goal: 'Beat the game', colors: [] },
-                { goal: 'Die 10 times', colors: [] },
-                { goal: 'Beat 5-2', colors: [] },
-            ],
-            [
-                { goal: 'Beat 3-5', colors: [] },
-                { goal: 'Discover Persia', colors: [] },
-                { goal: 'Invent Religion', colors: [] },
-                { goal: 'C O N Q U E S T', colors: [] },
-                {
-                    // eslint-disable-next-line max-len
-                    goal: 'this is a really long goal name because sometimes these will exist and it needs to be tested against',
-                    colors: [],
-                },
-            ],
-            [
-                { goal: 'Return to Madagascar', colors: [] },
-                { goal: 'Morph Ball', colors: [] },
-                { goal: '500 HP', colors: [] },
-                { goal: '50 coins', colors: [] },
-                { goal: 'Have a civil war', colors: [] },
-            ],
-            [
-                { goal: 'Game over', colors: [] },
-                { goal: 'Kill 300 enemies', colors: [] },
-                { goal: 'Explosives', colors: [] },
-                { goal: 'Compass', colors: [] },
-                { goal: 'Roads', colors: [] },
-            ],
-        ],
-    };
+    board: Board;
     identities: Map<string, RoomIdentity>;
 
-    constructor(name: string, game: string, slug: string) {
+    constructor(name: string, game: string, gameSlug: string, slug: string) {
         this.name = name;
         this.game = game;
+        this.gameSlug = gameSlug;
         this.password = 'password';
         this.slug = slug;
         this.identities = new Map();
         this.connections = new Map();
+
+        this.board = {
+            board: [],
+        };
+    }
+
+    async generateBoard() {
+        const goals = await goalsForGame(this.gameSlug);
+        shuffle(goals);
+        this.board = {
+            board: chunk(goals.slice(0, 25), 5).map((rowGoals) =>
+                rowGoals.map((goal) => ({ goal: goal.goal, colors: [] })),
+            ),
+        };
     }
 
     handleJoin(

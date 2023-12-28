@@ -34,7 +34,7 @@ rooms.post('/', (req, res) => {
     const slug = `${slugList[randomInt(0, slugList.length)]}-${
         slugList[randomInt(0, slugList.length)]
     }-${randomInt(1000, 10000)}`;
-    allRooms.set(slug, new Room(name, game, slug));
+    allRooms.set(slug, new Room(name, game, '', slug));
     res.status(200).send(slug);
 });
 
