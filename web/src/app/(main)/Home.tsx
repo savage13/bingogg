@@ -1,6 +1,8 @@
-import RoomCreateForm from '@/components/RoomCreateForm';
+import RoomCreateForm from '../../components/RoomCreateForm';
+import { loadData } from './page';
 
 export default async function Home() {
+    const games = await loadData();
     return (
         <>
             <div className="pb-4">Welcome to bingo.gg</div>

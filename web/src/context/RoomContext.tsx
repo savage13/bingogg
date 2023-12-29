@@ -282,10 +282,15 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
         if (connectionStatus === ConnectionStatus.UNINITIALIZED) {
             // load a cached token and use it if present
             const storedToken = localStorage.getItem(`authToken-${slug}`);
+            const tempNickname = localStorage.getItem('bingogg.temp.nickname');
+            localStorage.removeItem('bingogg.temp.nickname');
             if (storedToken) {
                 setAuthToken(storedToken);
+                if (tempNickname) {
+                    setNickname(tempNickname);
+                }
                 setConnectionStatus(ConnectionStatus.CONNECTING);
-                join(storedToken);
+                join(storedToken, tempNickname ?? undefined);
             }
         }
     }, [slug, connectionStatus, join]);

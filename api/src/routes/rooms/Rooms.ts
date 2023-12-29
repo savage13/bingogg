@@ -3,6 +3,7 @@ import { Router } from 'express';
 import Room from '../../core/Room';
 import { createRoomToken } from '../../auth/RoomAuth';
 import { allRooms } from '../../core/RoomServer';
+import { gameForSlug } from '../../database/games/Games';
 
 const rooms = Router();
 
@@ -28,14 +29,30 @@ rooms.get('/', (req, res) => {
     res.send(roomList);
 });
 
-rooms.post('/', (req, res) => {
-    const name = 'Test Room';
-    const game = 'Ori and the Blind Forest';
+rooms.post('/', async (req, res) => {
+    const { name, game, nickname, variant, mode } = req.body;
+
+    if (!name || !game || !nickname || !variant || !mode) {
+        res.status(400).send('Missing required element(s).');
+        return;
+    }
+
+    const gameData = await gameForSlug(game);
+    if (!gameData) {
+        res.sendStatus(404);
+        return;
+    }
+
     const slug = `${slugList[randomInt(0, slugList.length)]}-${
         slugList[randomInt(0, slugList.length)]
     }-${randomInt(1000, 10000)}`;
-    allRooms.set(slug, new Room(name, game, '', slug));
-    res.status(200).send(slug);
+    const room = new Room(name, gameData.name, game, slug);
+    await room.generateBoard();
+    allRooms.set(slug, room);
+
+    const token = createRoomToken(room);
+
+    res.status(200).json({ slug, authToken: token });
 });
 
 rooms.post('/:slug/authorize', (req, res) => {
