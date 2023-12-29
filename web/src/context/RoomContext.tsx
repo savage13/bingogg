@@ -78,6 +78,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
     const [nickname, setNickname] = useState('');
     const [color, setColor] = useState('blue');
     const [roomData, setRoomData] = useState<RoomData>();
+    const [loading, setLoading] = useState(true);
 
     const [board, dispatchBoard] = useReducer(
         (currBoard: Board, event: BoardEvent) => {
@@ -85,8 +86,11 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
                 case 'board':
                     return event.board;
                 case 'cell':
-                    currBoard.board[event.row][event.col] = event.cell;
-                    return currBoard;
+                    const newCells = currBoard.board.map((row) =>
+                        row.map((cell) => cell),
+                    );
+                    newCells[event.row][event.col] = event.cell;
+                    return { board: newCells };
             }
             return currBoard;
         },
@@ -293,7 +297,15 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
                 join(storedToken, tempNickname ?? undefined);
             }
         }
+        setLoading(false);
     }, [slug, connectionStatus, join]);
+
+    // prevent UI flash when restoring from local storage due to SSR, reducing
+    // the number of re-renders for the room page since all the state changes
+    // after connection will usually be batched
+    if (loading) {
+        return 'loading...';
+    }
 
     return (
         <RoomContext.Provider
