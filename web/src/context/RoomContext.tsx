@@ -6,11 +6,17 @@ import {
     useEffect,
     useReducer,
     useState,
+    useSyncExternalStore,
 } from 'react';
 import { Board, Cell } from '../types/Board';
 import { ChatMessage, ServerMessage } from '../types/ServerMessage';
 import useWebSocket from 'react-use-websocket';
 import { RoomData } from '../types/RoomData';
+import {
+    emitBoardUpdate,
+    getBoardSnapshot,
+    subscribeToBoardUpdates,
+} from '../lib/BoardStore';
 
 export enum ConnectionStatus {
     UNINITIALIZED, // the room connection is uninitialized and there is no authentication data present
@@ -56,18 +62,6 @@ interface RoomContextProps {
     children: ReactNode;
 }
 
-type BoardEvent =
-    | {
-          action: 'cell';
-          row: number;
-          col: number;
-          cell: Cell;
-      }
-    | {
-          action: 'board';
-          board: Board;
-      };
-
 export function RoomContextProvider({ slug, children }: RoomContextProps) {
     // state
     const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -80,21 +74,10 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
     const [roomData, setRoomData] = useState<RoomData>();
     const [loading, setLoading] = useState(true);
 
-    const [board, dispatchBoard] = useReducer(
-        (currBoard: Board, event: BoardEvent) => {
-            switch (event.action) {
-                case 'board':
-                    return event.board;
-                case 'cell':
-                    const newCells = currBoard.board.map((row) =>
-                        row.map((cell) => cell),
-                    );
-                    newCells[event.row][event.col] = event.cell;
-                    return { board: newCells };
-            }
-            return currBoard;
-        },
-        { board: [] },
+    // const [board, dispatchBoard] = useReducer(boardReducer, { board: [] });
+    const board = useSyncExternalStore(
+        subscribeToBoardUpdates,
+        getBoardSnapshot,
     );
 
     // incoming messages
@@ -103,12 +86,15 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
     }, []);
     const onCellUpdate = useCallback(
         (row: number, col: number, cellData: Cell) => {
-            dispatchBoard({ action: 'cell', row, col, cell: cellData });
+            console.log(`cell update`);
+            console.log(cellData);
+            emitBoardUpdate({ action: 'cell', row, col, cell: cellData });
+            console.log('dispatch called');
         },
         [],
     );
     const onSyncBoard = useCallback((board: Board) => {
-        dispatchBoard({ action: 'board', board });
+        emitBoardUpdate({ action: 'board', board });
     }, []);
     const onConnected = useCallback(
         (
@@ -120,7 +106,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
             if (nickname) {
                 setNickname(nickname);
             }
-            dispatchBoard({ action: 'board', board });
+            emitBoardUpdate({ action: 'board', board });
             setMessages(chatHistory);
             setConnectionStatus(ConnectionStatus.CONNECTED);
             setRoomData(roomData);
