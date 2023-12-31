@@ -1,10 +1,10 @@
 'use client';
 import { useApi } from '@/lib/Hooks';
 import { Game } from '@/types/Game';
-import Link from 'next/link';
-import { Goal } from '@/types/Goal';
-import { useState } from 'react';
 import { Field, Form, Formik } from 'formik';
+import Link from 'next/link';
+import { useState } from 'react';
+import GoalManagement from '../../../../components/game/goals/GoalManagement';
 
 export default function Game({
     params: { slug },
@@ -16,19 +16,14 @@ export default function Game({
     const { data: gameData, isLoading } = useApi<Game>(
         `http://localhost:8000/api/games/${slug}?`,
     );
-    const {
-        data: goals,
-        isLoading: goalsLoading,
-        mutate: mutateGoals,
-    } = useApi<Goal[]>(`http://localhost:8000/api/games/${slug}/goals`);
 
-    if (!gameData || isLoading || !goals || goalsLoading) {
+    if (!gameData || isLoading) {
         return null;
     }
 
     return (
-        <div className="flex gap-x-3">
-            <div className="grow rounded-2xl border-4 p-5">
+        <div className="flex h-full gap-x-3">
+            <div className="flex grow flex-col rounded-2xl border-4 p-5">
                 <div className="flex gap-x-3">
                     {gameData.coverImage && (
                         <div
@@ -55,58 +50,20 @@ export default function Game({
                         <div className="text-xl">{gameData.name}</div>
                     </div>
                 </div>
-                <div>
-                    <div className="text-center text-2xl">Goals</div>
-                    <div className="">
-                        {goals.map((goal) => (
-                            <div
-                                key={goal.goal}
-                                className="flex w-full py-2 text-center"
-                            >
-                                <div className="grow">{goal.goal}</div>
-                                <div className="grow">{goal.description}</div>
-                            </div>
-                        ))}
-                        {!newGoal && (
-                            <div className="text-center">
-                                <div
-                                    className="cursor-pointer"
-                                    role="button"
-                                    onClick={() => {
-                                        setNewGoal(true);
-                                    }}
-                                >
-                                    New Goal
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
+                <GoalManagement slug={slug} />
                 {newGoal && (
                     <Formik
-                        initialValues={{ goal: '', description: '' }}
+                        initialValues={{
+                            goal: '',
+                            description: '',
+                            categories: [],
+                        }}
                         onSubmit={async ({ goal, description }) => {
                             if (!goal) {
                                 return;
                             }
-                            const res = await fetch(
-                                `http://localhost:8000/api/games/${slug}/goals`,
-                                {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                    },
-                                    body: JSON.stringify({
-                                        goal,
-                                        description,
-                                    }),
-                                },
-                            );
-                            if (!res.ok) {
-                                // handle error
-                                return;
-                            }
-                            mutateGoals();
+
+                            // mutateGoals();
                             // setNewGoal(false);
                         }}
                     >
@@ -125,6 +82,7 @@ export default function Game({
                                     className="ml-2 text-black"
                                 />
                             </label>
+
                             <button
                                 className="inline-flex justify-center rounded-md border border-transparent bg-green-400 px-4 py-2 text-sm font-medium text-black hover:bg-green-300 disabled:bg-gray-300"
                                 type="submit"
