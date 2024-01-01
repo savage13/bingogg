@@ -14,6 +14,8 @@ model Goal {
   id          String        @id @unique @default(cuid())
   goal        String
   description String?
+  categories  String[]
+  difficulty  Int?
   game        Game          @relation(fields: [gameId], references: [id])
   variants    GoalVariant[]
   gameId      String

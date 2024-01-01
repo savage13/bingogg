@@ -2,14 +2,14 @@ import { Goal } from '@/types/Goal';
 import { Field, FieldProps, Form, Formik } from 'formik';
 import CreatableSelect from 'react-select/creatable';
 import NumberInput from '@/components/input/NumberInput';
-
-const categories: { label: string; value: string }[] = [];
-
+import { KeyedMutator, mutate } from 'swr';
 interface GoalEditorProps {
     slug: string;
     goal: Goal;
     isNew?: boolean;
     cancelNew?: () => void;
+    mutateGoals: KeyedMutator<Goal[]>;
+    categories: { label: string; value: string }[];
 }
 
 export default function GoalEditor({
@@ -17,19 +17,23 @@ export default function GoalEditor({
     goal,
     isNew,
     cancelNew,
+    mutateGoals,
+    categories,
 }: GoalEditorProps) {
     return (
         <Formik
             initialValues={{
                 goal: goal.goal,
                 description: goal.description,
-                categories: [] as {
-                    label: string;
-                    value: string;
-                }[],
-                difficulty: 1,
+                categories: goal.categories ?? [],
+                difficulty: goal.difficulty ?? 1,
             }}
-            onSubmit={async ({ goal, description, categories, difficulty }) => {
+            onSubmit={async ({
+                goal: goalText,
+                description,
+                categories,
+                difficulty,
+            }) => {
                 if (isNew) {
                     const res = await fetch(
                         `http://localhost:8000/api/games/${slug}/goals`,
@@ -39,17 +43,58 @@ export default function GoalEditor({
                                 'Content-Type': 'application/json',
                             },
                             body: JSON.stringify({
-                                goal,
+                                goal: goalText,
                                 description,
+                                categories,
+                                difficulty,
                             }),
                         },
                     );
                     if (!res.ok) {
-                        // handle error
+                        // TODO: handle error
                         return;
                     }
+                    mutateGoals();
+                    if (cancelNew) {
+                        cancelNew();
+                    }
                 } else {
-                    // TODO: submit edit request
+                    const res = await fetch(
+                        `http://localhost:8000/api/goals/${goal.id}`,
+                        {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                goal:
+                                    goalText !== goal.goal
+                                        ? goalText
+                                        : undefined,
+                                description:
+                                    description !== goal.description
+                                        ? description
+                                        : undefined,
+                                categories:
+                                    categories.length !==
+                                        goal.categories?.length ||
+                                    !categories.every(
+                                        (cat) => goal.categories?.includes(cat),
+                                    )
+                                        ? categories
+                                        : undefined,
+                                difficulty:
+                                    difficulty !== goal.difficulty
+                                        ? difficulty
+                                        : undefined,
+                            }),
+                        },
+                    );
+                    if (!res.ok) {
+                        //TODO: handle error
+                        return;
+                    }
+                    mutateGoals();
                 }
             }}
             enableReinitialize
@@ -77,25 +122,18 @@ export default function GoalEditor({
                                     field,
                                     form,
                                     meta,
-                                }: FieldProps<
-                                    {
-                                        label: string;
-                                        value: string;
-                                    }[]
-                                >) => (
+                                }: FieldProps<string[]>) => (
                                     <CreatableSelect
                                         options={categories}
                                         name={field.name}
-                                        value={field.value}
-                                        onChange={(option, meta) => {
-                                            if (
-                                                meta.action === 'create-option'
-                                            ) {
-                                                categories.push(meta.option);
-                                            }
+                                        value={field.value.map((cat) => ({
+                                            value: cat,
+                                            label: cat,
+                                        }))}
+                                        onChange={(option) => {
                                             form.setFieldValue(
                                                 field.name,
-                                                option,
+                                                option.map((val) => val.value),
                                             );
                                         }}
                                         onBlur={field.onBlur}

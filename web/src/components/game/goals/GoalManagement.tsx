@@ -1,11 +1,8 @@
-import NumberInput from '@/components/input/NumberInput';
 import { useApi } from '@/lib/Hooks';
 import { Goal } from '@/types/Goal';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Field, FieldProps, Form, Formik } from 'formik';
-import { useState } from 'react';
-import CreatableSelect from 'react-select/creatable';
+import { useCallback, useEffect, useState } from 'react';
 import GoalEditor from './GoalEditor';
 
 interface GoalManagementParams {
@@ -22,6 +19,39 @@ export default function GoalManagement({ slug }: GoalManagementParams) {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [newGoal, setNewGoal] = useState(false);
 
+    const [catList, setCatList] = useState<{ label: string; value: string }[]>(
+        [],
+    );
+
+    useEffect(() => {
+        const cats: string[] = [];
+        goals?.forEach((goal) => {
+            if (goal.categories) {
+                cats.push(
+                    ...goal.categories.filter((cat) => !cats.includes(cat)),
+                );
+            }
+        });
+        setCatList(cats.map((cat) => ({ label: cat, value: cat })));
+    }, [goals]);
+
+    const deleteGoal = useCallback(
+        async (id: string) => {
+            const res = await fetch(`http://localhost:8000/api/goals/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            if (!res.ok) {
+                //TODO: handle the error
+                return;
+            }
+            mutateGoals();
+        },
+        [mutateGoals],
+    );
+
     if (!goals || goalsLoading) {
         return null;
     }
@@ -33,7 +63,7 @@ export default function GoalManagement({ slug }: GoalManagementParams) {
                 <div className="flex w-1/3 flex-col rounded-md border-2 border-white px-3">
                     <div className="h-px grow overflow-y-auto">
                         {goals.map((goal, index) => (
-                            <div key={goal.goal} className="border-b py-2">
+                            <div key={goal.id} className="border-b py-2">
                                 <div
                                     className="group/item flex cursor-pointer items-center rounded-md px-2 py-1 hover:bg-gray-400 hover:bg-opacity-60"
                                     onClick={() => setSelectedIndex(index)}
@@ -44,7 +74,7 @@ export default function GoalManagement({ slug }: GoalManagementParams) {
                                         icon={faTrash}
                                         className="group/edit invisible rounded-full p-2.5 text-white hover:bg-black group-hover/item:visible"
                                         onClick={(e) => {
-                                            console.log('delete');
+                                            deleteGoal(goal.id);
                                             e.preventDefault();
                                             e.stopPropagation();
                                         }}
@@ -64,14 +94,21 @@ export default function GoalManagement({ slug }: GoalManagementParams) {
                 </div>
                 <div className="grow text-center">
                     {!newGoal && goals[selectedIndex] && (
-                        <GoalEditor slug={slug} goal={goals[selectedIndex]} />
+                        <GoalEditor
+                            slug={slug}
+                            goal={goals[selectedIndex]}
+                            mutateGoals={mutateGoals}
+                            categories={catList}
+                        />
                     )}
                     {newGoal && (
                         <GoalEditor
                             slug={slug}
-                            goal={{ goal: '', description: '' }}
+                            goal={{ id: '', goal: '', description: '' }}
                             isNew
                             cancelNew={() => setNewGoal(false)}
+                            mutateGoals={mutateGoals}
+                            categories={catList}
                         />
                     )}
                 </div>

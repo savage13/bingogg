@@ -9,6 +9,9 @@
  * An incoming websocket message from the server telling the client of a change in room state or instructing it to take an action
  */
 export interface Goal {
+  id: string;
   goal: string;
   description: string;
+  difficulty?: number;
+  categories?: string[];
 }

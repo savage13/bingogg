@@ -67,12 +67,26 @@ games.get('/:slug/goals', async (req, res) => {
 
 games.post('/:slug/goals', async (req, res) => {
     const { slug } = req.params;
-    const { goal, description } = req.body;
+    const { goal, description, categories, difficulty } = req.body;
+    let difficultyNum: number | undefined = undefined;
+    if (difficulty) {
+        difficultyNum = Number(difficulty);
+        if (Number.isNaN(difficultyNum)) {
+            res.status(400).send('Invalid difficulty value');
+            return;
+        }
+    }
     if (!goal) {
         res.status(400).send('Missing goal text');
         return;
     }
-    const newGoal = await createGoal(slug, goal, description);
+    const newGoal = await createGoal(
+        slug,
+        goal,
+        description,
+        categories,
+        difficultyNum,
+    );
     res.status(200).json(newGoal);
 });
 
