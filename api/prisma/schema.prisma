@@ -18,6 +18,8 @@ model Goal {
   difficulty  Int?
   game        Game          @relation(fields: [gameId], references: [id])
   variants    GoalVariant[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
   gameId      String
 }
 
@@ -50,6 +52,8 @@ model Game {
   variants    Variant[]
   goals       Goal[]
   permissions GamePermission[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 }
 
 model GamePermission {

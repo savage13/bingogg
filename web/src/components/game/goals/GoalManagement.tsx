@@ -1,9 +1,26 @@
 import { useApi } from '@/lib/Hooks';
 import { Goal } from '@/types/Goal';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import {
+    faSortDown,
+    faSortUp,
+    faTrash,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useCallback, useEffect, useState } from 'react';
 import GoalEditor from './GoalEditor';
+import Select from 'react-select';
+
+enum SortOptions {
+    DEFAULT,
+    NAME,
+    DIFFICULTY,
+}
+
+const sortOptions = [
+    { label: 'Default', value: SortOptions.DEFAULT },
+    { label: 'Name', value: SortOptions.NAME },
+    { label: 'Difficulty', value: SortOptions.DIFFICULTY },
+];
 
 interface GoalManagementParams {
     slug: string;
@@ -16,12 +33,21 @@ export default function GoalManagement({ slug }: GoalManagementParams) {
         mutate: mutateGoals,
     } = useApi<Goal[]>(`http://localhost:8000/api/games/${slug}/goals`);
 
-    const [selectedIndex, setSelectedIndex] = useState(0);
+    const [selectedGoal, setSelectedGoal] = useState<Goal>();
     const [newGoal, setNewGoal] = useState(false);
 
     const [catList, setCatList] = useState<{ label: string; value: string }[]>(
         [],
     );
+
+    const [sort, setSort] = useState<{
+        label: string;
+        value: SortOptions;
+    } | null>(null);
+    const [shownCats, setShownCats] = useState<
+        { label: string; value: string }[]
+    >([]);
+    const [reverse, setReverse] = useState(false);
 
     useEffect(() => {
         const cats: string[] = [];
@@ -32,6 +58,7 @@ export default function GoalManagement({ slug }: GoalManagementParams) {
                 );
             }
         });
+        cats.sort();
         setCatList(cats.map((cat) => ({ label: cat, value: cat })));
     }, [goals]);
 
@@ -56,17 +83,77 @@ export default function GoalManagement({ slug }: GoalManagementParams) {
         return null;
     }
 
+    const shownGoals = goals
+        .filter((goal) => {
+            if (shownCats.length > 0) {
+                return shownCats.some(
+                    (cat) => goal.categories?.includes(cat.value),
+                );
+            }
+            return true;
+        })
+        .sort((a, b) => {
+            switch (sort?.value) {
+                case SortOptions.DEFAULT:
+                    return 1;
+                case SortOptions.NAME:
+                    return a.goal.localeCompare(b.goal);
+                case SortOptions.DIFFICULTY:
+                    return (a.difficulty ?? 26) - (b.difficulty ?? 26);
+                default:
+                    return 1;
+            }
+        });
+    if (reverse) {
+        shownGoals.reverse();
+    }
+
     return (
-        <div className="flex grow flex-col">
+        <div className="flex grow flex-col gap-y-3">
             <div className="text-center text-2xl">Goal Management</div>
+            <div className="flex w-full gap-x-4">
+                <div className="w-1/3">
+                    <Select
+                        options={catList}
+                        placeholder="Filter by"
+                        onChange={(options) =>
+                            setShownCats(options.toSpliced(0, 0))
+                        }
+                        isMulti
+                        classNames={{
+                            control: () => 'rounded-md',
+                            menuList: () => 'text-black',
+                            container: () => '',
+                        }}
+                    />
+                </div>
+                <div className="flex w-1/3 items-center gap-x-1">
+                    <Select
+                        options={sortOptions}
+                        placeholder="Sort by"
+                        onChange={setSort}
+                        className="grow"
+                        classNames={{
+                            control: () => 'rounded-md',
+                            menuList: () => 'text-black',
+                            container: () => '',
+                        }}
+                    />
+                    <FontAwesomeIcon
+                        icon={reverse ? faSortUp : faSortDown}
+                        className="cursor-pointer rounded-full px-2.5 py-1.5 text-white hover:bg-gray-400"
+                        onClick={() => setReverse(!reverse)}
+                    />
+                </div>
+            </div>
             <div className="flex w-full grow gap-x-5">
                 <div className="flex w-1/3 flex-col rounded-md border-2 border-white px-3">
                     <div className="h-px grow overflow-y-auto">
-                        {goals.map((goal, index) => (
+                        {shownGoals.map((goal) => (
                             <div key={goal.id} className="border-b py-2">
                                 <div
                                     className="group/item flex cursor-pointer items-center rounded-md px-2 py-1 hover:bg-gray-400 hover:bg-opacity-60"
-                                    onClick={() => setSelectedIndex(index)}
+                                    onClick={() => setSelectedGoal(goal)}
                                 >
                                     {goal.goal}
                                     <div className="grow" />
@@ -93,10 +180,10 @@ export default function GoalManagement({ slug }: GoalManagementParams) {
                     </div>
                 </div>
                 <div className="grow text-center">
-                    {!newGoal && goals[selectedIndex] && (
+                    {!newGoal && selectedGoal && (
                         <GoalEditor
                             slug={slug}
-                            goal={goals[selectedIndex]}
+                            goal={selectedGoal}
                             mutateGoals={mutateGoals}
                             categories={catList}
                         />

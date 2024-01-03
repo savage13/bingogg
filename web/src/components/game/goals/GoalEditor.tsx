@@ -26,7 +26,7 @@ export default function GoalEditor({
                 goal: goal.goal,
                 description: goal.description,
                 categories: goal.categories ?? [],
-                difficulty: goal.difficulty ?? 1,
+                difficulty: goal.difficulty ?? 0,
             }}
             onSubmit={async ({
                 goal: goalText,

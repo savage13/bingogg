@@ -3,7 +3,10 @@ import { prisma } from '../Database';
 import { logError } from '../../Logger';
 
 export const goalsForGame = (slug: string) => {
-    return prisma.goal.findMany({ where: { game: { slug } } });
+    return prisma.goal.findMany({
+        where: { game: { slug } },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    });
 };
 
 export const createGoal = (
