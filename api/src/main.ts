@@ -1,17 +1,48 @@
+import Database, { Database as DB } from 'better-sqlite3';
+import SqliteStore from 'better-sqlite3-session-store';
 import bodyParser from 'body-parser';
 import express from 'express';
+import session from 'express-session';
+import { port, sessionSecret, testing } from './Environment';
 import { logDebug, logInfo } from './Logger';
-import { port } from './Environment';
-import api from './routes/api';
 import { allRooms, roomWebSocketServer } from './core/RoomServer';
 import { disconnect } from './database/Database';
+import api from './routes/api';
+
+declare module 'express-session' {
+    interface SessionData {
+        user?: string;
+    }
+}
 
 const app = express();
 
+// configure session store
+const sessionDb: DB = new Database('sessions.db');
+const sessionStore = new (SqliteStore(session))({
+    client: sessionDb,
+    expired: {
+        clear: true,
+        intervalMs: 900000,
+    },
+});
+app.use(
+    session({
+        store: sessionStore,
+        secret: sessionSecret,
+        resave: false,
+        saveUninitialized: true,
+        cookie: { secure: !testing },
+        proxy: !testing,
+        unset: 'destroy',
+    }),
+);
+
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', '*');
-    res.header('Access-Control-Allow-Methods', '*');
+    // res.header('Access-Control-Allow-Origin', clientUrl);
+    // res.header('Access-Control-Allow-Headers', 'Content-Type');
+    // res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE');
+    // res.header('Access-Control-Allow-Credentials', 'true');
     next();
 });
 app.use(bodyParser.json());
@@ -72,6 +103,12 @@ const cleanup = async () => {
             logDebug('Closing database connection');
             await disconnect();
             logDebug('Database connection closed');
+            resolve(undefined);
+        }),
+        new Promise((resolve) => {
+            logDebug('Closing session database connection');
+            sessionDb.close();
+            logDebug('Session database connection closed');
             resolve(undefined);
         }),
     ]);

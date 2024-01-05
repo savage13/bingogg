@@ -4,7 +4,7 @@ import { getSiteAuth } from '../../database/Users';
 
 const siteAuth = Router();
 
-siteAuth.post('/login', async (req, res) => {
+siteAuth.post('/login', async (req, res, next) => {
     const { username, password } = req.body;
 
     if (typeof username !== 'string') {
@@ -31,7 +31,23 @@ siteAuth.post('/login', async (req, res) => {
         res.sendStatus(403);
         return;
     }
-    res.sendStatus(200);
+
+    req.session.regenerate((genErr) => {
+        if (genErr) {
+            next();
+            res.sendStatus(500);
+            return;
+        }
+        req.session.user = auth.id;
+        req.session.save((saveErr) => {
+            if (saveErr) {
+                next();
+                res.sendStatus(500);
+                return;
+            }
+            res.sendStatus(200);
+        });
+    });
 });
 
 export default siteAuth;
