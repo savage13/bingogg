@@ -68,7 +68,9 @@ model GamePermission {
 model User {
   id          String           @id @unique @default(cuid())
   username    String           @unique
+  email       String           @unique
   password    String
+  salt        String
   connections Connection[]
   permissions GamePermission[]
 }

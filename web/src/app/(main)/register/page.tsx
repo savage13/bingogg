@@ -1,6 +1,7 @@
 'use client';
-import { ErrorMessage, Field, Form, Formik } from 'formik';
+import { ErrorMessage, FastField, Field, Form, Formik } from 'formik';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import * as yup from 'yup';
 
 const validationSchema = yup.object({
@@ -75,6 +76,7 @@ const validationSchema = yup.object({
 });
 
 export default function Register() {
+    const router = useRouter();
     return (
         <div className="flex h-full items-center justify-center">
             <div className="flex max-w-[50%] grow flex-col items-center rounded-3xl border-4 px-8 py-6">
@@ -95,14 +97,37 @@ export default function Register() {
                         passwordConfirmation: '',
                     }}
                     validationSchema={validationSchema}
-                    onSubmit={function ({ username, password }) {}}
+                    validateOnChange={false}
+                    onSubmit={async ({ email, username, password }) => {
+                        const res = await fetch(
+                            'http://localhost:8000/api/registration/register',
+                            {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    email,
+                                    username,
+                                    password,
+                                }),
+                            },
+                        );
+                        if (!res.ok) {
+                            //TODO: handle errors
+                            return;
+                        }
+                        if (res.status === 201) {
+                            router.push('/');
+                        }
+                    }}
                 >
                     {({ isValid, isSubmitting, values: { password } }) => (
                         <Form className="flex w-full flex-col gap-y-2">
                             <div className="w-full">
                                 <label>
                                     <div>Email</div>
-                                    <Field
+                                    <FastField
                                         name="email"
                                         className="w-full text-black"
                                     />
@@ -116,7 +141,7 @@ export default function Register() {
                             <div className="w-full">
                                 <label>
                                     <div>Username</div>
-                                    <Field
+                                    <FastField
                                         name="username"
                                         className="w-full text-black"
                                     />
@@ -130,8 +155,8 @@ export default function Register() {
                             <div className="w-full">
                                 <label>
                                     <div>Password</div>
-                                    <Field
-                                        type=""
+                                    <FastField
+                                        type="password"
                                         name="password"
                                         className="w-full text-black"
                                     />
