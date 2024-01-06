@@ -27,8 +27,8 @@ export const usernameUsed = async (username: string) => {
 export const registerUser = async (
     email: string,
     username: string,
-    password: string,
-    salt: string,
+    password: Buffer,
+    salt: Buffer,
 ) => {
     try {
         await prisma.user.create({

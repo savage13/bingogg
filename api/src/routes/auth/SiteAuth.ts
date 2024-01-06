@@ -1,4 +1,4 @@
-import { pbkdf2Sync } from 'crypto';
+import { pbkdf2Sync, timingSafeEqual } from 'crypto';
 import { Router } from 'express';
 import { getSiteAuth } from '../../database/Users';
 
@@ -17,18 +17,12 @@ siteAuth.post('/login', async (req, res, next) => {
 
     const auth = await getSiteAuth(username);
     if (!auth) {
-        res.sendStatus(403);
+        res.sendStatus(401);
         return;
     }
-    const suppliedHash = pbkdf2Sync(
-        password,
-        auth.salt,
-        10000,
-        64,
-        'sha256',
-    ).toString('base64');
-    if (suppliedHash !== auth.password) {
-        res.sendStatus(403);
+    const suppliedHash = pbkdf2Sync(password, auth.salt, 10000, 64, 'sha256');
+    if (!timingSafeEqual(auth.password, suppliedHash)) {
+        res.sendStatus(401);
         return;
     }
 

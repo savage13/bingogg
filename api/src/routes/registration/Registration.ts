@@ -50,14 +50,9 @@ registration.post('/register', async (req, res) => {
         return;
     }
 
-    const salt = randomBytes(16).toString('base64');
+    const salt = randomBytes(16);
     const passwordHash = pbkdf2Sync(password, salt, 10000, 64, 'sha256');
-    const result = registerUser(
-        email,
-        username,
-        passwordHash.toString('base64'),
-        salt,
-    );
+    const result = registerUser(email, username, passwordHash, salt);
     if (!result) {
         res.sendStatus(400);
         return;

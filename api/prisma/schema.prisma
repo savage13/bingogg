@@ -69,8 +69,8 @@ model User {
   id          String           @id @unique @default(cuid())
   username    String           @unique
   email       String           @unique
-  password    String
-  salt        String
+  password    Bytes
+  salt        Bytes
   connections Connection[]
   permissions GamePermission[]
 }
