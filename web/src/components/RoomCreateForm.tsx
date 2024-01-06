@@ -21,21 +21,6 @@ export default function RoomCreateForm() {
     const { data: games, isLoading } = useApi<Game[]>('/api/games');
     const router = useRouter();
 
-    useEffect(() => {
-        async function load() {
-            const res = await fetch('/api/me', {
-                credentials: 'include',
-            });
-            if (res.ok) {
-                const me = await res.json();
-                console.log(me);
-            } else {
-                console.log('me error');
-            }
-        }
-        load();
-    });
-
     if (isLoading) {
         return null;
     }
