@@ -2,11 +2,19 @@
 import { Field, Form, Formik, FormikHelpers, FormikValues } from 'formik';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
+import { UserContext } from '../../../context/UserContext';
 
 export default function Login() {
     const router = useRouter();
     const [error, setError] = useState('');
+    const { checkSession, user } = useContext(UserContext);
+
+    if (user) {
+        router.push('/');
+        return null;
+    }
+
     return (
         <div className="flex h-full items-center justify-center">
             <div className="flex max-w-[50%] grow flex-col items-center rounded-3xl border-4 px-8 py-6">
@@ -36,6 +44,7 @@ export default function Login() {
                             }
                             return;
                         }
+                        await checkSession();
                         router.push('/');
                     }}
                 >
