@@ -27,4 +27,25 @@ api.get('/me', async (req, res) => {
     res.status(200).send(user);
 });
 
+api.post('/logout', (req, res, next) => {
+    if (!req.session.user) {
+        res.sendStatus(401);
+        return;
+    }
+    req.session.user = undefined;
+    req.session.save((err) => {
+        if (err) {
+            next(err);
+            return;
+        }
+        req.session.destroy((destErr) => {
+            if (destErr) {
+                next(destErr);
+                return;
+            }
+            res.sendStatus(200);
+        });
+    });
+});
+
 export default api;

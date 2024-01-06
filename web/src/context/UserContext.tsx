@@ -37,7 +37,13 @@ export const UserContextProvider = ({ children }: React.PropsWithChildren) => {
         }
     }, []);
     const logout = useCallback(async () => {
-        // TODO: request server to end session
+        const res = await fetch('api/logout', { method: 'POST' });
+        if (!res.ok) {
+            if (res.status === 500) {
+                //TODO: handle error
+                return;
+            }
+        }
         setUser(undefined);
         setLoggedIn(false);
     }, []);
