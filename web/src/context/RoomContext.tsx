@@ -86,10 +86,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
     }, []);
     const onCellUpdate = useCallback(
         (row: number, col: number, cellData: Cell) => {
-            console.log(`cell update`);
-            console.log(cellData);
             emitBoardUpdate({ action: 'cell', row, col, cell: cellData });
-            console.log('dispatch called');
         },
         [],
     );

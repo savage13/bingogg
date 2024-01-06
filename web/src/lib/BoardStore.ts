@@ -23,7 +23,6 @@ export const subscribeToBoardUpdates = (listener: () => void) => {
 };
 
 export const emitBoardUpdate = (event: BoardEvent) => {
-    console.log('board reducer');
     switch (event.action) {
         case 'board':
             board = event.board;
@@ -31,7 +30,6 @@ export const emitBoardUpdate = (event: BoardEvent) => {
         case 'cell':
             const newCells = board.board.map((row) => row.map((cell) => cell));
             newCells[event.row][event.col] = event.cell;
-            console.log(newCells);
             board = { board: newCells };
             break;
     }
