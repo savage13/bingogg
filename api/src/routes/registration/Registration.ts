@@ -22,7 +22,7 @@ registration.get('/checkUsername', async (req, res) => {
     res.status(200).json({ valid: !(await usernameUsed(name)) });
 });
 
-registration.post('/register', async (req, res) => {
+registration.post('/register', async (req, res, next) => {
     const { email, username, password } = req.body;
 
     if (typeof email !== 'string') {
@@ -52,12 +52,27 @@ registration.post('/register', async (req, res) => {
 
     const salt = randomBytes(16);
     const passwordHash = pbkdf2Sync(password, salt, 10000, 64, 'sha256');
-    const result = registerUser(email, username, passwordHash, salt);
-    if (!result) {
+    const id = await registerUser(email, username, passwordHash, salt);
+    if (!id) {
         res.sendStatus(400);
         return;
     }
-    res.sendStatus(201);
+    req.session.regenerate((genErr) => {
+        if (genErr) {
+            next();
+            res.sendStatus(500);
+            return;
+        }
+        req.session.user = id;
+        req.session.save((saveErr) => {
+            if (saveErr) {
+                next();
+                res.sendStatus(500);
+                return;
+            }
+            res.sendStatus(201);
+        });
+    });
 });
 
 export default registration;

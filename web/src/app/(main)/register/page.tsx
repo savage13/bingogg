@@ -2,7 +2,9 @@
 import { ErrorMessage, FastField, Field, Form, Formik } from 'formik';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useContext } from 'react';
 import * as yup from 'yup';
+import { UserContext } from '../../../context/UserContext';
 
 const validationSchema = yup.object({
     email: yup
@@ -77,6 +79,11 @@ const validationSchema = yup.object({
 
 export default function Register() {
     const router = useRouter();
+    const { user, checkSession } = useContext(UserContext);
+    if (user) {
+        router.replace('/');
+        return null;
+    }
     return (
         <div className="flex h-full items-center justify-center">
             <div className="flex max-w-[50%] grow flex-col items-center rounded-3xl border-4 px-8 py-6">
@@ -115,6 +122,7 @@ export default function Register() {
                             return;
                         }
                         if (res.status === 201) {
+                            await checkSession();
                             router.push('/');
                         }
                     }}

@@ -31,10 +31,10 @@ export const registerUser = async (
     salt: Buffer,
 ) => {
     try {
-        await prisma.user.create({
+        const user = await prisma.user.create({
             data: { email, username, password, salt },
         });
-        return true;
+        return user.id;
     } catch {
         return false;
     }
