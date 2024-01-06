@@ -26,16 +26,13 @@ export default function NewGame() {
                     validationSchema={newGameValidationSchema}
                     onSubmit={async (values) => {
                         console.log(values);
-                        const res = await fetch(
-                            'http://localhost:8000/api/games',
-                            {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify(values),
+                        const res = await fetch('/api/games', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
                             },
-                        );
+                            body: JSON.stringify(values),
+                        });
                         if (!res.ok) {
                             const error = await res.text();
                             console.log(error);

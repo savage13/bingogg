@@ -14,7 +14,7 @@ const validationSchema = yup.object({
             'An account is already registered with that email.',
             async (email) => {
                 const res = await fetch(
-                    `http://localhost:8000/api/registration/checkEmail?email=${email}`,
+                    `/api/registration/checkEmail?email=${email}`,
                 );
                 if (!res.ok) {
                     return false;
@@ -40,7 +40,7 @@ const validationSchema = yup.object({
             'An account with that username already exists.',
             async (username, ctx) => {
                 const res = await fetch(
-                    `http://localhost:8000/api/registration/checkUsername?name=${username}`,
+                    `/api/registration/checkUsername?name=${username}`,
                 );
                 if (!res.ok) {
                     return ctx.createError({
@@ -99,20 +99,17 @@ export default function Register() {
                     validationSchema={validationSchema}
                     validateOnChange={false}
                     onSubmit={async ({ email, username, password }) => {
-                        const res = await fetch(
-                            'http://localhost:8000/api/registration/register',
-                            {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify({
-                                    email,
-                                    username,
-                                    password,
-                                }),
+                        const res = await fetch('/api/registration/register', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
                             },
-                        );
+                            body: JSON.stringify({
+                                email,
+                                username,
+                                password,
+                            }),
+                        });
                         if (!res.ok) {
                             //TODO: handle errors
                             return;

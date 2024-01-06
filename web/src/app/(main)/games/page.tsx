@@ -4,7 +4,7 @@ import { Game } from '@/types/Game';
 import TextFit from '../../../components/TextFit';
 
 async function loadData(): Promise<Game[]> {
-    const res = await fetch('http://localhost:8000/api/games');
+    const res = await fetch('/api/games');
     return res.json();
 }
 

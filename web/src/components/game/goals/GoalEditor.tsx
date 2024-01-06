@@ -35,21 +35,18 @@ export default function GoalEditor({
                 difficulty,
             }) => {
                 if (isNew) {
-                    const res = await fetch(
-                        `http://localhost:8000/api/games/${slug}/goals`,
-                        {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                goal: goalText,
-                                description,
-                                categories,
-                                difficulty,
-                            }),
+                    const res = await fetch(`/api/games/${slug}/goals`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
                         },
-                    );
+                        body: JSON.stringify({
+                            goal: goalText,
+                            description,
+                            categories,
+                            difficulty,
+                        }),
+                    });
                     if (!res.ok) {
                         // TODO: handle error
                         return;
@@ -59,37 +56,30 @@ export default function GoalEditor({
                         cancelNew();
                     }
                 } else {
-                    const res = await fetch(
-                        `http://localhost:8000/api/goals/${goal.id}`,
-                        {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                goal:
-                                    goalText !== goal.goal
-                                        ? goalText
-                                        : undefined,
-                                description:
-                                    description !== goal.description
-                                        ? description
-                                        : undefined,
-                                categories:
-                                    categories.length !==
-                                        goal.categories?.length ||
-                                    !categories.every(
-                                        (cat) => goal.categories?.includes(cat),
-                                    )
-                                        ? categories
-                                        : undefined,
-                                difficulty:
-                                    difficulty !== goal.difficulty
-                                        ? difficulty
-                                        : undefined,
-                            }),
+                    const res = await fetch(`/api/goals/${goal.id}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
                         },
-                    );
+                        body: JSON.stringify({
+                            goal: goalText !== goal.goal ? goalText : undefined,
+                            description:
+                                description !== goal.description
+                                    ? description
+                                    : undefined,
+                            categories:
+                                categories.length !== goal.categories?.length ||
+                                !categories.every(
+                                    (cat) => goal.categories?.includes(cat),
+                                )
+                                    ? categories
+                                    : undefined,
+                            difficulty:
+                                difficulty !== goal.difficulty
+                                    ? difficulty
+                                    : undefined,
+                        }),
+                    });
                     if (!res.ok) {
                         //TODO: handle error
                         return;

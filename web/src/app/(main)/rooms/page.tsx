@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 async function loadData() {
-    const res = await fetch('http://localhost:8000/api/rooms');
+    const res = await fetch('/api/rooms');
     return res.json();
 }
 

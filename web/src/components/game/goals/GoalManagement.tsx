@@ -31,7 +31,7 @@ export default function GoalManagement({ slug }: GoalManagementParams) {
         data: goals,
         isLoading: goalsLoading,
         mutate: mutateGoals,
-    } = useApi<Goal[]>(`http://localhost:8000/api/games/${slug}/goals`);
+    } = useApi<Goal[]>(`/api/games/${slug}/goals`);
 
     const [selectedGoal, setSelectedGoal] = useState<Goal>();
     const [newGoal, setNewGoal] = useState(false);
@@ -64,7 +64,7 @@ export default function GoalManagement({ slug }: GoalManagementParams) {
 
     const deleteGoal = useCallback(
         async (id: string) => {
-            const res = await fetch(`http://localhost:8000/api/goals/${id}`, {
+            const res = await fetch(`/api/goals/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',

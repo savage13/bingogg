@@ -18,16 +18,14 @@ export default function Login() {
                 <Formik
                     initialValues={{ username: '', password: '' }}
                     onSubmit={async ({ username, password }) => {
-                        const res = await fetch(
-                            'http://localhost:8000/api/auth/login',
-                            {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify({ username, password }),
+                        const res = await fetch('/api/auth/login', {
+                            method: 'POST',
+                            credentials: 'include',
+                            headers: {
+                                'Content-Type': 'application/json',
                             },
-                        );
+                            body: JSON.stringify({ username, password }),
+                        });
                         if (!res.ok) {
                             if (res.status === 403) {
                                 setError('Incorrect username or password.');

@@ -2,7 +2,7 @@
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import { useApi } from '../lib/Hooks';
 import { Game } from '@/types/Game';
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 import * as yup from 'yup';
 import { useRouter } from 'next/navigation';
 
@@ -18,10 +18,23 @@ const roomValidationSchema = yup.object().shape({
 });
 
 export default function RoomCreateForm() {
-    const { data: games, isLoading } = useApi<Game[]>(
-        'http://localhost:8000/api/games',
-    );
+    const { data: games, isLoading } = useApi<Game[]>('/api/games');
     const router = useRouter();
+
+    useEffect(() => {
+        async function load() {
+            const res = await fetch('/api/me', {
+                credentials: 'include',
+            });
+            if (res.ok) {
+                const me = await res.json();
+                console.log(me);
+            } else {
+                console.log('me error');
+            }
+        }
+        load();
+    });
 
     if (isLoading) {
         return null;
@@ -42,7 +55,7 @@ export default function RoomCreateForm() {
             }}
             validationSchema={roomValidationSchema}
             onSubmit={async (values) => {
-                const res = await fetch('http://localhost:8000/api/rooms', {
+                const res = await fetch('/api/rooms', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

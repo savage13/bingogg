@@ -189,14 +189,11 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
     );
     const connect = useCallback(
         async (nickname: string, password: string) => {
-            const res = await fetch(
-                `http://localhost:8000/api/rooms/${slug}/authorize`,
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ password }),
-                },
-            );
+            const res = await fetch(`/api/rooms/${slug}/authorize`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password }),
+            });
             if (!res.ok) {
                 if (res.status === 403) {
                     return { success: false, message: 'Incorrect password' };

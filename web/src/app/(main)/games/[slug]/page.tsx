@@ -13,9 +13,7 @@ export default function Game({
 }) {
     const [newGoal, setNewGoal] = useState(false);
 
-    const { data: gameData, isLoading } = useApi<Game>(
-        `http://localhost:8000/api/games/${slug}?`,
-    );
+    const { data: gameData, isLoading } = useApi<Game>(`/api/games/${slug}?`);
 
     if (!gameData || isLoading) {
         return null;
