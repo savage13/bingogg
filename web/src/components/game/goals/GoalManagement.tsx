@@ -1,6 +1,7 @@
 import { useApi } from '@/lib/Hooks';
 import { Goal } from '@/types/Goal';
 import {
+    faAdd,
     faSortDown,
     faSortUp,
     faTrash,
@@ -48,6 +49,7 @@ export default function GoalManagement({ slug }: GoalManagementParams) {
         { label: string; value: string }[]
     >([]);
     const [reverse, setReverse] = useState(false);
+    const [search, setSearch] = useState('');
 
     useEffect(() => {
         const cats: string[] = [];
@@ -85,12 +87,23 @@ export default function GoalManagement({ slug }: GoalManagementParams) {
 
     const shownGoals = goals
         .filter((goal) => {
+            let shown = true;
             if (shownCats.length > 0) {
-                return shownCats.some(
+                shown = shownCats.some(
                     (cat) => goal.categories?.includes(cat.value),
                 );
             }
-            return true;
+            if (!shown) {
+                return false;
+            }
+            if (search && search.length > 0) {
+                shown =
+                    goal.goal.toLowerCase().includes(search.toLowerCase()) ||
+                    goal.description
+                        ?.toLowerCase()
+                        .includes(search.toLowerCase());
+            }
+            return shown;
         })
         .sort((a, b) => {
             switch (sort?.value) {
@@ -145,6 +158,14 @@ export default function GoalManagement({ slug }: GoalManagementParams) {
                         onClick={() => setReverse(!reverse)}
                     />
                 </div>
+                <div className="w-1/3">
+                    <input
+                        type="text"
+                        placeholder="Search"
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="h-full w-full rounded-md text-black"
+                    />
+                </div>
             </div>
             <div className="flex w-full grow gap-x-5">
                 <div className="flex w-1/3 flex-col rounded-md border-2 border-white px-3">
@@ -174,6 +195,10 @@ export default function GoalManagement({ slug }: GoalManagementParams) {
                                 className="cursor-pointer rounded-md px-2 py-2 hover:bg-gray-400 hover:bg-opacity-60"
                                 onClick={() => setNewGoal(true)}
                             >
+                                <FontAwesomeIcon
+                                    icon={faAdd}
+                                    className="pr-2 text-green-500"
+                                />
                                 New Goal
                             </div>
                         </div>
