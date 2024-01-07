@@ -1,5 +1,11 @@
 'use client';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+    useCallback,
+    useEffect,
+    useLayoutEffect,
+    useRef,
+    useState,
+} from 'react';
 
 export default function TextFit({
     text,
@@ -35,7 +41,7 @@ export default function TextFit({
         fit();
     }, [fit]);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         fit();
     }, [optimizedFontSize, fit]);
 
