@@ -10,7 +10,9 @@ import {
 } from '../types/RoomAction';
 import { Board, ChatMessage, ServerMessage } from '../types/ServerMessage';
 import { goalsForGame } from '../database/games/Goals';
-import { chunk, shuffle } from '../util/Array';
+import { chunk } from '../util/Array';
+import { generateSRLv5 } from './generation/SRLv5';
+import { Goal } from '@prisma/client';
 
 type RoomIdentity = {
     nickname: string;
@@ -48,12 +50,26 @@ export default class Room {
 
     async generateBoard() {
         const goals = await goalsForGame(this.gameSlug);
-        shuffle(goals);
-        this.board = {
-            board: chunk(goals.slice(0, 25), 5).map((rowGoals) =>
-                rowGoals.map((goal) => ({ goal: goal.goal, colors: [] })),
-            ),
-        };
+        const goalsByDiff: Goal[][] = [];
+        goals.forEach((goal) => {
+            if (!goal.difficulty) return;
+            if (!goalsByDiff[goal.difficulty]) {
+                goalsByDiff[goal.difficulty] = [];
+            }
+            goalsByDiff[goal.difficulty].push(goal);
+        });
+        const srlBoard = generateSRLv5(goals);
+        if (!srlBoard) return;
+        srlBoard.shift();
+        const chunked = chunk(
+            srlBoard.map((g) => ({
+                goal: `${g.goal} (${g.difficulty})`,
+                description: g.description,
+                colors: [],
+            })),
+            5,
+        );
+        this.board = { board: chunked };
         this.sendSyncBoard();
     }
 
