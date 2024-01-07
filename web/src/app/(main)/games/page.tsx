@@ -1,15 +1,19 @@
-import Image from 'next/image';
+'use client';
 import Link from 'next/link';
 import { Game } from '@/types/Game';
-import TextFit from '../../../components/TextFit';
+import { useApi } from '../../../lib/Hooks';
 
-async function loadData(): Promise<Game[]> {
-    const res = await fetch('/api/games');
-    return res.json();
-}
+export default function Games() {
+    const { data: games, isLoading, error } = useApi<Game[]>('/api/games');
 
-export default async function Games() {
-    const games = await loadData();
+    if (!games || isLoading) {
+        return null;
+    }
+
+    if (error) {
+        return 'Unable to load game list.';
+    }
+
     return (
         <>
             <div className="flex items-center border-b pb-4">

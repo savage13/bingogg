@@ -1,6 +1,7 @@
 'use client';
 import { Field, Form, Formik } from 'formik';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import * as yup from 'yup';
 
 const newGameValidationSchema = yup.object().shape({
@@ -16,6 +17,7 @@ const newGameValidationSchema = yup.object().shape({
 });
 
 export default function NewGame() {
+    const router = useRouter();
     return (
         <div>
             <div className="pb-8 text-center text-3xl">Create a new game</div>
@@ -35,10 +37,12 @@ export default function NewGame() {
                         if (!res.ok) {
                             const error = await res.text();
                             //TODO: do something with server error
+                            return;
                         }
+                        router.push('/');
                     }}
                 >
-                    {({ errors, touched, values }) => (
+                    {({ errors, touched }) => (
                         <Form className="flex w-1/2 flex-col content-center items-center gap-y-2">
                             <div className="w-full">
                                 <label className="flex gap-x-4">
