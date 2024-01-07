@@ -1,14 +1,22 @@
+'use client';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useApi } from '../../../lib/Hooks';
+import { RoomData } from '../../../types/RoomData';
 
-async function loadData() {
-    const res = await fetch('/api/rooms');
-    return res.json();
-}
+export default function Rooms() {
+    const {
+        data: roomList,
+        isLoading,
+        error,
+    } = useApi<RoomData[]>('/api/rooms');
 
-export default async function Rooms() {
-    const roomList: { name: string; game: string; slug: string }[] =
-        await loadData();
+    if (isLoading || !roomList) {
+        return null;
+    }
+    if (error) {
+        return 'Unable to load room list.';
+    }
+
     return (
         <div>
             {roomList.map((room) => (
