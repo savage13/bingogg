@@ -33,6 +33,7 @@ export default class Room {
     connections: Map<string, WebSocket>;
     board: Board;
     identities: Map<string, RoomIdentity>;
+    chatHistory: ChatMessage[];
 
     constructor(name: string, game: string, gameSlug: string, slug: string) {
         this.name = name;
@@ -42,6 +43,7 @@ export default class Room {
         this.slug = slug;
         this.identities = new Map();
         this.connections = new Map();
+        this.chatHistory = [];
 
         this.board = {
             board: [],
@@ -99,7 +101,7 @@ export default class Room {
         return {
             action: 'connected',
             board: this.board,
-            chatHistory: [],
+            chatHistory: this.chatHistory,
             nickname: identity.nickname,
             roomData: {
                 game: this.game,
@@ -212,8 +214,10 @@ export default class Room {
 
     sendChat(message: string | ChatMessage) {
         if (typeof message === 'string') {
+            this.chatHistory.push([message]);
             this.sendServerMessage({ action: 'chat', message: [message] });
         } else {
+            this.chatHistory.push(message);
             this.sendServerMessage({ action: 'chat', message: message });
         }
     }

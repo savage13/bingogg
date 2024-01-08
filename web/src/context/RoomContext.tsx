@@ -167,6 +167,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
             onClose() {
                 setAuthToken('');
                 setConnectionStatus(ConnectionStatus.CLOSED);
+                console.log('closing ws connection');
             },
         },
         connectionStatus === ConnectionStatus.CONNECTING ||
