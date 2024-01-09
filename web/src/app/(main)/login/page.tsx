@@ -2,7 +2,7 @@
 import { Field, Form, Formik, FormikHelpers, FormikValues } from 'formik';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../../context/UserContext';
 
 export default function Login() {
@@ -10,10 +10,11 @@ export default function Login() {
     const [error, setError] = useState('');
     const { checkSession, user } = useContext(UserContext);
 
-    if (user) {
-        router.push('/');
-        return null;
-    }
+    useEffect(() => {
+        if (user) {
+            router.push('/');
+        }
+    }, [user, router]);
 
     return (
         <div className="flex h-full items-center justify-center">
