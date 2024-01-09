@@ -40,6 +40,7 @@
                 "board": {"$ref": "./Board.json"},
                 "chatHistory": {"type": "array", "items": {"$ref": "./ChatMessage.json"} },
                 "nickname": {"type": "string"},
+                "color": {"type": "string"},
                 "roomData": {"$ref": "./RoomData.json"}
             }
         },

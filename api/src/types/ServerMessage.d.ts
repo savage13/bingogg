@@ -28,6 +28,7 @@ export type ServerMessage = (
       board: Board;
       chatHistory: ChatMessage[];
       nickname?: string;
+      color?: string;
       roomData?: RoomData;
     }
   | {

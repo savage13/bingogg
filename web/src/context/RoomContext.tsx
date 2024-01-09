@@ -99,9 +99,13 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
             chatHistory: ChatMessage[],
             roomData: RoomData,
             nickname?: string,
+            color?: string,
         ) => {
             if (nickname) {
                 setNickname(nickname);
+            }
+            if (color) {
+                setColor(color);
             }
             emitBoardUpdate({ action: 'board', board });
             setMessages(chatHistory);
@@ -157,6 +161,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
                             payload.chatHistory,
                             payload.roomData,
                             payload.nickname,
+                            payload.color,
                         );
                         break;
                     case 'unauthorized':

@@ -103,6 +103,7 @@ export default class Room {
             board: this.board,
             chatHistory: this.chatHistory,
             nickname: identity.nickname,
+            color: identity.color,
             roomData: {
                 game: this.game,
                 slug: this.slug,
