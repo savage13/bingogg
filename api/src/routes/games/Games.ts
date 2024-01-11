@@ -26,6 +26,10 @@ games.get('/:slug', async (req, res) => {
 });
 
 games.post('/', async (req, res) => {
+    if (!req.session.user) {
+        res.sendStatus(401);
+        return;
+    }
     const { name, slug, coverImage } = req.body;
     if (!name) {
         res.status(400).send('Missing game name');
@@ -35,7 +39,7 @@ games.post('/', async (req, res) => {
         res.status(400).send('Missing game slug');
         return;
     }
-    const result = await createGame(name, slug, coverImage);
+    const result = await createGame(name, slug, coverImage, [req.session.user]);
     res.status(200).json(result);
 });
 

@@ -12,4 +12,10 @@ export interface Game {
   name: string;
   slug: string;
   coverImage?: string;
+  owners?: User[];
+  moderators?: User[];
+}
+export interface User {
+  id: string;
+  username: string;
 }

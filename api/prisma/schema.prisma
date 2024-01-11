@@ -45,34 +45,28 @@ model Variant {
 }
 
 model Game {
-  id          String           @id @unique @default(cuid())
-  name        String
-  slug        String           @unique
-  coverImage  String?
-  variants    Variant[]
-  goals       Goal[]
-  permissions GamePermission[]
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-}
-
-model GamePermission {
-  id          String @id @unique @default(cuid())
-  user        User   @relation(fields: [userId], references: [id])
-  game        Game   @relation(fields: [gameId], references: [id])
-  permissions Int
-  userId      String
-  gameId      String
+  id         String    @id @unique @default(cuid())
+  name       String
+  slug       String    @unique
+  coverImage String?
+  variants   Variant[]
+  goals      Goal[]
+  owners     User[]    @relation("GameOwners")
+  moderators User[]    @relation("GameModerators")
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 }
 
 model User {
-  id          String           @id @unique @default(cuid())
-  username    String           @unique
-  email       String           @unique
-  password    Bytes
-  salt        Bytes
-  connections Connection[]
-  permissions GamePermission[]
+  id             String       @id @unique @default(cuid())
+  username       String       @unique
+  email          String       @unique
+  password       Bytes
+  salt           Bytes
+  connections    Connection[]
+  staff          Boolean      @default(false)
+  ownedGames     Game[]       @relation("GameOwners")
+  moderatedGames Game[]       @relation("GameModerators")
 }
 
 model Connection {

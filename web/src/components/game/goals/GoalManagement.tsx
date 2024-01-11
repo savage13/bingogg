@@ -122,7 +122,7 @@ export default function GoalManagement({ slug }: GoalManagementParams) {
     }
 
     return (
-        <div className="flex grow flex-col gap-y-3">
+        <div className="flex h-full grow flex-col gap-y-3">
             <div className="text-center text-2xl">Goal Management</div>
             <div className="flex w-full gap-x-4">
                 <div className="w-1/3">

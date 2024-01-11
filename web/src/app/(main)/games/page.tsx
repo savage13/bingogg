@@ -2,8 +2,12 @@
 import Link from 'next/link';
 import { Game } from '@/types/Game';
 import { useApi } from '../../../lib/Hooks';
+import { useContext } from 'react';
+import { UserContext } from '../../../context/UserContext';
 
 export default function Games() {
+    const { loggedIn } = useContext(UserContext);
+
     const { data: games, isLoading, error } = useApi<Game[]>('/api/games');
 
     if (!games || isLoading) {
@@ -19,14 +23,16 @@ export default function Games() {
             <div className="flex items-center border-b pb-4">
                 {games.length} games loaded
                 <div className="grow" />
-                <div>
-                    <Link
-                        className="rounded-md border bg-green-700 p-2"
-                        href="/games/new"
-                    >
-                        Create a new game
-                    </Link>
-                </div>
+                {loggedIn && (
+                    <div>
+                        <Link
+                            className="rounded-md border bg-green-700 p-2"
+                            href="/games/new"
+                        >
+                            Create a new game
+                        </Link>
+                    </div>
+                )}
             </div>
             <div className="flex flex-wrap gap-x-4 gap-y-4 pt-2">
                 {games.map((game) => (

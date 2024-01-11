@@ -5,15 +5,30 @@ export const allGames = () => {
 };
 
 export const gameForSlug = (slug: string) => {
-    return prisma.game.findUnique({ where: { slug } });
+    return prisma.game.findUnique({
+        where: { slug },
+        include: { owners: true, moderators: true },
+    });
 };
 
-export const createGame = (name: string, slug: string, coverImage?: string) => {
+export const createGame = (
+    name: string,
+    slug: string,
+    coverImage?: string,
+    owners?: string[],
+    moderators?: string[],
+) => {
     return prisma.game.create({
         data: {
             name,
             slug,
             coverImage,
+            owners: {
+                connect: owners?.map((o) => ({ id: o })),
+            },
+            moderators: {
+                connect: moderators?.map((m) => ({ id: m })),
+            },
         },
     });
 };
