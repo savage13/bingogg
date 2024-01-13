@@ -2,7 +2,9 @@
 import { Field, Form, Formik } from 'formik';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useContext, useLayoutEffect } from 'react';
 import * as yup from 'yup';
+import { UserContext } from '../../../../context/UserContext';
 
 const newGameValidationSchema = yup.object().shape({
     name: yup.string().required('Game name is required'),
@@ -17,7 +19,18 @@ const newGameValidationSchema = yup.object().shape({
 });
 
 export default function NewGame() {
+    const { loggedIn } = useContext(UserContext);
     const router = useRouter();
+
+    useLayoutEffect(() => {
+        if (!loggedIn) {
+            router.push('/');
+        }
+    });
+    if (!loggedIn) {
+        return null;
+    }
+
     return (
         <div>
             <div className="pb-8 text-center text-3xl">Create a new game</div>
