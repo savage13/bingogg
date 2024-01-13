@@ -5,6 +5,8 @@ import {
     allGames,
     createGame,
     gameForSlug,
+    removeModerator,
+    removeOwner,
     updateGameCover,
     updateGameName,
 } from '../../database/games/Games';
@@ -134,6 +136,30 @@ games.post('/:slug/owners', async (req, res) => {
     res.sendStatus(200);
 });
 
+games.delete('/:slug/owners', async (req, res) => {
+    const { slug } = req.params;
+    const { user } = req.body;
+    if (!user) {
+        res.status(400).send('Missing user');
+        return;
+    }
+    if (!getUser(user)) {
+        res.sendStatus(404);
+        return;
+    }
+    const game = await gameForSlug(slug);
+    if (!game) {
+        res.sendStatus(404);
+        return;
+    }
+    if (game.owners.length <= 1) {
+        res.status(400).send('Cannot remove the last owner of a game.');
+    }
+
+    await removeOwner(slug, user);
+    res.sendStatus(200);
+});
+
 games.post('/:slug/moderators', async (req, res) => {
     const { slug } = req.params;
     const { users } = req.body;
@@ -162,6 +188,22 @@ games.post('/:slug/moderators', async (req, res) => {
     }
 
     await addModerators(slug, users);
+    res.sendStatus(200);
+});
+
+games.delete('/:slug/moderators', async (req, res) => {
+    const { slug } = req.params;
+    const { user } = req.body;
+    if (!user) {
+        res.status(400).send('Missing user');
+        return;
+    }
+    if (!getUser(user)) {
+        res.sendStatus(404);
+        return;
+    }
+
+    await removeModerator(slug, user);
     res.sendStatus(200);
 });
 

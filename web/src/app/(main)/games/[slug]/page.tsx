@@ -8,6 +8,7 @@ import Link from 'next/link';
 import GoalManagement from '../../../../components/game/goals/GoalManagement';
 import { useState } from 'react';
 import UserSearch from '../../../../components/UserSearch';
+import { mutate as mutateGlobal } from 'swr';
 
 const tabs = ['Goals', 'Permissions'];
 
@@ -115,10 +116,41 @@ export default function Game({
                                                 className="flex items-center"
                                             >
                                                 <div>{owner.username}</div>
-                                                <FontAwesomeIcon
-                                                    icon={faTrash}
-                                                    className="ml-1 cursor-pointer rounded-full p-2 hover:bg-gray-500 hover:bg-opacity-60"
-                                                />
+                                                {gameData.owners?.length &&
+                                                    gameData.owners.length >
+                                                        1 && (
+                                                        <FontAwesomeIcon
+                                                            icon={faTrash}
+                                                            className="ml-1 cursor-pointer rounded-full p-2 hover:bg-gray-500 hover:bg-opacity-60"
+                                                            onClick={async () => {
+                                                                const res =
+                                                                    await fetch(
+                                                                        `/api/games/${slug}/owners`,
+                                                                        {
+                                                                            method: 'DELETE',
+                                                                            headers:
+                                                                                {
+                                                                                    'Content-Type':
+                                                                                        'application/json',
+                                                                                },
+                                                                            body: JSON.stringify(
+                                                                                {
+                                                                                    user: owner.id,
+                                                                                },
+                                                                            ),
+                                                                        },
+                                                                    );
+                                                                if (!res.ok) {
+                                                                    //TODO: handle the error
+                                                                    return;
+                                                                }
+                                                                mutate();
+                                                                mutateGlobal(
+                                                                    `/api/games/${slug}/eligibleMods`,
+                                                                );
+                                                            }}
+                                                        />
+                                                    )}
                                             </div>
                                         ))}
                                     </div>
@@ -151,6 +183,31 @@ export default function Game({
                                                 <FontAwesomeIcon
                                                     icon={faTrash}
                                                     className="ml-1 cursor-pointer rounded-full p-2 hover:bg-gray-500 hover:bg-opacity-60"
+                                                    onClick={async () => {
+                                                        const res = await fetch(
+                                                            `/api/games/${slug}/moderators`,
+                                                            {
+                                                                method: 'DELETE',
+                                                                headers: {
+                                                                    'Content-Type':
+                                                                        'application/json',
+                                                                },
+                                                                body: JSON.stringify(
+                                                                    {
+                                                                        user: mod.id,
+                                                                    },
+                                                                ),
+                                                            },
+                                                        );
+                                                        if (!res.ok) {
+                                                            //TODO: handle the error
+                                                            return;
+                                                        }
+                                                        mutate();
+                                                        mutateGlobal(
+                                                            `/api/games/${slug}/eligibleMods`,
+                                                        );
+                                                    }}
                                                 />
                                             </div>
                                         ))}
@@ -186,6 +243,7 @@ export default function Game({
                         return;
                     }
                     mutate();
+                    mutateGlobal(`/api/games/${slug}/eligibleMods`);
                 }}
                 listPath={`/api/games/${slug}/eligibleMods`}
             />
@@ -203,6 +261,7 @@ export default function Game({
                         return;
                     }
                     mutate();
+                    mutateGlobal(`/api/games/${slug}/eligibleMods`);
                 }}
                 listPath={`/api/games/${slug}/eligibleMods`}
             />

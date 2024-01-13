@@ -58,3 +58,17 @@ export const addModerators = (slug: string, users: string[]) => {
         data: { moderators: { connect: users.map((user) => ({ id: user })) } },
     });
 };
+
+export const removeOwner = (slug: string, user: string) => {
+    return prisma.game.update({
+        where: { slug },
+        data: { owners: { disconnect: { id: user } } },
+    });
+};
+
+export const removeModerator = (slug: string, user: string) => {
+    return prisma.game.update({
+        where: { slug },
+        data: { moderators: { disconnect: { id: user } } },
+    });
+};
