@@ -7,6 +7,7 @@ import {
     useState,
 } from 'react';
 import { User } from '../types/User';
+import { useRouter } from 'next/navigation';
 
 interface UserContext {
     loggedIn: boolean;
@@ -24,6 +25,7 @@ export const UserContext = createContext<UserContext>({
 export const UserContextProvider = ({ children }: React.PropsWithChildren) => {
     const [loggedIn, setLoggedIn] = useState(false);
     const [user, setUser] = useState<User>();
+    const router = useRouter();
 
     const checkSession = useCallback(async () => {
         const res = await fetch('/api/me');
@@ -46,7 +48,8 @@ export const UserContextProvider = ({ children }: React.PropsWithChildren) => {
         }
         setUser(undefined);
         setLoggedIn(false);
-    }, []);
+        router.push('/');
+    }, [router]);
 
     useLayoutEffect(() => {
         checkSession();
