@@ -1,33 +1,43 @@
 'use client';
 import { useApi } from '@/lib/Hooks';
 import { Game } from '@/types/Game';
-import { faAdd, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Tab } from '@headlessui/react';
 import Link from 'next/link';
+import { useLayoutEffect, useState } from 'react';
+import PermissionsManagement from '../../../../components/game/PermissionsManagement';
 import GoalManagement from '../../../../components/game/goals/GoalManagement';
-import { useState } from 'react';
-import UserSearch from '../../../../components/UserSearch';
-import { mutate as mutateGlobal } from 'swr';
-
-const tabs = ['Goals', 'Permissions'];
 
 export default function Game({
     params: { slug },
 }: {
     params: { slug: string };
 }) {
-    const {
-        data: gameData,
-        isLoading,
-        mutate,
-    } = useApi<Game>(`/api/games/${slug}`);
+    const { data: gameData, isLoading } = useApi<Game>(`/api/games/${slug}`);
 
-    const [searchOpenOwner, setSearchOpenOwner] = useState(false);
-    const [searchOpenMod, setSearchOpenMod] = useState(false);
+    const [isOwner, setIsOwner] = useState(false);
+    const [canModerate, setCanModerate] = useState(false);
+
+    useLayoutEffect(() => {
+        async function loadPermissions() {
+            const res = await fetch(`/api/games/${slug}/permissions`);
+            if (!res.ok) {
+                //TODO: handle error
+                return;
+            }
+            const permissions = await res.json();
+            setIsOwner(permissions.isOwner);
+            setCanModerate(permissions.canModerate);
+        }
+        loadPermissions();
+    }, [slug]);
 
     if (!gameData || isLoading) {
         return null;
+    }
+
+    const tabs = ['Goals'];
+    if (isOwner) {
+        tabs.push('Permissions');
     }
 
     return (
@@ -98,173 +108,21 @@ export default function Game({
                     </Tab.List>
                     <Tab.Panels className="mt-2 h-full">
                         <Tab.Panel className="h-full rounded-xl p-3">
-                            <GoalManagement slug={slug} />
+                            <GoalManagement
+                                slug={slug}
+                                canModerate={canModerate}
+                            />
                         </Tab.Panel>
                         <Tab.Panel>
-                            <div>
-                                <div className="pb-5">
-                                    <div className="text-xl">Owners</div>
-                                    <div className="pb-3 text-xs">
-                                        Owners have full moderation powers over
-                                        a game, including appointing additional
-                                        owners and moderators.
-                                    </div>
-                                    <div>
-                                        {gameData.owners?.map((owner) => (
-                                            <div
-                                                key={owner.id}
-                                                className="flex items-center"
-                                            >
-                                                <div>{owner.username}</div>
-                                                {gameData.owners?.length &&
-                                                    gameData.owners.length >
-                                                        1 && (
-                                                        <FontAwesomeIcon
-                                                            icon={faTrash}
-                                                            className="ml-1 cursor-pointer rounded-full p-2 hover:bg-gray-500 hover:bg-opacity-60"
-                                                            onClick={async () => {
-                                                                const res =
-                                                                    await fetch(
-                                                                        `/api/games/${slug}/owners`,
-                                                                        {
-                                                                            method: 'DELETE',
-                                                                            headers:
-                                                                                {
-                                                                                    'Content-Type':
-                                                                                        'application/json',
-                                                                                },
-                                                                            body: JSON.stringify(
-                                                                                {
-                                                                                    user: owner.id,
-                                                                                },
-                                                                            ),
-                                                                        },
-                                                                    );
-                                                                if (!res.ok) {
-                                                                    //TODO: handle the error
-                                                                    return;
-                                                                }
-                                                                mutate();
-                                                                mutateGlobal(
-                                                                    `/api/games/${slug}/eligibleMods`,
-                                                                );
-                                                            }}
-                                                        />
-                                                    )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div
-                                        className="flex max-w-fit cursor-pointer items-center rounded-md px-2 py-1 text-sm hover:bg-gray-500 hover:bg-opacity-60"
-                                        onClick={() => setSearchOpenOwner(true)}
-                                    >
-                                        <FontAwesomeIcon
-                                            icon={faAdd}
-                                            className="mr-2 text-green-400"
-                                        />
-                                        Add new owner
-                                    </div>
-                                </div>
-                                <div>
-                                    <div className="text-xl">Moderators</div>
-                                    <div className="pb-3 text-xs">
-                                        Moderators have the power to modify goal
-                                        lists and create game modes and
-                                        variants, as well as modify some game
-                                        settings.
-                                    </div>
-                                    <div>
-                                        {gameData.moderators?.map((mod) => (
-                                            <div
-                                                key={mod.id}
-                                                className="flex items-center"
-                                            >
-                                                <div>{mod.username}</div>
-                                                <FontAwesomeIcon
-                                                    icon={faTrash}
-                                                    className="ml-1 cursor-pointer rounded-full p-2 hover:bg-gray-500 hover:bg-opacity-60"
-                                                    onClick={async () => {
-                                                        const res = await fetch(
-                                                            `/api/games/${slug}/moderators`,
-                                                            {
-                                                                method: 'DELETE',
-                                                                headers: {
-                                                                    'Content-Type':
-                                                                        'application/json',
-                                                                },
-                                                                body: JSON.stringify(
-                                                                    {
-                                                                        user: mod.id,
-                                                                    },
-                                                                ),
-                                                            },
-                                                        );
-                                                        if (!res.ok) {
-                                                            //TODO: handle the error
-                                                            return;
-                                                        }
-                                                        mutate();
-                                                        mutateGlobal(
-                                                            `/api/games/${slug}/eligibleMods`,
-                                                        );
-                                                    }}
-                                                />
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div
-                                        className="flex max-w-fit cursor-pointer items-center rounded-md px-2 py-1 text-sm hover:bg-gray-500 hover:bg-opacity-60"
-                                        onClick={() => setSearchOpenMod(true)}
-                                    >
-                                        <FontAwesomeIcon
-                                            icon={faAdd}
-                                            className="mr-2 text-green-400"
-                                        />
-                                        Add new moderator
-                                    </div>
-                                </div>
-                            </div>
+                            <PermissionsManagement
+                                slug={slug}
+                                gameData={gameData}
+                            />
                         </Tab.Panel>
                     </Tab.Panels>
                 </Tab.Group>
             </div>
             <div className="w-1/4 rounded-2xl border-4 p-5"></div>
-            <UserSearch
-                isOpen={searchOpenOwner}
-                close={() => setSearchOpenOwner(false)}
-                submit={async (selectedUsers) => {
-                    const res = await fetch(`/api/games/${slug}/owners`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ users: selectedUsers }),
-                    });
-                    if (!res.ok) {
-                        // TODO: do something with the error
-                        return;
-                    }
-                    mutate();
-                    mutateGlobal(`/api/games/${slug}/eligibleMods`);
-                }}
-                listPath={`/api/games/${slug}/eligibleMods`}
-            />
-            <UserSearch
-                isOpen={searchOpenMod}
-                close={() => setSearchOpenMod(false)}
-                submit={async (selectedUsers) => {
-                    const res = await fetch(`/api/games/${slug}/moderators`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ users: selectedUsers }),
-                    });
-                    if (!res.ok) {
-                        // TODO: do something with the error
-                        return;
-                    }
-                    mutate();
-                    mutateGlobal(`/api/games/${slug}/eligibleMods`);
-                }}
-                listPath={`/api/games/${slug}/eligibleMods`}
-            />
         </div>
     );
 }

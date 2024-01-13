@@ -10,6 +10,7 @@ interface GoalEditorProps {
     cancelNew?: () => void;
     mutateGoals: KeyedMutator<Goal[]>;
     categories: { label: string; value: string }[];
+    canModerate?: boolean;
 }
 
 export default function GoalEditor({
@@ -19,6 +20,7 @@ export default function GoalEditor({
     cancelNew,
     mutateGoals,
     categories,
+    canModerate,
 }: GoalEditorProps) {
     return (
         <Formik
@@ -93,13 +95,18 @@ export default function GoalEditor({
                 <Form className="flex w-full flex-col">
                     <label>
                         Goal Text
-                        <Field name="goal" className="w-full grow text-black" />
+                        <Field
+                            name="goal"
+                            disabled={!canModerate}
+                            className="w-full grow text-black"
+                        />
                     </label>
                     <label className="pt-4">
                         Goal Description
                         <Field
                             name="description"
                             as="textarea"
+                            disabled={!canModerate}
                             className="w-full rounded-md p-1 text-black"
                             rows={6}
                         />
@@ -107,7 +114,7 @@ export default function GoalEditor({
                     <div className="flex w-full gap-x-4">
                         <label className="w-1/2">
                             Categories
-                            <Field name="categories">
+                            <Field name="categories" disabled={!canModerate}>
                                 {({
                                     field,
                                     form,
@@ -133,6 +140,7 @@ export default function GoalEditor({
                                             menuList: () => 'text-black',
                                             container: () => '',
                                         }}
+                                        isDisabled={!canModerate}
                                     />
                                 )}
                             </Field>
@@ -141,6 +149,7 @@ export default function GoalEditor({
                             <div>Difficulty</div>
                             <Field
                                 name="difficulty"
+                                disabled={!canModerate}
                                 className="w-full"
                                 component={NumberInput}
                                 min={1}
@@ -148,28 +157,30 @@ export default function GoalEditor({
                             />
                         </label>
                     </div>
-                    <div className="flex pt-2">
-                        <button
-                            type="button"
-                            className="rounded-md bg-red-500 px-4 py-2 text-center text-sm font-medium text-black hover:bg-red-400"
-                            onClick={() => {
-                                if (isNew && cancelNew) {
-                                    cancelNew();
-                                }
-                                resetForm();
-                            }}
-                        >
-                            Cancel
-                        </button>
-                        <div className="grow" />
-                        <button
-                            className="rounded-md bg-green-400 px-4 py-2 text-center text-sm font-medium text-black hover:bg-green-300 disabled:bg-gray-300"
-                            type="submit"
-                            disabled={isSubmitting || isValidating}
-                        >
-                            Save
-                        </button>
-                    </div>
+                    {canModerate && (
+                        <div className="flex pt-2">
+                            <button
+                                type="button"
+                                className="rounded-md bg-red-500 px-4 py-2 text-center text-sm font-medium text-black hover:bg-red-400"
+                                onClick={() => {
+                                    if (isNew && cancelNew) {
+                                        cancelNew();
+                                    }
+                                    resetForm();
+                                }}
+                            >
+                                Cancel
+                            </button>
+                            <div className="grow" />
+                            <button
+                                className="rounded-md bg-green-400 px-4 py-2 text-center text-sm font-medium text-black hover:bg-green-300 disabled:bg-gray-300"
+                                type="submit"
+                                disabled={isSubmitting || isValidating}
+                            >
+                                Save
+                            </button>
+                        </div>
+                    )}
                 </Form>
             )}
         </Formik>

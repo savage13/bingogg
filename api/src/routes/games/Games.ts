@@ -5,6 +5,8 @@ import {
     allGames,
     createGame,
     gameForSlug,
+    isModerator,
+    isOwner,
     removeModerator,
     removeOwner,
     updateGameCover,
@@ -108,6 +110,16 @@ games.get('/:slug/eligibleMods', async (req, res) => {
 games.post('/:slug/owners', async (req, res) => {
     const { slug } = req.params;
     const { users } = req.body;
+
+    if (!req.session.user) {
+        res.sendStatus(401);
+        return;
+    }
+    if (!isOwner(slug, req.session.user)) {
+        res.sendStatus(403);
+        return;
+    }
+
     if (!users) {
         res.status(400).send('Missing users');
         return;
@@ -139,6 +151,16 @@ games.post('/:slug/owners', async (req, res) => {
 games.delete('/:slug/owners', async (req, res) => {
     const { slug } = req.params;
     const { user } = req.body;
+
+    if (!req.session.user) {
+        res.sendStatus(401);
+        return;
+    }
+    if (!isOwner(slug, req.session.user)) {
+        res.sendStatus(403);
+        return;
+    }
+
     if (!user) {
         res.status(400).send('Missing user');
         return;
@@ -163,6 +185,16 @@ games.delete('/:slug/owners', async (req, res) => {
 games.post('/:slug/moderators', async (req, res) => {
     const { slug } = req.params;
     const { users } = req.body;
+
+    if (!req.session.user) {
+        res.sendStatus(401);
+        return;
+    }
+    if (!isOwner(slug, req.session.user)) {
+        res.sendStatus(403);
+        return;
+    }
+
     if (!users) {
         res.status(400).send('Missing users');
         return;
@@ -194,6 +226,16 @@ games.post('/:slug/moderators', async (req, res) => {
 games.delete('/:slug/moderators', async (req, res) => {
     const { slug } = req.params;
     const { user } = req.body;
+
+    if (!req.session.user) {
+        res.sendStatus(401);
+        return;
+    }
+    if (!isOwner(slug, req.session.user)) {
+        res.sendStatus(403);
+        return;
+    }
+
     if (!user) {
         res.status(400).send('Missing user');
         return;
@@ -205,6 +247,20 @@ games.delete('/:slug/moderators', async (req, res) => {
 
     await removeModerator(slug, user);
     res.sendStatus(200);
+});
+
+games.get('/:slug/permissions', async (req, res) => {
+    const { slug } = req.params;
+
+    if (!req.session.user) {
+        res.sendStatus(401);
+        return;
+    }
+
+    res.status(200).json({
+        isOwner: await isOwner(slug, req.session.user),
+        canModerate: await isModerator(slug, req.session.user),
+    });
 });
 
 export default games;

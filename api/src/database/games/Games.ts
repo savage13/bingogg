@@ -72,3 +72,29 @@ export const removeModerator = (slug: string, user: string) => {
         data: { moderators: { disconnect: { id: user } } },
     });
 };
+
+export const isOwner = async (slug: string, user: string) => {
+    return (
+        (await prisma.game.count({
+            where: { slug, owners: { some: { id: user } } },
+        })) > 0
+    );
+};
+
+export const isModerator = async (slug: string, user: string) => {
+    return (
+        (await prisma.game.count({
+            where: {
+                AND: [
+                    { slug },
+                    {
+                        OR: [
+                            { owners: { some: { id: user } } },
+                            { moderators: { some: { id: user } } },
+                        ],
+                    },
+                ],
+            },
+        })) > 0
+    );
+};

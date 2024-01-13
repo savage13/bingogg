@@ -25,9 +25,13 @@ const sortOptions = [
 
 interface GoalManagementParams {
     slug: string;
+    canModerate?: boolean;
 }
 
-export default function GoalManagement({ slug }: GoalManagementParams) {
+export default function GoalManagement({
+    slug,
+    canModerate,
+}: GoalManagementParams) {
     const {
         data: goals,
         isLoading: goalsLoading,
@@ -190,18 +194,20 @@ export default function GoalManagement({ slug }: GoalManagementParams) {
                                 </div>
                             </div>
                         ))}
-                        <div className="py-2">
-                            <div
-                                className="cursor-pointer rounded-md px-2 py-2 hover:bg-gray-400 hover:bg-opacity-60"
-                                onClick={() => setNewGoal(true)}
-                            >
-                                <FontAwesomeIcon
-                                    icon={faAdd}
-                                    className="pr-2 text-green-500"
-                                />
-                                New Goal
+                        {canModerate && (
+                            <div className="py-2">
+                                <div
+                                    className="cursor-pointer rounded-md px-2 py-2 hover:bg-gray-400 hover:bg-opacity-60"
+                                    onClick={() => setNewGoal(true)}
+                                >
+                                    <FontAwesomeIcon
+                                        icon={faAdd}
+                                        className="pr-2 text-green-500"
+                                    />
+                                    New Goal
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 </div>
                 <div className="grow text-center">
@@ -211,6 +217,7 @@ export default function GoalManagement({ slug }: GoalManagementParams) {
                             goal={selectedGoal}
                             mutateGoals={mutateGoals}
                             categories={catList}
+                            canModerate={canModerate}
                         />
                     )}
                     {newGoal && (
@@ -221,6 +228,7 @@ export default function GoalManagement({ slug }: GoalManagementParams) {
                             cancelNew={() => setNewGoal(false)}
                             mutateGoals={mutateGoals}
                             categories={catList}
+                            canModerate={canModerate}
                         />
                     )}
                 </div>

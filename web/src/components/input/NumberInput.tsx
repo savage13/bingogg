@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 interface NumberInputProps {
     min?: number;
     max?: number;
+    disabled?: boolean;
 }
 
 /**
@@ -19,6 +20,7 @@ interface NumberInputProps {
 export default function NumberInput({
     min,
     max,
+    disabled,
     field: { name, value },
     form: { setFieldValue },
 }: NumberInputProps & FieldProps<number>) {
@@ -44,7 +46,9 @@ export default function NumberInput({
                 <button
                     type="button"
                     onClick={decrement}
-                    disabled={min !== undefined ? value <= min : false}
+                    disabled={
+                        disabled || (min !== undefined ? value <= min : false)
+                    }
                     className="grow bg-gray-200 hover:bg-gray-400 hover:bg-opacity-50 disabled:bg-gray-400"
                 >
                     -
@@ -54,13 +58,16 @@ export default function NumberInput({
                     pattern="[0-9]*"
                     name={name}
                     value={value}
+                    disabled={disabled}
                     onChange={(e) => setValue(Number(e.target.value))}
                     className="rounded-none text-center"
                 />
                 <button
                     type="button"
                     onClick={increment}
-                    disabled={max !== undefined ? value >= max : false}
+                    disabled={
+                        disabled || (max !== undefined ? value >= max : false)
+                    }
                     className="grow bg-gray-200 hover:bg-gray-400 hover:bg-opacity-50 disabled:bg-gray-400"
                 >
                     +
