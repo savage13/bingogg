@@ -61,3 +61,16 @@ export const getUser = async (id: string) => {
         username: user.username,
     };
 };
+
+export const getAllUsers = async () => {
+    return prisma.user.findMany();
+};
+
+export const getUsersEligibleToModerateGame = (game: string) => {
+    return prisma.user.findMany({
+        where: {
+            moderatedGames: { none: { slug: game } },
+            ownedGames: { none: { slug: game } },
+        },
+    });
+};

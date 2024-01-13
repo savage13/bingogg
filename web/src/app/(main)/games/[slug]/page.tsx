@@ -6,6 +6,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Tab } from '@headlessui/react';
 import Link from 'next/link';
 import GoalManagement from '../../../../components/game/goals/GoalManagement';
+import { useState } from 'react';
+import UserSearch from '../../../../components/UserSearch';
 
 const tabs = ['Goals', 'Permissions'];
 
@@ -14,7 +16,14 @@ export default function Game({
 }: {
     params: { slug: string };
 }) {
-    const { data: gameData, isLoading } = useApi<Game>(`/api/games/${slug}`);
+    const {
+        data: gameData,
+        isLoading,
+        mutate,
+    } = useApi<Game>(`/api/games/${slug}`);
+
+    const [searchOpenOwner, setSearchOpenOwner] = useState(false);
+    const [searchOpenMod, setSearchOpenMod] = useState(false);
 
     if (!gameData || isLoading) {
         return null;
@@ -113,7 +122,10 @@ export default function Game({
                                             </div>
                                         ))}
                                     </div>
-                                    <div className="flex max-w-fit cursor-pointer items-center rounded-md px-2 py-1 text-sm hover:bg-gray-500 hover:bg-opacity-60">
+                                    <div
+                                        className="flex max-w-fit cursor-pointer items-center rounded-md px-2 py-1 text-sm hover:bg-gray-500 hover:bg-opacity-60"
+                                        onClick={() => setSearchOpenOwner(true)}
+                                    >
                                         <FontAwesomeIcon
                                             icon={faAdd}
                                             className="mr-2 text-green-400"
@@ -143,7 +155,10 @@ export default function Game({
                                             </div>
                                         ))}
                                     </div>
-                                    <div className="flex max-w-fit cursor-pointer items-center rounded-md px-2 py-1 text-sm hover:bg-gray-500 hover:bg-opacity-60">
+                                    <div
+                                        className="flex max-w-fit cursor-pointer items-center rounded-md px-2 py-1 text-sm hover:bg-gray-500 hover:bg-opacity-60"
+                                        onClick={() => setSearchOpenMod(true)}
+                                    >
                                         <FontAwesomeIcon
                                             icon={faAdd}
                                             className="mr-2 text-green-400"
@@ -157,6 +172,40 @@ export default function Game({
                 </Tab.Group>
             </div>
             <div className="w-1/4 rounded-2xl border-4 p-5"></div>
+            <UserSearch
+                isOpen={searchOpenOwner}
+                close={() => setSearchOpenOwner(false)}
+                submit={async (selectedUsers) => {
+                    const res = await fetch(`/api/games/${slug}/owners`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ users: selectedUsers }),
+                    });
+                    if (!res.ok) {
+                        // TODO: do something with the error
+                        return;
+                    }
+                    mutate();
+                }}
+                listPath={`/api/games/${slug}/eligibleMods`}
+            />
+            <UserSearch
+                isOpen={searchOpenMod}
+                close={() => setSearchOpenMod(false)}
+                submit={async (selectedUsers) => {
+                    const res = await fetch(`/api/games/${slug}/moderators`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ users: selectedUsers }),
+                    });
+                    if (!res.ok) {
+                        // TODO: do something with the error
+                        return;
+                    }
+                    mutate();
+                }}
+                listPath={`/api/games/${slug}/eligibleMods`}
+            />
         </div>
     );
 }

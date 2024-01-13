@@ -44,3 +44,17 @@ export const updateGameName = (slug: string, name: string) => {
 export const updateGameCover = (slug: string, coverImage: string) => {
     return prisma.game.update({ where: { slug }, data: { coverImage } });
 };
+
+export const addOwners = (slug: string, users: string[]) => {
+    return prisma.game.update({
+        where: { slug },
+        data: { owners: { connect: users.map((user) => ({ id: user })) } },
+    });
+};
+
+export const addModerators = (slug: string, users: string[]) => {
+    return prisma.game.update({
+        where: { slug },
+        data: { moderators: { connect: users.map((user) => ({ id: user })) } },
+    });
+};

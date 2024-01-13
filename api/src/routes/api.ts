@@ -5,6 +5,7 @@ import goals from './goals/Goals';
 import registration from './registration/Registration';
 import rooms from './rooms/Rooms';
 import { getUser } from '../database/Users';
+import users from './users/Users';
 
 const api = Router();
 
@@ -13,6 +14,7 @@ api.use('/games', games);
 api.use('/goals', goals);
 api.use('/registration', registration);
 api.use('/auth', auth);
+api.use('/users', users);
 
 api.get('/me', async (req, res) => {
     if (!req.session.user) {

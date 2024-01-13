@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import {
+    addModerators,
+    addOwners,
     allGames,
     createGame,
     gameForSlug,
@@ -7,6 +9,7 @@ import {
     updateGameName,
 } from '../../database/games/Games';
 import { createGoal, goalsForGame } from '../../database/games/Goals';
+import { getUser, getUsersEligibleToModerateGame } from '../../database/Users';
 
 const games = Router();
 
@@ -92,6 +95,74 @@ games.post('/:slug/goals', async (req, res) => {
         difficultyNum,
     );
     res.status(200).json(newGoal);
+});
+
+games.get('/:slug/eligibleMods', async (req, res) => {
+    const { slug } = req.params;
+    const userList = await getUsersEligibleToModerateGame(slug);
+    res.status(200).json(userList);
+});
+
+games.post('/:slug/owners', async (req, res) => {
+    const { slug } = req.params;
+    const { users } = req.body;
+    if (!users) {
+        res.status(400).send('Missing users');
+        return;
+    }
+    if (!Array.isArray(users)) {
+        res.status(400).send('Users parameter is not an array');
+        return;
+    }
+    const allUsersExist = (
+        await Promise.all(
+            users.map(async (user) => {
+                if (!getUser(user)) {
+                    return false;
+                }
+                return true;
+            }),
+        )
+    ).every((b) => b);
+
+    if (!allUsersExist) {
+        res.sendStatus(400);
+        return;
+    }
+
+    await addOwners(slug, users);
+    res.sendStatus(200);
+});
+
+games.post('/:slug/moderators', async (req, res) => {
+    const { slug } = req.params;
+    const { users } = req.body;
+    if (!users) {
+        res.status(400).send('Missing users');
+        return;
+    }
+    if (!Array.isArray(users)) {
+        res.status(400).send('Users parameter is not an array');
+        return;
+    }
+    const allUsersExist = (
+        await Promise.all(
+            users.map(async (user) => {
+                if (!getUser(user)) {
+                    return false;
+                }
+                return true;
+            }),
+        )
+    ).every((b) => b);
+
+    if (!allUsersExist) {
+        res.sendStatus(400);
+        return;
+    }
+
+    await addModerators(slug, users);
+    res.sendStatus(200);
 });
 
 export default games;
