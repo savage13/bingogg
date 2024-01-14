@@ -5,11 +5,13 @@ import {
     faSortDown,
     faSortUp,
     faTrash,
+    faUpload,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useCallback, useEffect, useState } from 'react';
 import GoalEditor from './GoalEditor';
 import Select from 'react-select';
+import GoalUpload from './GoalUpload';
 
 enum SortOptions {
     DEFAULT,
@@ -85,6 +87,8 @@ export default function GoalManagement({
         [mutateGoals],
     );
 
+    const [goalUploadOpen, setGoalUploadOpen] = useState(false);
+
     if (!goals || goalsLoading) {
         return null;
     }
@@ -127,7 +131,18 @@ export default function GoalManagement({
 
     return (
         <div className="flex h-full grow flex-col gap-y-3">
-            <div className="text-center text-2xl">Goal Management</div>
+            <div className="relative flex items-center justify-center">
+                <div className="text-center text-2xl">Goal Management</div>
+                <button
+                    className="absolute right-0 flex items-center gap-x-2 rounded-md border px-2 py-1"
+                    onClick={() => {
+                        setGoalUploadOpen(true);
+                    }}
+                >
+                    <FontAwesomeIcon icon={faUpload} />
+                    Upload Goals
+                </button>
+            </div>
             <div className="flex w-full gap-x-4">
                 <div className="w-1/3">
                     <Select
@@ -232,6 +247,13 @@ export default function GoalManagement({
                         />
                     )}
                 </div>
+                <GoalUpload
+                    isOpen={goalUploadOpen}
+                    close={() => {
+                        setGoalUploadOpen(false);
+                    }}
+                    slug={slug}
+                />
             </div>
         </div>
     );

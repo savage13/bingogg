@@ -62,3 +62,23 @@ export const deleteGoal = async (id: string) => {
         return false;
     }
 };
+
+type GoalInput = {
+    goal: string;
+    description?: string;
+    categories?: string[];
+    difficulty?: number;
+};
+
+export const createGoals = async (slug: string, goals: GoalInput[]) => {
+    await prisma.game.update({
+        where: { slug },
+        data: {
+            goals: {
+                createMany: {
+                    data: goals,
+                },
+            },
+        },
+    });
+};
