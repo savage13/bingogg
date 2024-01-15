@@ -10,5 +10,6 @@
  */
 export interface Cell {
   goal: string;
+  description: string;
   colors: string[];
 }

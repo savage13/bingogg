@@ -16,5 +16,6 @@ export interface Board {
  */
 export interface Cell {
   goal: string;
+  description: string;
   colors: string[];
 }

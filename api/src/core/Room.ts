@@ -66,7 +66,7 @@ export default class Room {
         const chunked = chunk(
             srlBoard.map((g) => ({
                 goal: `${g.goal} (${g.difficulty})`,
-                description: g.description,
+                description: g.description ?? '',
                 colors: [],
             })),
             5,
