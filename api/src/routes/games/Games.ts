@@ -50,16 +50,16 @@ games.post('/', async (req, res) => {
     res.status(200).json(result);
 });
 
-games.post('/:slug', (req, res) => {
+games.post('/:slug', async (req, res) => {
     const { slug } = req.params;
     const { name, coverImage } = req.body;
 
     let result = undefined;
     if (name) {
-        result = updateGameName(slug, name);
+        result = await updateGameName(slug, name);
     }
     if (coverImage) {
-        result = updateGameCover(slug, coverImage);
+        result = await updateGameCover(slug, coverImage);
     }
 
     if (!result) {
