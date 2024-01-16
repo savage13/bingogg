@@ -4,19 +4,18 @@ import {
     createContext,
     useCallback,
     useEffect,
-    useReducer,
     useState,
     useSyncExternalStore,
 } from 'react';
-import { Board, Cell } from '../types/Board';
-import { ChatMessage, ServerMessage } from '../types/ServerMessage';
 import useWebSocket from 'react-use-websocket';
-import { RoomData } from '../types/RoomData';
 import {
     emitBoardUpdate,
     getBoardSnapshot,
     subscribeToBoardUpdates,
 } from '../lib/BoardStore';
+import { Board, Cell } from '../types/Board';
+import { RoomData } from '../types/RoomData';
+import { ChatMessage, ServerMessage } from '../types/ServerMessage';
 
 export enum ConnectionStatus {
     UNINITIALIZED, // the room connection is uninitialized and there is no authentication data present
@@ -78,6 +77,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
     const board = useSyncExternalStore(
         subscribeToBoardUpdates,
         getBoardSnapshot,
+        () => ({ board: [] }),
     );
 
     // incoming messages
