@@ -210,6 +210,10 @@ export default class Room {
         ]);
     }
 
+    handleNewCard() {
+        this.generateBoard();
+    }
+
     sendChat(message: string): void;
     sendChat(message: ChatMessage): void;
 

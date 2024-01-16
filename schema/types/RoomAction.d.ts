@@ -8,7 +8,15 @@
 /**
  * An outgoing client websocket message sent when a client performs an action in a room
  */
-export type RoomAction = (JoinAction | LeaveAction | ChatAction | MarkAction | UnmarkAction | ChangeColorAction) & {
+export type RoomAction = (
+  | JoinAction
+  | LeaveAction
+  | ChatAction
+  | MarkAction
+  | UnmarkAction
+  | ChangeColorAction
+  | NewCardAction
+) & {
   /**
    * JWT for the room obtained from the server
    */
@@ -49,4 +57,7 @@ export interface ChangeColorAction {
   payload: {
     color: string;
   };
+}
+export interface NewCardAction {
+  action: "newCard";
 }

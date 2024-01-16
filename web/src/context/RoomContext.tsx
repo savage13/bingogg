@@ -40,6 +40,7 @@ interface RoomContext {
     markGoal: (row: number, col: number) => void;
     unmarkGoal: (row: number, col: number) => void;
     changeColor: (color: string) => void;
+    regenerateCard: () => void;
 }
 
 export const RoomContext = createContext<RoomContext>({
@@ -54,6 +55,7 @@ export const RoomContext = createContext<RoomContext>({
     markGoal(row, col) {},
     unmarkGoal(row, col) {},
     changeColor() {},
+    regenerateCard() {},
 });
 
 interface RoomContextProps {
@@ -265,6 +267,12 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
         },
         [authToken, sendJsonMessage],
     );
+    const regenerateCard = useCallback(() => {
+        sendJsonMessage({
+            action: 'newCard',
+            authToken,
+        });
+    }, [authToken, sendJsonMessage]);
 
     // effects
     // slug changed, try to establish initial connection from storage
@@ -306,6 +314,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
                 markGoal,
                 unmarkGoal,
                 changeColor,
+                regenerateCard,
             }}
         >
             {children}

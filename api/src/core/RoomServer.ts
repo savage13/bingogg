@@ -79,6 +79,9 @@ roomWebSocketServer.on('connection', (ws, req) => {
                     ws.send(JSON.stringify(changeColorResult));
                 }
                 break;
+            case 'newCard':
+                room.handleNewCard();
+                break;
         }
     });
     ws.on('close', () => {
