@@ -37,6 +37,7 @@ export default function TextFit({
     }, []);
 
     const resetFit = useCallback(() => {
+        console.log('in reset fit');
         setOptimizedFontSize('20px');
         fit();
     }, [fit]);

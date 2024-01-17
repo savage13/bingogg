@@ -83,6 +83,30 @@ export default function RoomInfo() {
                                                 Regenerate Card
                                             </button>
                                         </div>
+                                        <div className="pt-6">
+                                            <div className="text-lg font-semibold">
+                                                Local Actions
+                                            </div>
+                                            <div className="pt-1 text-xs">
+                                                These actions are potentially
+                                                destructive and should only be
+                                                used if the application is
+                                                exhibiting strange or incorrect
+                                                behavior
+                                            </div>
+                                            <div className="flex gap-x-3 pt-3">
+                                                <button
+                                                    className="rounded-md border p-2"
+                                                    onClick={() => {
+                                                        window.dispatchEvent(
+                                                            new Event('resize'),
+                                                        );
+                                                    }}
+                                                >
+                                                    Fit Goal Text
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </Dialog.Panel>
                             </Transition.Child>
