@@ -11,6 +11,7 @@ import useWebSocket from 'react-use-websocket';
 import {
     emitBoardUpdate,
     getBoardSnapshot,
+    getServerSnapshot,
     subscribeToBoardUpdates,
 } from '../lib/BoardStore';
 import { Board, Cell } from '../types/Board';
@@ -79,7 +80,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
     const board = useSyncExternalStore(
         subscribeToBoardUpdates,
         getBoardSnapshot,
-        () => ({ board: [] }),
+        getServerSnapshot,
     );
 
     // incoming messages

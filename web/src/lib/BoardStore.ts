@@ -39,3 +39,6 @@ export const emitBoardUpdate = (event: BoardEvent) => {
 };
 
 export const getBoardSnapshot = () => board;
+
+const serverSnapshot = { board: [] };
+export const getServerSnapshot = () => serverSnapshot;
