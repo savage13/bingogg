@@ -37,7 +37,6 @@ export default function TextFit({
     }, []);
 
     const resetFit = useCallback(() => {
-        console.log('in reset fit');
         setOptimizedFontSize('20px');
         fit();
     }, [fit]);
@@ -51,6 +50,10 @@ export default function TextFit({
         window.addEventListener('resize', resetFit);
         return () => window.removeEventListener('resize', resetFit);
     }, [resetFit]);
+
+    useEffect(() => {
+        resetFit();
+    }, [text, resetFit]);
 
     return (
         <div
