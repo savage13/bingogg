@@ -74,7 +74,7 @@ export default function RoomInfo() {
                                                 Card Controls
                                             </div>
                                             <button
-                                                className="rounded-md border p-2"
+                                                className="rounded-md border p-2 hover:bg-gray-700"
                                                 onClick={() => {
                                                     regenerateCard();
                                                     close();
@@ -96,7 +96,7 @@ export default function RoomInfo() {
                                             </div>
                                             <div className="flex gap-x-3 pt-3">
                                                 <button
-                                                    className="rounded-md border p-2"
+                                                    className="rounded-md border p-2 hover:bg-gray-700"
                                                     onClick={() => {
                                                         window.dispatchEvent(
                                                             new Event('resize'),
