@@ -5,16 +5,26 @@ import { useRouter } from 'next/navigation';
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../../context/UserContext';
 
-export default function Login() {
+export default function Login({
+    searchParams,
+}: {
+    searchParams: { [key: string]: string };
+}) {
     const router = useRouter();
     const [error, setError] = useState('');
-    const { checkSession, user } = useContext(UserContext);
+    const { checkSession, user, logout } = useContext(UserContext);
+
+    const { force } = searchParams;
 
     useEffect(() => {
+        if (force) {
+            logout(true);
+            return;
+        }
         if (user) {
             router.push('/');
         }
-    }, [user, router]);
+    }, [user, router, logout, force]);
 
     return (
         <div className="flex h-full items-center justify-center">
