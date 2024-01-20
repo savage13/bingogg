@@ -1,6 +1,6 @@
 import { randomInt } from 'crypto';
 import { Router } from 'express';
-import Room from '../../core/Room';
+import Room, { BoardGenerationMode } from '../../core/Room';
 import { createRoomToken } from '../../auth/RoomAuth';
 import { allRooms } from '../../core/RoomServer';
 import { gameForSlug } from '../../database/games/Games';
@@ -30,7 +30,7 @@ rooms.get('/', (req, res) => {
 });
 
 rooms.post('/', async (req, res) => {
-    const { name, game, nickname, variant, mode } = req.body;
+    const { name, game, nickname, variant, mode, generationMode } = req.body;
 
     if (!name || !game || !nickname || !variant || !mode) {
         res.status(400).send('Missing required element(s).');
@@ -47,7 +47,17 @@ rooms.post('/', async (req, res) => {
         slugList[randomInt(0, slugList.length)]
     }-${randomInt(1000, 10000)}`;
     const room = new Room(name, gameData.name, game, slug);
-    await room.generateBoard();
+    let genMode;
+    if (generationMode) {
+        genMode = generationMode;
+    } else {
+        if (gameData.enableSRLv5) {
+            genMode = BoardGenerationMode.SRLv5;
+        } else {
+            genMode = BoardGenerationMode.RANDOM;
+        }
+    }
+    await room.generateBoard(genMode);
     allRooms.set(slug, room);
 
     const token = createRoomToken(room);

@@ -1,23 +1,30 @@
 import { OPEN, WebSocket } from 'ws';
 import { RoomTokenPayload, invalidateToken } from '../auth/RoomAuth';
+import { goalsForGame } from '../database/games/Goals';
 import {
     ChangeColorAction,
     ChatAction,
     JoinAction,
     LeaveAction,
     MarkAction,
+    NewCardAction,
     UnmarkAction,
 } from '../types/RoomAction';
 import { Board, ChatMessage, ServerMessage } from '../types/ServerMessage';
-import { goalsForGame } from '../database/games/Goals';
-import { chunk } from '../util/Array';
+import { listToBoard } from '../util/RoomUtils';
 import { generateSRLv5 } from './generation/SRLv5';
+import { shuffle } from '../util/Array';
 import { Goal } from '@prisma/client';
 
 type RoomIdentity = {
     nickname: string;
     color: string;
 };
+
+export enum BoardGenerationMode {
+    RANDOM = 'Random',
+    SRLv5 = 'SRLv5',
+}
 
 /**
  * Represents a room in the bingo.gg service. A room is container for a single
@@ -35,6 +42,8 @@ export default class Room {
     identities: Map<string, RoomIdentity>;
     chatHistory: ChatMessage[];
 
+    lastGenerationMode: BoardGenerationMode;
+
     constructor(name: string, game: string, gameSlug: string, slug: string) {
         this.name = name;
         this.game = game;
@@ -45,33 +54,30 @@ export default class Room {
         this.connections = new Map();
         this.chatHistory = [];
 
+        this.lastGenerationMode = BoardGenerationMode.RANDOM;
+
         this.board = {
             board: [],
         };
     }
 
-    async generateBoard() {
+    async generateBoard(mode: BoardGenerationMode) {
+        this.lastGenerationMode = mode;
         const goals = await goalsForGame(this.gameSlug);
-        const goalsByDiff: Goal[][] = [];
-        goals.forEach((goal) => {
-            if (!goal.difficulty) return;
-            if (!goalsByDiff[goal.difficulty]) {
-                goalsByDiff[goal.difficulty] = [];
-            }
-            goalsByDiff[goal.difficulty].push(goal);
-        });
-        const srlBoard = generateSRLv5(goals);
-        if (!srlBoard) return;
-        srlBoard.shift();
-        const chunked = chunk(
-            srlBoard.map((g) => ({
-                goal: `${g.goal} (${g.difficulty})`,
-                description: g.description ?? '',
-                colors: [],
-            })),
-            5,
-        );
-        this.board = { board: chunked };
+        let goalList: Goal[];
+        switch (mode) {
+            case BoardGenerationMode.SRLv5:
+                goalList = generateSRLv5(goals);
+                goalList.shift();
+                break;
+            case BoardGenerationMode.RANDOM:
+            default:
+                shuffle(goals);
+                goalList = goals.splice(0, 25);
+                break;
+        }
+
+        this.board = { board: listToBoard(goalList) };
         this.sendSyncBoard();
     }
 
@@ -108,6 +114,7 @@ export default class Room {
                 game: this.game,
                 slug: this.slug,
                 name: this.name,
+                gameSlug: this.gameSlug,
             },
         };
     }
@@ -210,8 +217,12 @@ export default class Room {
         ]);
     }
 
-    handleNewCard() {
-        this.generateBoard();
+    handleNewCard(action: NewCardAction) {
+        if (action.generationMode) {
+            this.generateBoard(action.generationMode as BoardGenerationMode);
+        } else {
+            this.generateBoard(this.lastGenerationMode);
+        }
     }
 
     sendChat(message: string): void;

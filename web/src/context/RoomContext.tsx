@@ -27,6 +27,11 @@ export enum ConnectionStatus {
     CLOSED, // connection was manually closed, and the user is completely disconnected
 }
 
+interface CardRegenerateOptions {
+    seed?: number;
+    generationMode?: string;
+}
+
 interface RoomContext {
     connectionStatus: ConnectionStatus;
     board: Board;
@@ -41,7 +46,7 @@ interface RoomContext {
     markGoal: (row: number, col: number) => void;
     unmarkGoal: (row: number, col: number) => void;
     changeColor: (color: string) => void;
-    regenerateCard: () => void;
+    regenerateCard: (options?: CardRegenerateOptions) => void;
 }
 
 export const RoomContext = createContext<RoomContext>({
@@ -268,12 +273,18 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
         },
         [authToken, sendJsonMessage],
     );
-    const regenerateCard = useCallback(() => {
-        sendJsonMessage({
-            action: 'newCard',
-            authToken,
-        });
-    }, [authToken, sendJsonMessage]);
+    const regenerateCard = useCallback(
+        (options?: CardRegenerateOptions) => {
+            const { seed, generationMode } = options ?? {};
+            sendJsonMessage({
+                action: 'newCard',
+                authToken,
+                seed,
+                generationMode,
+            });
+        },
+        [authToken, sendJsonMessage],
+    );
 
     // effects
     // slug changed, try to establish initial connection from storage

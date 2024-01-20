@@ -67,4 +67,5 @@ export interface RoomData {
   name: string;
   game: string;
   slug: string;
+  gameSlug: string;
 }

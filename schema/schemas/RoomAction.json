@@ -100,7 +100,9 @@
             "required": ["action"],
             "additionalProperties": false,
             "properties": {
-                "action": "newCard"
+                "action": "newCard",
+                "seed": {"type": "number"},
+                "generationMode": {"type": "string"}
             }
         }
     }

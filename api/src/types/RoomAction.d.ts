@@ -60,4 +60,6 @@ export interface ChangeColorAction {
 }
 export interface NewCardAction {
   action: "newCard";
+  seed?: number;
+  generationMode?: string;
 }

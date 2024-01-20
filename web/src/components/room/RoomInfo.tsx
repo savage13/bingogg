@@ -1,6 +1,11 @@
-import { Dialog, Transition } from '@headlessui/react';
+import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Dialog, Disclosure, Transition } from '@headlessui/react';
+import { Field, Form, Formik } from 'formik';
 import { Fragment, useCallback, useContext, useState } from 'react';
+import { useAsync } from 'react-use';
 import { RoomContext } from '../../context/RoomContext';
+import { Game } from '../../types/Game';
 
 export default function RoomInfo() {
     const { roomData, regenerateCard } = useContext(RoomContext);
@@ -11,12 +16,34 @@ export default function RoomInfo() {
         setShowControlModal(false);
     }, []);
 
+    const modes = useAsync(async () => {
+        if (!roomData) {
+            return [];
+        }
+
+        const res = await fetch(`/api/games/${roomData.gameSlug}`);
+        if (!res.ok) {
+            return [];
+        }
+        const gameData: Game = await res.json();
+
+        const modes = ['Random'];
+        if (gameData.enableSRLv5) {
+            modes.push('SRLv5');
+        }
+        return modes;
+    }, [roomData]);
+
     if (!roomData) {
         return (
             <div className="rounded-md border border-white p-2 text-center">
                 No Room Data found.
             </div>
         );
+    }
+
+    if (modes.loading || modes.error || !modes.value) {
+        return null;
     }
 
     return (
@@ -73,15 +100,103 @@ export default function RoomInfo() {
                                             <div className="pb-1 text-lg font-semibold">
                                                 Card Controls
                                             </div>
-                                            <button
-                                                className="rounded-md border p-2 hover:bg-gray-700"
-                                                onClick={() => {
-                                                    regenerateCard();
+
+                                            <Formik
+                                                initialValues={{
+                                                    seed: undefined,
+                                                    generationMode: '',
+                                                }}
+                                                onSubmit={({
+                                                    seed,
+                                                    generationMode,
+                                                }) => {
+                                                    regenerateCard({
+                                                        seed,
+                                                        generationMode,
+                                                    });
                                                     close();
                                                 }}
                                             >
-                                                Regenerate Card
-                                            </button>
+                                                <Form>
+                                                    <div className="mb-3">
+                                                        <Disclosure>
+                                                            {({ open }) => (
+                                                                <>
+                                                                    <Disclosure.Button className="flex w-full items-center justify-between gap-x-4 text-left text-sm font-medium">
+                                                                        <span>
+                                                                            Advanced
+                                                                            Generation
+                                                                            Options
+                                                                        </span>
+                                                                        <FontAwesomeIcon
+                                                                            icon={
+                                                                                open
+                                                                                    ? faChevronUp
+                                                                                    : faChevronDown
+                                                                            }
+                                                                        />
+                                                                    </Disclosure.Button>
+                                                                    <Disclosure.Panel className="flex flex-col gap-y-2 px-4 pb-2 pt-4 text-sm text-gray-500">
+                                                                        <label className="mr-5 flex w-full items-center gap-x-2">
+                                                                            <span className="w-1/2 text-right">
+                                                                                Seed
+                                                                            </span>
+                                                                            <Field
+                                                                                type="number"
+                                                                                name="seed"
+                                                                                pattern="[0-9]*"
+                                                                                inputMode="numeric"
+                                                                                className="no-step w-full"
+                                                                            />
+                                                                        </label>
+                                                                        <label className="flex items-center gap-x-2">
+                                                                            <span className="w-1/2 text-right">
+                                                                                Generation
+                                                                                Mode
+                                                                            </span>
+                                                                            <Field
+                                                                                as="select"
+                                                                                name="generationMode"
+                                                                                className="w-full rounded-md p-1"
+                                                                            >
+                                                                                <option value="">
+                                                                                    Select
+                                                                                    Generation
+                                                                                    Mode
+                                                                                </option>
+                                                                                {modes.value.map(
+                                                                                    (
+                                                                                        mode,
+                                                                                    ) => (
+                                                                                        <option
+                                                                                            key={
+                                                                                                mode
+                                                                                            }
+                                                                                            value={
+                                                                                                mode
+                                                                                            }
+                                                                                        >
+                                                                                            {
+                                                                                                mode
+                                                                                            }
+                                                                                        </option>
+                                                                                    ),
+                                                                                )}
+                                                                            </Field>
+                                                                        </label>
+                                                                    </Disclosure.Panel>
+                                                                </>
+                                                            )}
+                                                        </Disclosure>
+                                                    </div>
+                                                    <button
+                                                        type="submit"
+                                                        className="rounded-md border p-2 hover:bg-gray-700"
+                                                    >
+                                                        Regenerate Card
+                                                    </button>
+                                                </Form>
+                                            </Formik>
                                         </div>
                                         <div className="pt-6">
                                             <div className="text-lg font-semibold">

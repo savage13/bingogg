@@ -80,7 +80,7 @@ roomWebSocketServer.on('connection', (ws, req) => {
                 }
                 break;
             case 'newCard':
-                room.handleNewCard();
+                room.handleNewCard(action);
                 break;
         }
     });

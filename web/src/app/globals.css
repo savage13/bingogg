@@ -30,3 +30,13 @@ input {
     border-radius: 0.375rem;
     padding: 0.25rem;
 }
+
+@layer components {
+    .no-step::-webkit-outer-spin-button,
+    .no-step::-webkit-inner-spin-button,
+    input[type='number'].no-step {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+    }
+}
