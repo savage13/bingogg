@@ -1,5 +1,9 @@
 import { Router } from 'express';
-import { gameForSlug, isOwner } from '../../database/games/Games';
+import {
+    gameForSlug,
+    isOwner,
+    updateSRLv5Enabled,
+} from '../../database/games/Games';
 import { createGoals } from '../../database/games/Goals';
 
 const upload = Router();
@@ -34,6 +38,7 @@ upload.post('/srlv5', async (req, res) => {
     }
 
     await createGoals(slug, goals);
+    await updateSRLv5Enabled(slug, true);
     res.sendStatus(201);
 });
 
