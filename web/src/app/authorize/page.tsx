@@ -4,7 +4,16 @@ import { useRouter } from 'next/navigation';
 import { useContext, useLayoutEffect } from 'react';
 import { UserContext } from '../../context/UserContext';
 
-const readableScopes = {};
+const readableScopes: {
+    [key: string]: string;
+} = {
+    'rooms:join': 'Create and join rooms',
+    'rooms:act': 'Take actions in rooms on your behalf',
+    'categories:moderate':
+        'Take moderation actions on categories you have permissions',
+    'profile:read': 'Access your account information',
+    'profile:write': 'Update your account information',
+};
 
 export default function Authorize({
     searchParams,
@@ -74,7 +83,7 @@ export default function Authorize({
                         <div>This will allow the application to</div>
                         <ul className="list-inside list-disc">
                             {scopeList.map((scope) => (
-                                <li key={scope}>{scope}</li>
+                                <li key={scope}>{readableScopes[scope]}</li>
                             ))}
                         </ul>
                     </div>
