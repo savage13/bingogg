@@ -2,6 +2,8 @@ import { Dialog, Tab, Transition } from '@headlessui/react';
 import { Field, Form, Formik } from 'formik';
 import { Fragment } from 'react';
 import { parseSRLv5BingoList } from '../../../lib/goals/SRLv5Parser';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExclamation } from '@fortawesome/free-solid-svg-icons';
 
 function SRLv5UploadForm({ slug }: { slug: string }) {
     return (
@@ -128,6 +130,7 @@ export default function GoalUpload({ isOpen, close, slug }: GoalUploadProps) {
                                 >
                                     Upload Goals
                                 </Dialog.Title>
+
                                 <Tab.Group>
                                     <Tab.List className="mt-3 flex rounded-xl bg-blue-900/20 p-1">
                                         {uploadModes.map((tab) => (
@@ -147,6 +150,19 @@ export default function GoalUpload({ isOpen, close, slug }: GoalUploadProps) {
                                     </Tab.List>
                                     <Tab.Panels className="mt-2 h-full">
                                         <Tab.Panel className="h-full rounded-xl p-3">
+                                            <div className="mb-2.5 flex items-center gap-x-3 rounded-md bg-yellow-300 px-2 py-1 text-sm text-black">
+                                                <div>
+                                                    <FontAwesomeIcon
+                                                        icon={faExclamation}
+                                                        className="mt-1 rounded-full border border-black px-3 py-1 text-lg"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    Only use this upload method
+                                                    if you trust the author of
+                                                    the goal list.
+                                                </div>
+                                            </div>
                                             <SRLv5UploadForm slug={slug} />
                                         </Tab.Panel>
                                     </Tab.Panels>
