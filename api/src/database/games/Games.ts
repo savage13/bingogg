@@ -45,6 +45,10 @@ export const updateGameCover = (slug: string, coverImage: string) => {
     return prisma.game.update({ where: { slug }, data: { coverImage } });
 };
 
+export const updateSRLv5Enabled = (slug: string, enableSRLv5: boolean) => {
+    return prisma.game.update({ where: { slug }, data: { enableSRLv5 } });
+};
+
 export const addOwners = (slug: string, users: string[]) => {
     return prisma.game.update({
         where: { slug },

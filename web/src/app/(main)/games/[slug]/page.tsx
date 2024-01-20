@@ -136,7 +136,7 @@ export default function Game({
                                     initialValues={{
                                         name: gameData.name,
                                         coverImage: gameData.coverImage,
-                                        enableSRLv5: false,
+                                        enableSRLv5: gameData.enableSRLv5,
                                     }}
                                     onSubmit={async ({
                                         name,

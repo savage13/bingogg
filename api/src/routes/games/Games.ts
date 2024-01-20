@@ -11,6 +11,7 @@ import {
     removeOwner,
     updateGameCover,
     updateGameName,
+    updateSRLv5Enabled,
 } from '../../database/games/Games';
 import { createGoal, goalsForGame } from '../../database/games/Goals';
 import { getUser, getUsersEligibleToModerateGame } from '../../database/Users';
@@ -52,7 +53,7 @@ games.post('/', async (req, res) => {
 
 games.post('/:slug', async (req, res) => {
     const { slug } = req.params;
-    const { name, coverImage } = req.body;
+    const { name, coverImage, enableSRLv5 } = req.body;
 
     let result = undefined;
     if (name) {
@@ -60,6 +61,9 @@ games.post('/:slug', async (req, res) => {
     }
     if (coverImage) {
         result = await updateGameCover(slug, coverImage);
+    }
+    if (enableSRLv5 !== undefined) {
+        result = await updateSRLv5Enabled(slug, !!enableSRLv5);
     }
 
     if (!result) {

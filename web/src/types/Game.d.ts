@@ -14,6 +14,7 @@ export interface Game {
   coverImage?: string;
   owners?: User[];
   moderators?: User[];
+  enableSRLv5?: boolean;
 }
 export interface User {
   id: string;
