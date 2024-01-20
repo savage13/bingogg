@@ -1,11 +1,91 @@
-import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Dialog, Tab, Transition } from '@headlessui/react';
 import { Field, Form, Formik } from 'formik';
 import { Fragment } from 'react';
-import PermissionsManagement from '../PermissionsManagement';
-import GoalManagement from './GoalManagement';
+import { parseSRLv5BingoList } from '../../../lib/goals/SRLv5Parser';
 
+function SRLv5UploadForm({ slug }: { slug: string }) {
+    return (
+        <Formik
+            initialValues={{ data: '' }}
+            onSubmit={async ({ data }) => {
+                const parsedList = parseSRLv5BingoList(data);
+                if (!parsedList) {
+                    //TODO: handle error (unable to parse)
+                    return;
+                }
+
+                let invalid = false;
+                const goals = parsedList
+                    .map((goalList, difficulty) => {
+                        if (invalid) {
+                            return [];
+                        }
+                        if (difficulty < 1 || difficulty > 25) {
+                            invalid = true;
+                            return [];
+                        }
+                        return goalList.map((goal) => {
+                            if (!goal.name) {
+                                invalid = true;
+                            }
+                            return {
+                                goal: goal.name,
+                                difficulty,
+                                categories: goal.types,
+                            };
+                        });
+                    })
+                    .flat();
+                if (invalid) {
+                    //TODO: handle error (invalid data)
+                    return;
+                }
+                const res = await fetch('/api/goals/upload/srlv5', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        slug,
+                        goals,
+                    }),
+                });
+                if (!res.ok) {
+                    //TODO: handle error
+                    return;
+                }
+                close();
+            }}
+        >
+            <Form>
+                <label>
+                    Data
+                    <Field
+                        name="data"
+                        as="textarea"
+                        className="h-full w-full p-2 text-black"
+                        rows={10}
+                    />
+                </label>
+                <div className="mt-5">
+                    <button
+                        type="button"
+                        className="rounded-md border border-transparent bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-400"
+                        onClick={close}
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        className="float-right rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-500"
+                    >
+                        Submit
+                    </button>
+                </div>
+            </Form>
+        </Formik>
+    );
+}
 interface GoalUploadProps {
     isOpen: boolean;
     close: () => void;
@@ -67,59 +147,7 @@ export default function GoalUpload({ isOpen, close, slug }: GoalUploadProps) {
                                     </Tab.List>
                                     <Tab.Panels className="mt-2 h-full">
                                         <Tab.Panel className="h-full rounded-xl p-3">
-                                            <Formik
-                                                initialValues={{ data: '' }}
-                                                onSubmit={async ({ data }) => {
-                                                    const res = await fetch(
-                                                        '/api/goals/upload/srlv5',
-                                                        {
-                                                            method: 'POST',
-                                                            headers: {
-                                                                'Content-Type':
-                                                                    'application/json',
-                                                            },
-                                                            body: JSON.stringify(
-                                                                {
-                                                                    slug,
-                                                                    input: data,
-                                                                },
-                                                            ),
-                                                        },
-                                                    );
-                                                    if (!res.ok) {
-                                                        //TODO: handle error
-                                                        return;
-                                                    }
-                                                    close();
-                                                }}
-                                            >
-                                                <Form>
-                                                    <label>
-                                                        Data
-                                                        <Field
-                                                            name="data"
-                                                            as="textarea"
-                                                            className="h-full w-full p-2 text-black"
-                                                            rows={10}
-                                                        />
-                                                    </label>
-                                                    <div className="mt-5">
-                                                        <button
-                                                            type="button"
-                                                            className="rounded-md border border-transparent bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-400"
-                                                            onClick={close}
-                                                        >
-                                                            Cancel
-                                                        </button>
-                                                        <button
-                                                            type="submit"
-                                                            className="float-right rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-500"
-                                                        >
-                                                            Submit
-                                                        </button>
-                                                    </div>
-                                                </Form>
-                                            </Formik>
+                                            <SRLv5UploadForm slug={slug} />
                                         </Tab.Panel>
                                     </Tab.Panels>
                                 </Tab.Group>
