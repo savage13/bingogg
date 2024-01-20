@@ -5,7 +5,12 @@ import { parseSRLv5BingoList } from '../../../lib/goals/SRLv5Parser';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamation } from '@fortawesome/free-solid-svg-icons';
 
-function SRLv5UploadForm({ slug }: { slug: string }) {
+interface UploadFormProps {
+    slug: string;
+    close: () => void;
+}
+
+function SRLv5UploadForm({ slug, close }: UploadFormProps) {
     return (
         <Formik
             initialValues={{ data: '' }}
@@ -163,7 +168,10 @@ export default function GoalUpload({ isOpen, close, slug }: GoalUploadProps) {
                                                     the goal list.
                                                 </div>
                                             </div>
-                                            <SRLv5UploadForm slug={slug} />
+                                            <SRLv5UploadForm
+                                                slug={slug}
+                                                close={close}
+                                            />
                                         </Tab.Panel>
                                     </Tab.Panels>
                                 </Tab.Group>
