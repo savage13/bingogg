@@ -17,6 +17,7 @@
         "formik": "^2.4.5",
         "next": "14.0.4",
         "react": "^18",
+        "react-color": "^2.19.3",
         "react-dom": "^18",
         "react-select": "^5.8.0",
         "react-use": "^17.4.3",
@@ -27,6 +28,7 @@
     "devDependencies": {
         "@types/node": "^20",
         "@types/react": "^18",
+        "@types/react-color": "^3.0.11",
         "@types/react-dom": "^18",
         "autoprefixer": "^10.0.1",
         "eslint": "^8",
