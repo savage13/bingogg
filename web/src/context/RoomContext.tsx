@@ -141,7 +141,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
                 interval: 60 * 1000,
                 message: 'ping',
                 returnMessage: 'pong',
-                timeout: 5000,
+                timeout: 2 * 60 * 1000,
             },
             onMessage(message) {
                 if (message.data === 'pong') return;
