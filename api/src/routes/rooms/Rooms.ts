@@ -30,7 +30,8 @@ rooms.get('/', (req, res) => {
 });
 
 rooms.post('/', async (req, res) => {
-    const { name, game, nickname, variant, mode, generationMode } = req.body;
+    const { name, game, nickname, password, variant, mode, generationMode } =
+        req.body;
 
     if (!name || !game || !nickname || !variant || !mode) {
         res.status(400).send('Missing required element(s).');
@@ -46,7 +47,7 @@ rooms.post('/', async (req, res) => {
     const slug = `${slugList[randomInt(0, slugList.length)]}-${
         slugList[randomInt(0, slugList.length)]
     }-${randomInt(1000, 10000)}`;
-    const room = new Room(name, gameData.name, game, slug);
+    const room = new Room(name, gameData.name, game, slug, password);
     let genMode;
     if (generationMode) {
         genMode = generationMode;

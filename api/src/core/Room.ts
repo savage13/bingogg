@@ -44,11 +44,17 @@ export default class Room {
 
     lastGenerationMode: BoardGenerationMode;
 
-    constructor(name: string, game: string, gameSlug: string, slug: string) {
+    constructor(
+        name: string,
+        game: string,
+        gameSlug: string,
+        slug: string,
+        password: string,
+    ) {
         this.name = name;
         this.game = game;
         this.gameSlug = gameSlug;
-        this.password = 'password';
+        this.password = password;
         this.slug = slug;
         this.identities = new Map();
         this.connections = new Map();

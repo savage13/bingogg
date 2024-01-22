@@ -13,6 +13,7 @@ import { useApi } from '../lib/Hooks';
 const roomValidationSchema = yup.object().shape({
     name: yup.string().required('Room name is required'),
     nickname: yup.string().required('Player nickname is required'),
+    password: yup.string().required('Password is required'),
     game: yup.string().required('Game is required'),
     variant: yup.string().required('Game variant is required'),
     mode: yup
@@ -81,6 +82,7 @@ export default function RoomCreateForm() {
                 name: '',
                 nickname: '',
                 game: '',
+                password: '',
                 variant: '',
                 mode: '',
                 seed: undefined,
@@ -119,6 +121,18 @@ export default function RoomCreateForm() {
                 </InlineLabel>
                 <ErrorMessage
                     name="nickname"
+                    component="div"
+                    className="text-xs text-red-500"
+                />
+                <InlineLabel label="Password">
+                    <Field
+                        type="password"
+                        name="password"
+                        className="rounded-md p-1"
+                    />
+                </InlineLabel>
+                <ErrorMessage
+                    name="game"
                     component="div"
                     className="text-xs text-red-500"
                 />
