@@ -17,6 +17,7 @@ import {
 import { Board, Cell } from '../types/Board';
 import { RoomData } from '../types/RoomData';
 import { ChatMessage, ServerMessage } from '../types/ServerMessage';
+import { useLatest, useUnmount } from 'react-use';
 
 export enum ConnectionStatus {
     UNINITIALIZED, // the room connection is uninitialized and there is no authentication data present
@@ -72,7 +73,7 @@ interface RoomContextProps {
 export function RoomContextProvider({ slug, children }: RoomContextProps) {
     // state
     const [messages, setMessages] = useState<ChatMessage[]>([]);
-    const [connectionStatus, setConnectionStatus] = useState(
+    const [connectionStatusState, setConnectionStatus] = useState(
         ConnectionStatus.UNINITIALIZED,
     );
     const [authToken, setAuthToken] = useState<string>();
@@ -80,6 +81,9 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
     const [color, setColor] = useState('blue');
     const [roomData, setRoomData] = useState<RoomData>();
     const [loading, setLoading] = useState(true);
+
+    const latestConnectionStatus = useLatest(connectionStatusState);
+    const connectionStatus = latestConnectionStatus.current;
 
     // const [board, dispatchBoard] = useReducer(boardReducer, { board: [] });
     const board = useSyncExternalStore(
@@ -133,8 +137,14 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
         `ws://localhost:8000/rooms/${slug}`,
         {
             share: true,
-            onOpen() {},
+            heartbeat: {
+                interval: 5000,
+                message: 'ping',
+                returnMessage: 'pong',
+                timeout: 5000,
+            },
             onMessage(message) {
+                if (message.data === 'pong') return;
                 const payload = JSON.parse(message.data) as ServerMessage;
                 if (!payload.action) {
                     return;

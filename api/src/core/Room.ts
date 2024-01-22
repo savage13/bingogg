@@ -225,6 +225,20 @@ export default class Room {
         }
     }
 
+    handleSocketClose(ws: WebSocket) {
+        let socketKey;
+        this.connections.forEach((v, k) => {
+            if (v === ws) {
+                socketKey = k;
+            }
+        });
+        if (socketKey) {
+            this.connections.delete(socketKey);
+            return true;
+        }
+        return false;
+    }
+
     sendChat(message: string): void;
     sendChat(message: ChatMessage): void;
 

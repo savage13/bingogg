@@ -1,7 +1,7 @@
 import { WebSocketServer } from 'ws';
-import Room from './Room';
-import { RoomAction } from '../types/RoomAction';
 import { verifyRoomToken } from '../auth/RoomAuth';
+import { RoomAction } from '../types/RoomAction';
+import Room from './Room';
 
 export const roomWebSocketServer: WebSocketServer = new WebSocketServer({
     noServer: true,
@@ -27,7 +27,14 @@ roomWebSocketServer.on('connection', (ws, req) => {
 
     // handlers
     ws.on('message', (message) => {
-        const action: RoomAction = JSON.parse(message.toString());
+        const messageString = message.toString();
+
+        if (messageString === 'ping') {
+            ws.send('pong');
+            return;
+        }
+
+        const action: RoomAction = JSON.parse(messageString);
         const payload = verifyRoomToken(action.authToken, slug);
         if (!payload) {
             ws.send(JSON.stringify({ action: 'unauthorized' }));
@@ -86,6 +93,13 @@ roomWebSocketServer.on('connection', (ws, req) => {
     });
     ws.on('close', () => {
         // cleanup
+        // attempt to close the connection from the room, in case the connection
+        // is closed unexpectedly without a leave message
+        let found = false;
+        allRooms.forEach((room) => {
+            if (found) return;
+            found = room.handleSocketClose(ws);
+        });
     });
 });
 roomWebSocketServer.on('close', () => {
