@@ -138,7 +138,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
         {
             share: true,
             heartbeat: {
-                interval: 5000,
+                interval: 60 * 1000,
                 message: 'ping',
                 returnMessage: 'pong',
                 timeout: 5000,
