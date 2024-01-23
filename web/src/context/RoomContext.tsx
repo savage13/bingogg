@@ -17,7 +17,8 @@ import {
 import { Board, Cell } from '../types/Board';
 import { RoomData } from '../types/RoomData';
 import { ChatMessage, ServerMessage } from '../types/ServerMessage';
-import { useLatest, useUnmount } from 'react-use';
+import { useAsyncFn, useLatest, useUnmount } from 'react-use';
+import { notFound } from 'next/navigation';
 
 export enum ConnectionStatus {
     UNINITIALIZED, // the room connection is uninitialized and there is no authentication data present
@@ -299,20 +300,34 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
     // effects
     // slug changed, try to establish initial connection from storage
     useEffect(() => {
-        if (connectionStatus === ConnectionStatus.UNINITIALIZED) {
-            // load a cached token and use it if present
-            const storedToken = localStorage.getItem(`authToken-${slug}`);
-            const tempNickname = localStorage.getItem('bingogg.temp.nickname');
-            localStorage.removeItem('bingogg.temp.nickname');
-            if (storedToken) {
-                setAuthToken(storedToken);
-                if (tempNickname) {
-                    setNickname(tempNickname);
+        async function checkRoom() {
+            const res = await fetch(`/api/rooms/${slug}`);
+            if (!res.ok) {
+                if (res.status === 404) {
+                    notFound();
+                } else {
+                    //TODO: handle error
                 }
-                setConnectionStatus(ConnectionStatus.CONNECTING);
-                join(storedToken, tempNickname ?? undefined);
+                return;
+            }
+            if (connectionStatus === ConnectionStatus.UNINITIALIZED) {
+                // load a cached token and use it if present
+                const storedToken = localStorage.getItem(`authToken-${slug}`);
+                const tempNickname = localStorage.getItem(
+                    'bingogg.temp.nickname',
+                );
+                localStorage.removeItem('bingogg.temp.nickname');
+                if (storedToken) {
+                    setAuthToken(storedToken);
+                    if (tempNickname) {
+                        setNickname(tempNickname);
+                    }
+                    setConnectionStatus(ConnectionStatus.CONNECTING);
+                    join(storedToken, tempNickname ?? undefined);
+                }
             }
         }
+        checkRoom();
         setLoading(false);
     }, [slug, connectionStatus, join]);
 

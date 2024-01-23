@@ -15,6 +15,7 @@ import { listToBoard } from '../util/RoomUtils';
 import { generateSRLv5 } from './generation/SRLv5';
 import { shuffle } from '../util/Array';
 import { Goal } from '@prisma/client';
+import { addJoinAction, setRoomBoard } from '../database/Rooms';
 
 type RoomIdentity = {
     nickname: string;
@@ -41,6 +42,7 @@ export default class Room {
     board: Board;
     identities: Map<string, RoomIdentity>;
     chatHistory: ChatMessage[];
+    id: string;
 
     lastGenerationMode: BoardGenerationMode;
 
@@ -50,6 +52,7 @@ export default class Room {
         gameSlug: string,
         slug: string,
         password: string,
+        id: string,
     ) {
         this.name = name;
         this.game = game;
@@ -59,6 +62,7 @@ export default class Room {
         this.identities = new Map();
         this.connections = new Map();
         this.chatHistory = [];
+        this.id = id;
 
         this.lastGenerationMode = BoardGenerationMode.RANDOM;
 
@@ -85,6 +89,10 @@ export default class Room {
 
         this.board = { board: listToBoard(goalList) };
         this.sendSyncBoard();
+        setRoomBoard(
+            this.id,
+            this.board.board.flat().map((cell) => cell.goal),
+        );
     }
 
     handleJoin(
@@ -110,6 +118,7 @@ export default class Room {
             ' has joined.',
         ]);
         this.connections.set(auth.uuid, socket);
+        addJoinAction(this.id, identity.nickname, identity.color);
         return {
             action: 'connected',
             board: this.board,
