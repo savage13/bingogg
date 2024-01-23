@@ -145,7 +145,6 @@ rooms.get('/:slug', async (req, res) => {
                     { contents: color, color: newColor },
                 ]);
                 break;
-                break;
         }
     });
     allRooms.set(slug, room);

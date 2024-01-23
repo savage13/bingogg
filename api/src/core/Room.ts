@@ -1,5 +1,15 @@
+import { Goal } from '@prisma/client';
 import { OPEN, WebSocket } from 'ws';
 import { RoomTokenPayload, invalidateToken } from '../auth/RoomAuth';
+import {
+    addChangeColorAction,
+    addChatAction,
+    addJoinAction,
+    addLeaveAction,
+    addMarkAction,
+    addUnmarkAction,
+    setRoomBoard,
+} from '../database/Rooms';
 import { goalsForGame } from '../database/games/Goals';
 import {
     ChangeColorAction,
@@ -11,11 +21,9 @@ import {
     UnmarkAction,
 } from '../types/RoomAction';
 import { Board, ChatMessage, ServerMessage } from '../types/ServerMessage';
+import { shuffle } from '../util/Array';
 import { listToBoard } from '../util/RoomUtils';
 import { generateSRLv5 } from './generation/SRLv5';
-import { shuffle } from '../util/Array';
-import { Goal } from '@prisma/client';
-import { addJoinAction, setRoomBoard } from '../database/Rooms';
 
 type RoomIdentity = {
     nickname: string;
@@ -118,7 +126,7 @@ export default class Room {
             ' has joined.',
         ]);
         this.connections.set(auth.uuid, socket);
-        addJoinAction(this.id, identity.nickname, identity.color);
+        addJoinAction(this.id, identity.nickname, identity.color).then();
         return {
             action: 'connected',
             board: this.board,
@@ -150,6 +158,7 @@ export default class Room {
         invalidateToken(token);
         this.identities.delete(auth.uuid);
         this.connections.delete(auth.uuid);
+        addLeaveAction(this.id, identity.nickname, identity.color).then();
         return { action: 'disconnected' };
     }
 
@@ -164,6 +173,12 @@ export default class Room {
         const { message: chatMessage } = action.payload;
         if (!chatMessage) return;
         this.sendChat(`${identity.nickname}: ${chatMessage}`);
+        addChatAction(
+            this.id,
+            identity.nickname,
+            identity.color,
+            chatMessage,
+        ).then();
     }
 
     handleMark(
@@ -187,6 +202,13 @@ export default class Room {
             },
             ` is marking (${row},${col})`,
         ]);
+        addMarkAction(
+            this.id,
+            identity.nickname,
+            identity.color,
+            row,
+            col,
+        ).then();
     }
 
     handleUnmark(
@@ -207,6 +229,13 @@ export default class Room {
             { contents: identity.nickname, color: identity.color },
             ` is unmarking (${unRow},${unCol})`,
         ]);
+        addUnmarkAction(
+            this.id,
+            identity.nickname,
+            identity.color,
+            unRow,
+            unCol,
+        ).then();
     }
 
     handleChangeColor(
@@ -230,6 +259,12 @@ export default class Room {
             ' has changed their color to ',
             { contents: color, color },
         ]);
+        addChangeColorAction(
+            this.id,
+            identity.nickname,
+            identity.color,
+            color,
+        ).then();
     }
 
     handleNewCard(action: NewCardAction) {
