@@ -283,7 +283,14 @@ export default class Room {
             }
         });
         if (socketKey) {
+            const identity = this.identities.get(socketKey);
             this.connections.delete(socketKey);
+            if (!identity) return true;
+            this.sendChat([
+                { contents: identity.nickname, color: identity.color },
+                'has left.',
+            ]);
+            addLeaveAction(this.id, identity.nickname, identity.color).then();
             return true;
         }
         return false;
