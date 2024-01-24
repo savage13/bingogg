@@ -69,6 +69,7 @@ model User {
   ownedGames     Game[]         @relation("GameOwners")
   moderatedGames Game[]         @relation("GameModerators")
   resetToken     PasswordReset?
+  tokens         OAuthToken[]
 }
 
 model PasswordReset {
@@ -106,6 +107,29 @@ model RoomAction {
   action  RoomActionType
   payload Json
   roomId  String
+}
+
+model OAuthClient {
+  id           String       @id @unique @default(cuid())
+  clientId     String       @unique
+  clientSecret String
+  name         String
+  redirectUris String[]
+  //
+  tokens       OAuthToken[]
+}
+
+model OAuthToken {
+  id                 String      @id @unique @default(cuid())
+  token              String      @unique
+  refreshToken       String      @unique
+  application        OAuthClient @relation(fields: [oAuthApplicationId], references: [id])
+  user               User        @relation(fields: [userId], references: [id])
+  scopes             String[]
+  expires            DateTime
+  //
+  oAuthApplicationId String
+  userId             String
 }
 
 enum RoomActionType {
