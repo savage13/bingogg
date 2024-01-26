@@ -44,7 +44,7 @@ export default function Header() {
     });
 
     return (
-        <div className="flex items-center gap-x-4 bg-red-800 px-4 py-2">
+        <div className="flex items-center gap-x-4 rounded-b-lg bg-primary px-4 py-2 text-white">
             <HeaderLink href="/" className="text-xl">
                 bingo.gg
             </HeaderLink>
