@@ -54,5 +54,9 @@ export default function ConnectionState() {
         );
     }
 
-    return <div className="rounded-md border text-center">{contents}</div>;
+    return (
+        <div className="rounded-md border border-border text-center">
+            {contents}
+        </div>
+    );
 }

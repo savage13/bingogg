@@ -30,7 +30,7 @@ export default function ColorSelect() {
                     key={colorItem}
                     className={`${
                         color === colorItem ? 'border-4 border-white' : ''
-                    } cursor-pointer rounded-md border px-2 py-1 hover:scale-105 hover:bg-opacity-50`}
+                    } cursor-pointer rounded-md px-2 py-1 hover:scale-110 hover:bg-opacity-50`}
                     style={{ backgroundColor: colorItem }}
                     onClick={() => changeColor(colorItem)}
                 >
@@ -41,7 +41,7 @@ export default function ColorSelect() {
                 <div
                     className={`${
                         color === customColor ? 'border-4 border-white' : ''
-                    } cursor-pointer rounded-md border px-2 py-1 hover:scale-105 hover:bg-opacity-50`}
+                    } cursor-pointer rounded-md px-2 py-1 hover:scale-110 hover:bg-opacity-50`}
                     style={{ backgroundColor: customColor }}
                     onClick={() => setPicker(true)}
                 >

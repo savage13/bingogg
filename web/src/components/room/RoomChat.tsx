@@ -14,8 +14,8 @@ export default function RoomChat() {
     }, [messages]);
 
     return (
-        <div className="flex grow flex-col gap-y-1 rounded-md border px-4 py-3">
-            <div className="h-96 grow overflow-y-scroll rounded-md border bg-gray-800 bg-opacity-50 px-4 py-2">
+        <div className="flex grow flex-col gap-y-1 rounded-md border-2 border-border bg-foreground px-4 py-3 shadow-lg shadow-border/40">
+            <div className="mb-1.5 h-96 grow overflow-y-scroll px-1">
                 {messages.map((message, index) => (
                     <div key={index}>
                         {message.map((messageContents, contentIndex) => {
@@ -41,7 +41,7 @@ export default function RoomChat() {
                 ))}
                 <div ref={chatDivRef} />
             </div>
-            <div className="flex gap-x-1 text-black">
+            <div className="flex gap-x-2 text-black">
                 <input
                     value={message}
                     onChange={(event) => setMessage(event.target.value)}
@@ -54,7 +54,7 @@ export default function RoomChat() {
                     className="grow"
                 />
                 <button
-                    className="rounded-md bg-gray-200 px-2 py-2"
+                    className="rounded-md bg-gray-200 px-3"
                     onClick={() => {
                         sendChatMessage(message);
                         setMessage('');

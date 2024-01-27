@@ -5,7 +5,7 @@ import Cell from './Cell';
 export default function Board() {
     const { board } = useContext(RoomContext);
     return (
-        <>
+        <div className="border">
             {board.board.map((row, rowIndex) => (
                 <div
                     key={rowIndex}
@@ -21,6 +21,6 @@ export default function Board() {
                     ))}
                 </div>
             ))}
-        </>
+        </div>
     );
 }

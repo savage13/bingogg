@@ -49,7 +49,7 @@ export default function RoomInfo() {
     return (
         <>
             <div
-                className="cursor-pointer rounded-md border border-white px-4 py-2 text-center"
+                className="cursor-pointer rounded-md border-2 border-border bg-foreground px-4 py-2 text-center shadow-lg shadow-border/40"
                 onClick={() => {
                     setShowControlModal(true);
                 }}
