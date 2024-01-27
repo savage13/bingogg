@@ -12,9 +12,11 @@ body {
         rgb(var(--background-start-rgb));
 }
 
-input {
+input,
+select {
     border-radius: 0.375rem;
     padding: 0.25rem;
+    color: black;
 }
 
 @layer components {

@@ -50,9 +50,9 @@ function GenerationModeSelectField() {
     }
 
     return (
-        <label className="flex items-center gap-x-2">
-            Generation Mode
-            <Field as="select" name="generationMode" className="rounded-md p-1">
+        <label>
+            <div>Generation Mode</div>
+            <Field as="select" name="generationMode" className="w-full">
                 <option value="">Select Generation Mode</option>
                 {modes.value.map((mode) => (
                     <option key={mode} value={mode}>
@@ -107,72 +107,94 @@ export default function RoomCreateForm() {
                 router.push(`/rooms/${slug}`);
             }}
         >
-            <Form className="flex flex-col gap-y-4">
-                <InlineLabel label="Room Name">
-                    <Field name="name" className="rounded-md" />
-                </InlineLabel>
-                <ErrorMessage
-                    name="name"
-                    component="div"
-                    className="text-xs text-red-500"
-                />
-                <InlineLabel label="Nickname">
-                    <Field name="nickname" className="rounded-md" />
-                </InlineLabel>
-                <ErrorMessage
-                    name="nickname"
-                    component="div"
-                    className="text-xs text-red-500"
-                />
-                <InlineLabel label="Password">
-                    <Field
-                        type="password"
-                        name="password"
-                        className="rounded-md p-1"
+            <Form className="flex flex-col gap-y-3">
+                <div>
+                    <label>
+                        <div>Room Name</div>
+                        <Field name="name" className="w-full" />
+                    </label>
+                    <ErrorMessage
+                        name="name"
+                        component="div"
+                        className="mt-1 text-xs text-error-content"
                     />
-                </InlineLabel>
-                <ErrorMessage
-                    name="game"
-                    component="div"
-                    className="text-xs text-red-500"
-                />
-                <InlineLabel label="Game">
-                    <Field as="select" name="game" className="rounded-md p-1">
-                        <option value="">Select Game</option>
-                        {games.map((game) => (
-                            <option key={game.slug} value={game.slug}>
-                                {game.name}
-                            </option>
-                        ))}
-                    </Field>
-                </InlineLabel>
-                <ErrorMessage
-                    name="game"
-                    component="div"
-                    className="text-xs text-red-500"
-                />
-                <InlineLabel label="Variant">
-                    <Field name="variant" className="rounded-md" />
-                </InlineLabel>
-                <ErrorMessage
-                    name="variant"
-                    component="div"
-                    className="text-xs text-red-500"
-                />
-                <InlineLabel label="Game Mode">
-                    <Field as="select" name="mode" className="rounded-md p-1">
-                        <option value="">Select Game Mode</option>
-                        <option value="lines">Lines</option>
-                        <option value="blackout">Blackout</option>
-                        <option value="lockout">Lockout</option>
-                    </Field>
-                </InlineLabel>
-                <ErrorMessage
-                    name="mode"
-                    component="div"
-                    className="text-xs text-red-500"
-                />
-                <div className="rounded-md border px-3 py-2">
+                </div>
+
+                <div>
+                    <label>
+                        <div>Nickname</div>
+                        <Field name="nickname" className="w-full" />
+                    </label>
+                    <ErrorMessage
+                        name="nickname"
+                        component="div"
+                        className="mt-1 text-xs text-error-content"
+                    />
+                </div>
+
+                <div>
+                    <label>
+                        <div>Password</div>
+                        <Field
+                            type="password"
+                            name="password"
+                            className="w-full"
+                        />
+                    </label>
+                    <ErrorMessage
+                        name="game"
+                        component="div"
+                        className="mt-1 text-xs text-error-content"
+                    />
+                </div>
+                <div>
+                    <label>
+                        <div>Game</div>
+                        <Field as="select" name="game" className="w-full">
+                            <option value="">Select Game</option>
+                            {games.map((game) => (
+                                <option key={game.slug} value={game.slug}>
+                                    {game.name}
+                                </option>
+                            ))}
+                        </Field>
+                    </label>
+                    <ErrorMessage
+                        name="game"
+                        component="div"
+                        className="mt-1 text-xs text-error-content"
+                    />
+                </div>
+                <div className="flex gap-x-4">
+                    <div className="w-1/2">
+                        <label>
+                            <div>Variant</div>
+                            <Field name="variant" className="w-full" />
+                        </label>
+                        <ErrorMessage
+                            name="variant"
+                            component="div"
+                            className="mt-1 text-xs text-error-content"
+                        />
+                    </div>
+                    <div className="w-1/2">
+                        <label>
+                            <div>Game Mode</div>
+                            <Field as="select" name="mode" className="w-full">
+                                <option value="">Select Game Mode</option>
+                                <option value="lines">Lines</option>
+                                <option value="blackout">Blackout</option>
+                                <option value="lockout">Lockout</option>
+                            </Field>
+                        </label>
+                        <ErrorMessage
+                            name="mode"
+                            component="div"
+                            className="mt-1 text-xs text-error-content"
+                        />
+                    </div>
+                </div>
+                <div className="rounded-md border border-text-lighter bg-foreground px-3 py-2 shadow-lg shadow-text-lighter/10">
                     <Disclosure>
                         {({ open }) => (
                             <>
@@ -184,15 +206,15 @@ export default function RoomCreateForm() {
                                         }
                                     />
                                 </Disclosure.Button>
-                                <Disclosure.Panel className="flex px-4 pb-2 pt-4 text-sm text-gray-500">
-                                    <label className="mr-5 flex items-center gap-x-2">
-                                        Seed
+                                <Disclosure.Panel className="flex gap-x-3 px-4 pb-2 pt-4 text-sm text-text">
+                                    <label>
+                                        <div>Seed</div>
                                         <Field
                                             type="number"
                                             name="seed"
                                             pattern="[0-9]*"
                                             inputMode="numeric"
-                                            className="no-step"
+                                            className="no-step w-full"
                                         />
                                     </label>
                                     <GenerationModeSelectField />
@@ -203,7 +225,7 @@ export default function RoomCreateForm() {
                 </div>
                 <div className="flex">
                     <div className="grow" />
-                    <button className="rounded-md border bg-gray-600 px-2 py-1 shadow-sm transition-all duration-200 hover:bg-gray-700">
+                    <button className="rounded-md bg-primary px-2 py-1 transition-all duration-200 hover:bg-primary-light">
                         Create Room
                     </button>
                 </div>
