@@ -1,9 +1,12 @@
-import { pbkdf2Sync, timingSafeEqual } from 'crypto';
+import { pbkdf2Sync, randomBytes, timingSafeEqual } from 'crypto';
 import { Router } from 'express';
 import {
+    changePassword,
+    completePasswordReset,
     getSiteAuth,
     getUserByEmail,
     initiatePasswordReset,
+    validatePasswordReset,
 } from '../../database/Users';
 import { sendEmail } from '../../communication/outgoing/Email';
 import { urlBase } from '../../Environment';
@@ -76,6 +79,25 @@ siteAuth.post('/forgotPassword', async (req, res) => {
         // eslint-disable-next-line max-len
         `Use this link to reset your password. It only works once and expires in 10 minutes. ${urlBase}/resetpassword?token=${resetToken.token}`,
     );
+    res.sendStatus(200);
+});
+
+siteAuth.post('/resetPassword', async (req, res) => {
+    const { token, password } = req.body;
+    if (!token || !password) {
+        res.sendStatus(400);
+        return;
+    }
+    const valid = await validatePasswordReset(token);
+    if (!valid) {
+        // this could probably safely be a 403, but this is still safer on paper
+        res.sendStatus(400);
+        return;
+    }
+    const salt = randomBytes(16);
+    const passwordHash = pbkdf2Sync(password, salt, 10000, 64, 'sha256');
+    await changePassword(valid.userId, passwordHash, salt);
+    await completePasswordReset(token);
     res.sendStatus(200);
 });
 

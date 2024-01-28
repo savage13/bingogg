@@ -94,3 +94,30 @@ export const initiatePasswordReset = (user: string) => {
         update: { token: randomBytes(16).toString('base64url'), expires },
     });
 };
+
+export const validatePasswordReset = async (token: string) => {
+    const resetToken = await prisma.passwordReset.findUnique({
+        where: { token },
+    });
+    if (resetToken) {
+        if (Date.now() < resetToken.expires.getTime()) {
+            return resetToken;
+        }
+    }
+    return false;
+};
+
+export const completePasswordReset = (token: string) => {
+    return prisma.passwordReset.delete({ where: { token } });
+};
+
+export const changePassword = (
+    user: string,
+    password: Buffer,
+    salt: Buffer,
+) => {
+    return prisma.user.update({
+        where: { id: user },
+        data: { password, salt },
+    });
+};
