@@ -50,7 +50,7 @@ export default function Game({
 
     return (
         <div className="flex h-full gap-x-3">
-            <div className="flex grow flex-col rounded-2xl border-4 p-5">
+            <div className="flex grow flex-col rounded-2xl border-4 border-border bg-foreground p-5">
                 <div className="flex">
                     <div className="mr-4">
                         {gameData.coverImage && (
@@ -62,7 +62,7 @@ export default function Game({
                             />
                         )}
                         {!gameData.coverImage && (
-                            <div className="relative flex h-32 w-20 border shadow-[inset_0_0_12px_white]">
+                            <div className="relative flex h-32 w-20 border shadow-[inset_0_0_8px_white]">
                                 <div className="absolute bottom-0 left-0 right-0 top-0 flex items-center justify-center">
                                     {slug}
                                 </div>
@@ -98,15 +98,23 @@ export default function Game({
                     </div>
                 </div>
                 <Tab.Group>
-                    <Tab.List className="mt-3 flex rounded-xl bg-blue-900/20 p-1">
-                        {tabs.map((tab) => (
+                    <Tab.List className="mt-3 flex rounded-xl bg-border p-1">
+                        {tabs.map((tab, index) => (
                             <Tab
                                 key={tab}
                                 className={({ selected }) =>
-                                    `w-full rounded-lg  py-2.5 text-sm font-medium leading-5 ${
+                                    `w-full py-2.5 text-sm font-medium leading-5 ${
                                         selected
-                                            ? 'cursor-default bg-gray-500 shadow'
-                                            : 'bg-slate-800 text-blue-100 hover:bg-slate-700 hover:text-white'
+                                            ? 'cursor-default bg-neutral-600'
+                                            : 'hover:bg- bg-background hover:bg-neutral-400'
+                                    } ${
+                                        index === 0
+                                            ? 'rounded-l-lg border-r'
+                                            : ''
+                                    } ${
+                                        index === tabs.length - 1
+                                            ? 'rounded-r-lg'
+                                            : 'border-r-2 border-border'
                                     }`
                                 }
                             >
@@ -224,7 +232,7 @@ export default function Game({
                     </Tab.Panels>
                 </Tab.Group>
             </div>
-            <div className="w-1/4 rounded-2xl border-4 p-5"></div>
+            {/* <div className="w-1/4 rounded-2xl border-4 p-5"></div> */}
         </div>
     );
 }

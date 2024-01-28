@@ -73,7 +73,7 @@ export default function UserSearch({
                             leaveFrom="opacity-100 scale-100"
                             leaveTo="opacity-0 scale-95"
                         >
-                            <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-gray-800 p-6 text-left align-middle text-white shadow-xl transition-all">
+                            <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl border border-border bg-foreground p-6 text-left align-middle text-text shadow-lg shadow-border/10 transition-all">
                                 <Dialog.Title
                                     as="h3"
                                     className="text-2xl font-medium leading-6"
@@ -124,14 +124,14 @@ export default function UserSearch({
                                 <div className="mt-5">
                                     <button
                                         type="button"
-                                        className="rounded-md border border-transparent bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-400"
+                                        className="rounded-md border border-transparent bg-error px-4 py-2 text-sm font-medium text-white hover:bg-red-600"
                                         onClick={cancel}
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         type="button"
-                                        className="float-right rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-500"
+                                        className="float-right rounded-md border border-transparent bg-success px-4 py-2 text-sm font-medium text-white hover:bg-green-500"
                                         onClick={onSubmit}
                                     >
                                         Submit

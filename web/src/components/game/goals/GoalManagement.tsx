@@ -134,7 +134,7 @@ export default function GoalManagement({
             <div className="relative flex items-center justify-center">
                 <div className="text-center text-2xl">Goal Management</div>
                 <button
-                    className="absolute right-0 flex items-center gap-x-2 rounded-md border px-2 py-1"
+                    className="absolute right-0 flex items-center gap-x-2 rounded-md bg-text-lighter px-2 py-1 text-black hover:bg-text-light/50"
                     onClick={() => {
                         setGoalUploadOpen(true);
                     }}
@@ -187,7 +187,7 @@ export default function GoalManagement({
                 </div>
             </div>
             <div className="flex w-full grow gap-x-5">
-                <div className="flex w-1/3 flex-col rounded-md border-2 border-white px-3">
+                <div className="flex w-1/3 flex-col rounded-md border-2 border-white/40 px-3">
                     <div className="h-px grow overflow-y-auto">
                         {shownGoals.map((goal) => (
                             <div key={goal.id} className="border-b py-2">
@@ -199,7 +199,7 @@ export default function GoalManagement({
                                     <div className="grow" />
                                     <FontAwesomeIcon
                                         icon={faTrash}
-                                        className="group/edit invisible rounded-full p-2.5 text-white hover:bg-black group-hover/item:visible"
+                                        className="group/edit invisible rounded-full p-2.5 hover:bg-black group-hover/item:visible"
                                         onClick={(e) => {
                                             deleteGoal(goal.id);
                                             e.preventDefault();

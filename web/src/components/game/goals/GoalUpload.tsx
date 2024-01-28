@@ -77,14 +77,14 @@ function SRLv5UploadForm({ slug, close }: UploadFormProps) {
                 <div className="mt-5">
                     <button
                         type="button"
-                        className="rounded-md border border-transparent bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-400"
+                        className="rounded-md border border-transparent bg-error px-4 py-2 text-sm font-medium text-white hover:bg-red-600"
                         onClick={close}
                     >
                         Cancel
                     </button>
                     <button
                         type="submit"
-                        className="float-right rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-500"
+                        className="float-right rounded-md border border-transparent bg-success px-4 py-2 text-sm font-medium text-white hover:bg-green-500"
                     >
                         Submit
                     </button>
@@ -128,7 +128,7 @@ export default function GoalUpload({ isOpen, close, slug }: GoalUploadProps) {
                             leaveFrom="opacity-100 scale-100"
                             leaveTo="opacity-0 scale-95"
                         >
-                            <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-gray-800 p-6 text-left align-middle text-white shadow-xl transition-all">
+                            <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl border border-border bg-foreground p-6 text-left align-middle text-white shadow-lg shadow-border/10 transition-all">
                                 <Dialog.Title
                                     as="h3"
                                     className="text-2xl font-medium leading-6"

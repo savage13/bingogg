@@ -30,7 +30,7 @@ export default function HoverIcon({ icon, children }: HoverIconProps) {
                     ref={refs.setFloating}
                     style={floatingStyles}
                     {...getFloatingProps()}
-                    className=" z-10 max-w-md rounded-lg border border-gray-300 bg-slate-100 p-2 text-sm text-slate-700 shadow-md"
+                    className=" z-10 max-w-md rounded-lg border border-border bg-text-light p-2 text-sm text-background shadow-lg shadow-border/10"
                 >
                     {children}
                 </div>
