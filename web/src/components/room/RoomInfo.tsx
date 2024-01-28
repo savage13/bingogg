@@ -88,7 +88,7 @@ export default function RoomInfo() {
                                 leaveFrom="opacity-100 scale-100"
                                 leaveTo="opacity-0 scale-95"
                             >
-                                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-gray-800 p-6 text-left align-middle text-white shadow-xl transition-all">
+                                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl border border-border bg-foreground p-6 text-left align-middle text-white shadow-lg shadow-border/10 transition-all">
                                     <Dialog.Title
                                         as="h3"
                                         className="text-2xl font-medium leading-6"
@@ -97,7 +97,7 @@ export default function RoomInfo() {
                                     </Dialog.Title>
                                     <div className="mt-4">
                                         <div>
-                                            <div className="pb-1 text-lg font-semibold">
+                                            <div className="pb-2 text-lg font-semibold">
                                                 Card Controls
                                             </div>
 
@@ -118,7 +118,7 @@ export default function RoomInfo() {
                                                 }}
                                             >
                                                 <Form>
-                                                    <div className="mb-3">
+                                                    <div className="mb-2">
                                                         <Disclosure>
                                                             {({ open }) => (
                                                                 <>
@@ -136,11 +136,11 @@ export default function RoomInfo() {
                                                                             }
                                                                         />
                                                                     </Disclosure.Button>
-                                                                    <Disclosure.Panel className="flex flex-col gap-y-2 px-4 pb-2 pt-4 text-sm text-gray-500">
-                                                                        <label className="mr-5 flex w-full items-center gap-x-2">
-                                                                            <span className="w-1/2 text-right">
+                                                                    <Disclosure.Panel className="flex flex-col gap-y-3 pb-2 pt-2 text-sm">
+                                                                        <label className="w-full">
+                                                                            <div>
                                                                                 Seed
-                                                                            </span>
+                                                                            </div>
                                                                             <Field
                                                                                 type="number"
                                                                                 name="seed"
@@ -149,11 +149,11 @@ export default function RoomInfo() {
                                                                                 className="no-step w-full"
                                                                             />
                                                                         </label>
-                                                                        <label className="flex items-center gap-x-2">
-                                                                            <span className="w-1/2 text-right">
+                                                                        <label className="">
+                                                                            <div>
                                                                                 Generation
                                                                                 Mode
-                                                                            </span>
+                                                                            </div>
                                                                             <Field
                                                                                 as="select"
                                                                                 name="generationMode"
