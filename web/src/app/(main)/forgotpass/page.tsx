@@ -24,6 +24,7 @@ export default function ForgotPassword() {
                 {!success && (
                     <Formik
                         initialValues={{ email: '', username: '' }}
+                        validationSchema={validationSchema}
                         onSubmit={async ({ email, username }) => {
                             const res = await fetch(
                                 '/api/auth/forgotPassword',
