@@ -1,3 +1,4 @@
+import { randomBytes } from 'crypto';
 import { prisma } from './Database';
 
 export const userByEmail = (email: string) => {
@@ -62,6 +63,10 @@ export const getUser = async (id: string) => {
     };
 };
 
+export const getUserByEmail = (email: string) => {
+    return prisma.user.findUnique({ where: { email } });
+};
+
 export const getAllUsers = async () => {
     return prisma.user.findMany();
 };
@@ -72,5 +77,20 @@ export const getUsersEligibleToModerateGame = (game: string) => {
             moderatedGames: { none: { slug: game } },
             ownedGames: { none: { slug: game } },
         },
+    });
+};
+
+export const initiatePasswordReset = (user: string) => {
+    const today = new Date();
+    const expires = new Date();
+    expires.setHours(today.getHours() + 1);
+    return prisma.passwordReset.upsert({
+        where: { userId: user },
+        create: {
+            user: { connect: { id: user } },
+            token: randomBytes(16).toString('base64url'),
+            expires,
+        },
+        update: { token: randomBytes(16).toString('base64url'), expires },
     });
 };

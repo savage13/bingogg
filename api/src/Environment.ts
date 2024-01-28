@@ -8,3 +8,4 @@ export const clientUrl = process.env.CLIENT_URL ?? '';
 export const smtpHost = process.env.SMTP_HOST ?? '';
 export const smtpUser = process.env.SMTP_USER ?? '';
 export const smtpPassword = process.env.SMTP_PASSWORD ?? '';
+export const urlBase = process.env.URL_BASE ?? '';

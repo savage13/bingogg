@@ -1,6 +1,12 @@
 import { pbkdf2Sync, timingSafeEqual } from 'crypto';
 import { Router } from 'express';
-import { getSiteAuth } from '../../database/Users';
+import {
+    getSiteAuth,
+    getUserByEmail,
+    initiatePasswordReset,
+} from '../../database/Users';
+import { sendEmail } from '../../communication/outgoing/Email';
+import { urlBase } from '../../Environment';
 
 const siteAuth = Router();
 
@@ -42,6 +48,35 @@ siteAuth.post('/login', async (req, res, next) => {
             res.sendStatus(200);
         });
     });
+});
+
+// small security note - all data related errors are sent as a 400 response,
+// this prevents trying to reverse engineer certain data connections based on
+// the response data
+siteAuth.post('/forgotPassword', async (req, res) => {
+    const { email, username } = req.body;
+    if (!email || !username) {
+        res.status(400);
+        return;
+    }
+    const user = await getUserByEmail(email);
+    if (!user) {
+        res.sendStatus(400);
+        return;
+    }
+    if (username !== user.username) {
+        res.sendStatus(400);
+        return;
+    }
+
+    const resetToken = await initiatePasswordReset(user.id);
+    sendEmail(
+        user.email,
+        'bingo.gg Password Reset',
+        // eslint-disable-next-line max-len
+        `Use this link to reset your password. It only works once and expires in 10 minutes. ${urlBase}/resetpassword?token=${resetToken.token}`,
+    );
+    res.sendStatus(200);
 });
 
 export default siteAuth;

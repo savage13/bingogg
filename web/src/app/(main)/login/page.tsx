@@ -66,7 +66,10 @@ export default function Login() {
                                     className="w-full text-black"
                                 />
                             </label>
-                            <Link href="" className="pt-0.5 text-sm underline">
+                            <Link
+                                href="/forgotpass"
+                                className="pt-0.5 text-sm underline"
+                            >
                                 Forgot password?
                             </Link>
                         </div>

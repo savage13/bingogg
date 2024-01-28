@@ -59,15 +59,24 @@ model Game {
 }
 
 model User {
-  id             String       @id @unique @default(cuid())
-  username       String       @unique
-  email          String       @unique
+  id             String         @id @unique @default(cuid())
+  username       String         @unique
+  email          String         @unique
   password       Bytes
   salt           Bytes
   connections    Connection[]
-  staff          Boolean      @default(false)
-  ownedGames     Game[]       @relation("GameOwners")
-  moderatedGames Game[]       @relation("GameModerators")
+  staff          Boolean        @default(false)
+  ownedGames     Game[]         @relation("GameOwners")
+  moderatedGames Game[]         @relation("GameModerators")
+  resetToken     PasswordReset?
+}
+
+model PasswordReset {
+  id      String   @id @unique @default(cuid())
+  user    User     @relation(fields: [userId], references: [id])
+  token   String   @unique
+  expires DateTime
+  userId  String   @unique
 }
 
 model Connection {
