@@ -37,7 +37,7 @@ export default function ForgotPassword() {
                                 //TODO: handle error
                                 return;
                             }
-                            setSuccess(true);
+                            // setSuccess(true);
                         }}
                     >
                         {({ isValid, isSubmitting }) => (
