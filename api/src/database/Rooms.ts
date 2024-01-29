@@ -79,6 +79,10 @@ export const setRoomBoard = async (room: string, board: string[]) => {
     await prisma.room.update({ where: { id: room }, data: { board } });
 };
 
+export const getFullRoomList = () => {
+    return prisma.room.findMany({ include: { game: true } });
+};
+
 export const getAllRooms = () => {
     return prisma.room.findMany({ include: { history: true } });
 };

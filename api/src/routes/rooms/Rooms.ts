@@ -3,7 +3,11 @@ import { Router } from 'express';
 import { createRoomToken } from '../../auth/RoomAuth';
 import Room, { BoardGenerationMode } from '../../core/Room';
 import { allRooms } from '../../core/RoomServer';
-import { createRoom, getRoomFromSlug } from '../../database/Rooms';
+import {
+    createRoom,
+    getFullRoomList,
+    getRoomFromSlug,
+} from '../../database/Rooms';
 import { gameForSlug } from '../../database/games/Games';
 import { chunk } from '../../util/Array';
 
@@ -23,12 +27,24 @@ const slugList = [
     'wheat',
 ];
 
-rooms.get('/', (req, res) => {
+rooms.get('/', async (req, res) => {
+    const { inactive } = req.query;
+
     const roomList: { name: string; game: string; slug: string }[] = [];
-    allRooms.forEach((room, key) => {
-        roomList.push({ name: room.name, game: room.game, slug: key });
-    });
-    res.send(roomList);
+    if (!inactive) {
+        allRooms.forEach((room, key) => {
+            roomList.push({ name: room.name, game: room.game, slug: key });
+        });
+        res.send(roomList);
+    } else {
+        res.json(
+            (await getFullRoomList()).map((room) => ({
+                name: room.name,
+                game: room.game.name,
+                slug: room.slug,
+            })),
+        );
+    }
 });
 
 rooms.post('/', async (req, res) => {
