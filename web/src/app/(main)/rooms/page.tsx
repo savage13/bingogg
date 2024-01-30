@@ -34,7 +34,7 @@ export default function Rooms() {
     }
 
     return (
-        <div>
+        <div className="h-full">
             <div className="flex border-b border-border px-4 pb-4">
                 <div>{roomList.length} rooms loaded.</div>
                 <div className="grow" />
@@ -46,7 +46,7 @@ export default function Rooms() {
                     />
                 </label>
             </div>
-            <div className="mt-4 flex flex-wrap gap-x-8">
+            <div className="mt-4 flex max-h-[calc(100%-60px)] flex-wrap items-center justify-around gap-x-8 gap-y-8 overflow-scroll">
                 {roomList.map((room) => (
                     <div key={room.slug}>
                         <Link href={`/rooms/${room.slug}`}>
