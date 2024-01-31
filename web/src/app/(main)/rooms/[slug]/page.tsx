@@ -7,6 +7,7 @@ import RoomInfo from '@/components/room/RoomInfo';
 import RoomLogin from '@/components/room/RoomLogin';
 import { ConnectionStatus, RoomContext } from '@/context/RoomContext';
 import { useContext } from 'react';
+import PlayerList from '../../../../components/room/PlayerList';
 
 export default function Room() {
     const { connectionStatus, roomData, nickname, disconnect } =
@@ -58,6 +59,9 @@ export default function Room() {
                 </div>
                 <div>
                     <RoomChat />
+                </div>
+                <div>
+                    <PlayerList />
                 </div>
             </div>
         </>
