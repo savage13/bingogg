@@ -20,7 +20,12 @@ import {
     NewCardAction,
     UnmarkAction,
 } from '../types/RoomAction';
-import { Board, ChatMessage, ServerMessage } from '../types/ServerMessage';
+import {
+    Board,
+    ChatMessage,
+    Player,
+    ServerMessage,
+} from '../types/ServerMessage';
 import { shuffle } from '../util/Array';
 import { listToBoard } from '../util/RoomUtils';
 import { generateSRLv5 } from './generation/SRLv5';
@@ -103,6 +108,28 @@ export default class Room {
         );
     }
 
+    getPlayers() {
+        const players: Player[] = [];
+        this.identities.forEach((i) => {
+            players.push({
+                nickname: i.nickname,
+                color: i.color,
+                goalCount: this.board.board.reduce((prev, row) => {
+                    return (
+                        prev +
+                        row.reduce((p, cell) => {
+                            if (cell.colors.includes(i.color)) {
+                                return p + 1;
+                            }
+                            return p;
+                        }, 0)
+                    );
+                }, 0),
+            });
+        });
+        return players;
+    }
+
     handleJoin(
         action: JoinAction,
         auth: RoomTokenPayload,
@@ -139,6 +166,7 @@ export default class Room {
                 name: this.name,
                 gameSlug: this.gameSlug,
             },
+            players: this.getPlayers(),
         };
     }
 
@@ -325,7 +353,9 @@ export default class Room {
     private sendServerMessage(message: ServerMessage) {
         this.connections.forEach((client) => {
             if (client.readyState === OPEN) {
-                client.send(JSON.stringify(message));
+                client.send(
+                    JSON.stringify({ ...message, players: this.getPlayers() }),
+                );
             }
         });
     }

@@ -37,7 +37,9 @@ export type ServerMessage = (
   | {
       action: "disconnected";
     }
-) & {};
+) & {
+  players?: Player[];
+};
 export type ChatMessage = (
   | string
   | {
@@ -68,4 +70,9 @@ export interface RoomData {
   game: string;
   slug: string;
   gameSlug: string;
+}
+export interface Player {
+  nickname: string;
+  color: string;
+  goalCount: number;
 }

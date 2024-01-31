@@ -1,4 +1,5 @@
 'use client';
+import { notFound } from 'next/navigation';
 import {
     ReactNode,
     createContext,
@@ -7,6 +8,7 @@ import {
     useState,
     useSyncExternalStore,
 } from 'react';
+import { useLatest } from 'react-use';
 import useWebSocket from 'react-use-websocket';
 import {
     emitBoardUpdate,
@@ -16,9 +18,7 @@ import {
 } from '../lib/BoardStore';
 import { Board, Cell } from '../types/Board';
 import { RoomData } from '../types/RoomData';
-import { ChatMessage, ServerMessage } from '../types/ServerMessage';
-import { useAsyncFn, useLatest, useUnmount } from 'react-use';
-import { notFound } from 'next/navigation';
+import { ChatMessage, Player, ServerMessage } from '../types/ServerMessage';
 
 export enum ConnectionStatus {
     UNINITIALIZED, // the room connection is uninitialized and there is no authentication data present
@@ -41,6 +41,7 @@ interface RoomContext {
     color: string;
     roomData?: RoomData;
     nickname: string;
+    players: Player[];
     connect: (
         nickname: string,
         password: string,
@@ -59,6 +60,7 @@ export const RoomContext = createContext<RoomContext>({
     messages: [],
     color: 'blue',
     nickname: '',
+    players: [],
     async connect() {
         return { success: false };
     },
@@ -86,6 +88,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
     const [color, setColor] = useState('blue');
     const [roomData, setRoomData] = useState<RoomData>();
     const [loading, setLoading] = useState(true);
+    const [players, setPlayers] = useState<Player[]>([]);
 
     const latestConnectionStatus = useLatest(connectionStatusState);
     const connectionStatus = latestConnectionStatus.current;
@@ -153,6 +156,9 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
                 const payload = JSON.parse(message.data) as ServerMessage;
                 if (!payload.action) {
                     return;
+                }
+                if (payload.players) {
+                    setPlayers(payload.players);
                 }
                 switch (payload.action) {
                     case 'chat':
@@ -354,6 +360,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
                 color,
                 roomData,
                 nickname,
+                players,
                 connect,
                 sendChatMessage,
                 markGoal,
