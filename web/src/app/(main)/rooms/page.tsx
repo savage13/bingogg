@@ -46,7 +46,7 @@ export default function Rooms() {
                     />
                 </label>
             </div>
-            <div className="mt-4 flex max-h-[calc(100%-60px)] flex-wrap items-center justify-around gap-x-8 gap-y-8 overflow-scroll">
+            <div className="mt-4 flex max-h-[calc(100%-60px)] flex-wrap items-center justify-around gap-x-8 gap-y-8 overflow-auto">
                 {roomList.map((room) => (
                     <div key={room.slug}>
                         <Link href={`/rooms/${room.slug}`}>
