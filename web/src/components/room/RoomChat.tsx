@@ -14,8 +14,8 @@ export default function RoomChat() {
     }, [messages]);
 
     return (
-        <div className="flex grow flex-col gap-y-1 rounded-md border-2 border-border bg-foreground px-4 py-3 shadow-lg shadow-border/40">
-            <div className="mb-1.5 h-96 grow overflow-y-scroll px-1">
+        <div className="flex h-full grow flex-col gap-y-1 rounded-md border-2 border-border bg-foreground px-4 py-3 shadow-lg shadow-border/40">
+            <div className="mb-1.5 h-full grow overflow-y-scroll px-1">
                 {messages.map((message, index) => (
                     <div key={index}>
                         {message.map((messageContents, contentIndex) => {

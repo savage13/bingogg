@@ -1,12 +1,12 @@
 'use client';
-import { useContext, useState } from 'react';
 import Board from '@/components/board/Board';
-import RoomLogin from '@/components/room/RoomLogin';
-import { ConnectionStatus, RoomContext } from '@/context/RoomContext';
 import ColorSelect from '@/components/room/ColorSelect';
-import RoomInfo from '@/components/room/RoomInfo';
 import ConnectionState from '@/components/room/ConnectionState';
 import RoomChat from '@/components/room/RoomChat';
+import RoomInfo from '@/components/room/RoomInfo';
+import RoomLogin from '@/components/room/RoomLogin';
+import { ConnectionStatus, RoomContext } from '@/context/RoomContext';
+import { useContext } from 'react';
 
 export default function Room() {
     const { connectionStatus, roomData } = useContext(RoomContext);
@@ -23,25 +23,24 @@ export default function Room() {
     }
 
     return (
-        <div className="flex gap-x-8">
-            <div className="block w-1/2">
-                <div className="pb-4">
+        <>
+            <div className="flex h-[30%] gap-x-4 pb-4">
+                <div className="flex flex-col gap-y-3">
+                    <RoomInfo />
+                    <ConnectionState />
+                </div>
+                <div className="rounded-md border border-border bg-foreground p-4">
                     <ColorSelect />
                 </div>
-                <Board />
             </div>
-            <div className="grow" />
-            <div className="flex flex-col gap-y-4">
-                <div>
-                    <RoomInfo />
-                </div>
-                <div>
-                    <ConnectionState />
+            <div className="flex h-[70%] gap-x-8">
+                <div className="max-h-full max-w-[50%] grow">
+                    <Board />
                 </div>
                 <div>
                     <RoomChat />
                 </div>
             </div>
-        </div>
+        </>
     );
 }

@@ -54,10 +54,11 @@ export default function Cell({
     return (
         <>
             <div
-                className="relative aspect-square w-1/5 cursor-pointer overflow-hidden border bg-black transition-all duration-300 hover:z-10 hover:scale-110 hover:shadow-xl"
+                className="relative aspect-square grow cursor-pointer overflow-hidden border bg-black transition-all duration-300 hover:z-10 hover:scale-110 hover:shadow-xl"
                 onClick={toggleSpace}
                 ref={refs.setReference}
                 {...getReferenceProps()}
+                // style={{ width: 50 }}
             >
                 <div className="absolute z-10 flex h-full w-full items-center justify-center p-2">
                     <TextFit

@@ -24,7 +24,7 @@ export default function ColorSelect() {
     });
 
     return (
-        <div className="flex items-center justify-center gap-x-4">
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
             {colors.map((colorItem) => (
                 <div
                     key={colorItem}

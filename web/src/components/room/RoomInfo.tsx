@@ -54,10 +54,10 @@ export default function RoomInfo() {
                     setShowControlModal(true);
                 }}
             >
-                <div className="text-3xl font-semibold">{roomData.name}</div>
-                <div className="text-lg">{roomData.game}</div>
-                <div className="pb-4 text-sm">{roomData.slug}</div>
-                <div className="flex text-sm">
+                <div className="text-2xl font-semibold">{roomData.name}</div>
+                <div className="text">{roomData.game}</div>
+                <div className="pb-4 text-xs">{roomData.slug}</div>
+                <div className="flex text-xs">
                     <div>Variant</div>
                     <div className="grow" />
                     <div>Mode</div>
