@@ -9,7 +9,8 @@ import { ConnectionStatus, RoomContext } from '@/context/RoomContext';
 import { useContext } from 'react';
 
 export default function Room() {
-    const { connectionStatus, roomData } = useContext(RoomContext);
+    const { connectionStatus, roomData, nickname, disconnect } =
+        useContext(RoomContext);
 
     if (connectionStatus === ConnectionStatus.UNINITIALIZED) {
         return <RoomLogin />;
@@ -29,8 +30,26 @@ export default function Room() {
                     <RoomInfo />
                     <ConnectionState />
                 </div>
-                <div className="rounded-md border border-border bg-foreground p-4">
-                    <ColorSelect />
+                <div className="flex h-fit flex-col gap-y-3 rounded-md border border-border bg-foreground p-3">
+                    <div className="">
+                        <div className="float-left text-lg font-semibold">
+                            Playing as {nickname}
+                        </div>
+                        {connectionStatus !== ConnectionStatus.CLOSED && (
+                            <button
+                                className="float-right rounded-md border bg-background px-2 py-1 shadow-md shadow-white/20 hover:bg-border"
+                                onClick={disconnect}
+                            >
+                                Disconnect
+                            </button>
+                        )}
+                    </div>
+                    <div className="rounded-md border bg-background p-2 shadow-md shadow-white/20">
+                        <div className="pb-1 font-semibold">
+                            Choose your color
+                        </div>
+                        <ColorSelect />
+                    </div>
                 </div>
             </div>
             <div className="flex h-[70%] gap-x-8">

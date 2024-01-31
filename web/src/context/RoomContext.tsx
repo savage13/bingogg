@@ -40,6 +40,7 @@ interface RoomContext {
     messages: ChatMessage[];
     color: string;
     roomData?: RoomData;
+    nickname: string;
     connect: (
         nickname: string,
         password: string,
@@ -49,6 +50,7 @@ interface RoomContext {
     unmarkGoal: (row: number, col: number) => void;
     changeColor: (color: string) => void;
     regenerateCard: (options?: CardRegenerateOptions) => void;
+    disconnect: () => void;
 }
 
 export const RoomContext = createContext<RoomContext>({
@@ -56,6 +58,7 @@ export const RoomContext = createContext<RoomContext>({
     board: { board: [] },
     messages: [],
     color: 'blue',
+    nickname: '',
     async connect() {
         return { success: false };
     },
@@ -64,6 +67,7 @@ export const RoomContext = createContext<RoomContext>({
     unmarkGoal(row, col) {},
     changeColor() {},
     regenerateCard() {},
+    disconnect() {},
 });
 
 interface RoomContextProps {
@@ -235,6 +239,9 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
         },
         [slug, join],
     );
+    const disconnect = useCallback(async () => {
+        sendJsonMessage({ action: 'leave', authToken });
+    }, [authToken, sendJsonMessage]);
     const sendChatMessage = useCallback(
         (message: string) => {
             sendJsonMessage({
@@ -346,12 +353,14 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
                 messages,
                 color,
                 roomData,
+                nickname,
                 connect,
                 sendChatMessage,
                 markGoal,
                 unmarkGoal,
                 changeColor,
                 regenerateCard,
+                disconnect,
             }}
         >
             {children}
