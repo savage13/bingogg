@@ -3,12 +3,20 @@ export default function Privacy() {
         <div className="flex h-full flex-col gap-y-8 overflow-y-scroll px-8">
             <div>
                 <h1 className="pb-2 text-2xl font-bold">Privacy Policy</h1>
-                <p>
+                <p className="pb-3">
                     Welcome to bingo.gg! Your privacy is important to us, and we
                     are committed to protecting the personal information that
                     you share with us. This Privacy Policy outlines how we
                     collect, use, and safeguard your information when you visit
                     our website.
+                </p>
+                <p>
+                    By choosing to use bingo.gg, you agree to the collection and
+                    use of information in relation with this policy. The
+                    Personal Information that we collect are used for providing
+                    and improving our service. We will not use or share your
+                    information with anyone except as described in this Privacy
+                    Policy.
                 </p>
             </div>
             <div>
