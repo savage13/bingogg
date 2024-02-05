@@ -10,7 +10,7 @@ export default function RoomChat() {
     const chatDivRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        chatDivRef.current?.scrollIntoView();
+        chatDivRef.current?.scrollIntoView(false);
     }, [messages]);
 
     return (
