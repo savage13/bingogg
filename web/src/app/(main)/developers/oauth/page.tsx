@@ -17,7 +17,10 @@ import { UserContext } from '../../../../context/UserContext';
 import Link from 'next/link';
 
 async function getApplications(): Promise<OAuthClient[]> {
-    const res = await fetch(`/api/oauth/clients`);
+    const url = process.env.API_PATH
+        ? `${process.env.API_PATH}/api/oauth/clients`
+        : `/api/oauth/clients`;
+    const res = await fetch(url);
     if (!res.ok) {
         //TODO: handle error
         return [];
@@ -74,9 +77,9 @@ export default function OAuth() {
                     </div>
                     <FontAwesomeIcon
                         icon={faPlus}
-                        className="fa-fw absolute bottom-0 right-0 m-6 aspect-square cursor-pointer rounded-full bg-primary px-2 py-3 text-3xl hover:bg-primary-light"
+                        className="absolute bottom-0 right-0 mb-4 mr-4 cursor-pointer rounded-full border border-border bg-primary px-4 py-3.5 text-3xl hover:bg-primary-light"
                         onClick={() => setNewDialogOpen(true)}
-                    ></FontAwesomeIcon>
+                    />
                 </div>
             </div>
             <Transition appear show={newDialogOpen} as={Fragment}>

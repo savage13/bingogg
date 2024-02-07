@@ -1,4 +1,5 @@
-'use client'
+'use client';
+import { use } from 'react';
 import useSWR from 'swr';
 
 export const useApi = <T>(route: string, immutable?: boolean) => {
@@ -20,4 +21,16 @@ export const useApi = <T>(route: string, immutable?: boolean) => {
             }),
         options,
     );
+};
+
+export const useFetch = <T>(path: string) => {
+    const url = process.env.API_PATH ? `${process.env.API_PATH}${path}` : path;
+    const doFetch = async () => {
+        const res = await fetch(url);
+        if (!res.ok) {
+            return undefined;
+        }
+        return res.json() as T;
+    };
+    return use(doFetch());
 };
