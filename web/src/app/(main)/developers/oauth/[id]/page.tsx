@@ -1,13 +1,12 @@
 'use client';
 
+import { faClose } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Field, FieldArray, Form, Formik } from 'formik';
 import { Suspense, useCallback, useState } from 'react';
+import { useCopyToClipboard } from 'react-use';
 import { useFetch } from '../../../../../lib/Hooks';
 import { OAuthClient } from '../../../../../types/OAuthClient';
-import { Field, FieldArray, Form, Formik } from 'formik';
-import { useCopyToClipboard } from 'react-use';
-import { redirect } from 'next/dist/server/api-utils';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faClose } from '@fortawesome/free-solid-svg-icons';
 
 function CopyButton({ value }: { value: string }) {
     const [state, copyToClipboard] = useCopyToClipboard();
@@ -54,7 +53,6 @@ function CopyButton({ value }: { value: string }) {
 
 function ApplicationForm({ id }: { id: string }) {
     const appData = useFetch<OAuthClient>(`/api/oauth/${id}`);
-    appData?.redirectUris.push('http://localhost:8000/redirect');
 
     if (!appData) {
         return 'Unable to load application data.';
@@ -66,7 +64,16 @@ function ApplicationForm({ id }: { id: string }) {
                 name: appData.name,
                 redirects: appData.redirectUris,
             }}
-            onSubmit={() => {}}
+            onSubmit={async ({ name, redirects }) => {
+                const res = await fetch(`/api/oauth/${id}`, {
+                    method: 'POST',
+                    body: JSON.stringify({ name, redirects }),
+                });
+                if (!res.ok) {
+                    //TODO: handle error
+                    return;
+                }
+            }}
         >
             {({ values }) => (
                 <Form>

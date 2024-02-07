@@ -5,6 +5,7 @@ import {
     deleteClient,
     getClient,
     getClients,
+    updateClient,
 } from '../../database/OAuth';
 
 const oauth = Router();
@@ -49,6 +50,16 @@ oauth
         const { id } = req.params;
         await deleteClient(id);
         res.sendStatus(200);
+    })
+    .post(async (req, res) => {
+        const { id } = req.params;
+        const { name, redirects } = req.body;
+        if (!name && !redirects) {
+            res.sendStatus(400);
+            return;
+        }
+        const client = await updateClient(id, name, redirects);
+        res.status(200).json(client);
     });
 
 export default oauth;
