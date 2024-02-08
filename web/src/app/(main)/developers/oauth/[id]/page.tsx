@@ -51,6 +51,44 @@ function CopyButton({ value }: { value: string }) {
     );
 }
 
+function ClientSecret({ appData }: { appData: OAuthClient }) {
+    const [secret, setSecret] = useState('');
+
+    return (
+        <>
+            {secret && (
+                <>
+                    <div className="pb-2">{secret}</div>
+                    <CopyButton value={secret} />
+                </>
+            )}
+            {!secret && (
+                <button
+                    type="button"
+                    className="rounded-md bg-primary px-4 py-1.5 hover:bg-primary-light"
+                    onClick={async () => {
+                        const res = await fetch(
+                            `/api/oauth/${appData.id}/resetSecret`,
+                            {
+                                method: 'POST',
+                            },
+                        );
+                        if (!res.ok) {
+                            //TODO: handle error
+                            return;
+                        }
+                        // display the secret
+                        const secret = (await res.json()).clientSecret;
+                        setSecret(secret);
+                    }}
+                >
+                    Reset
+                </button>
+            )}
+        </>
+    );
+}
+
 function ApplicationForm({ id }: { id: string }) {
     const appData = useFetch<OAuthClient>(`/api/oauth/${id}`);
 
@@ -106,9 +144,7 @@ function ApplicationForm({ id }: { id: string }) {
                                     only see the secret once when it is
                                     generated.
                                 </div>
-                                <button className="rounded-md bg-primary px-4 py-1.5 hover:bg-primary-light">
-                                    Reset
-                                </button>
+                                <ClientSecret appData={appData} />
                             </div>
                         </div>
                     </div>

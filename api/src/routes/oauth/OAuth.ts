@@ -5,6 +5,7 @@ import {
     deleteClient,
     getClient,
     getClients,
+    resetClientSecret,
     updateClient,
 } from '../../database/OAuth';
 
@@ -61,5 +62,11 @@ oauth
         const client = await updateClient(id, name, redirects);
         res.status(200).json(client);
     });
+
+oauth.post('/:id/resetSecret', async (req, res) => {
+    const { id } = req.params;
+    const newSecret = await resetClientSecret(id);
+    res.status(200).json(newSecret);
+});
 
 export default oauth;
