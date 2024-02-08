@@ -13,7 +13,8 @@ import {
     useTransitionStyles,
 } from '@floating-ui/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import { faCode, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
+import Link from 'next/link';
 
 export default function Header() {
     const { user, loggedIn, logout } = useContext(UserContext);
@@ -80,10 +81,22 @@ export default function Header() {
                                         isDivider={item.isDivider}
                                     />
                                 ))} */}
+                                {user.developer && (
+                                    <Link
+                                        href="/developers/oauth"
+                                        className="flex w-full items-center gap-x-2 px-3 py-1 text-black hover:bg-slate-500 hover:bg-opacity-10"
+                                    >
+                                        <FontAwesomeIcon
+                                            icon={faCode}
+                                            className="w-1/6"
+                                        />
+                                        Developer Portal
+                                    </Link>
+                                )}
                                 <div
                                     role="button"
                                     className="flex w-full items-center gap-x-2 px-3 py-1 text-black hover:bg-slate-500 hover:bg-opacity-10"
-                                    onClick={logout}
+                                    onClick={() => logout()}
                                 >
                                     <FontAwesomeIcon
                                         icon={faRightFromBracket}
