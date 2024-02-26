@@ -29,6 +29,7 @@ import {
 import { shuffle } from '../util/Array';
 import { listToBoard } from '../util/RoomUtils';
 import { generateSRLv5 } from './generation/SRLv5';
+import { roomCleanupInactive } from '../Environment';
 
 type RoomIdentity = {
     nickname: string;
@@ -56,6 +57,7 @@ export default class Room {
     identities: Map<string, RoomIdentity>;
     chatHistory: ChatMessage[];
     id: string;
+    lastMessage: number;
 
     lastGenerationMode: BoardGenerationMode;
 
@@ -82,6 +84,7 @@ export default class Room {
         this.board = {
             board: [],
         };
+        this.lastMessage = Date.now();
     }
 
     async generateBoard(mode: BoardGenerationMode) {
@@ -130,6 +133,7 @@ export default class Room {
         return players;
     }
 
+    //#region Handlers
     handleJoin(
         action: JoinAction,
         auth: RoomTokenPayload,
@@ -323,7 +327,9 @@ export default class Room {
         }
         return false;
     }
+    //#endregion
 
+    //#region Send Messages
     sendChat(message: string): void;
     sendChat(message: ChatMessage): void;
 
@@ -358,5 +364,30 @@ export default class Room {
                 );
             }
         });
+        this.lastMessage = Date.now();
     }
+    //#endregion
+
+    //#region Utilities
+    /**
+     * Determines if this room can be closed, which removes it from working memory because the room is no longer being
+     * used.
+     * @returns true if the room can be closed.
+     */
+    canClose() {
+        if (Date.now() - this.lastMessage > roomCleanupInactive) {
+            return this.connections.size <= 0;
+        }
+        return false;
+    }
+
+    /**
+     * Runs room level cleanup tasks and closes all open connections to the room
+     */
+    close() {
+        this.connections.forEach((connection) => {
+            connection.close();
+        });
+    }
+    //#endregion
 }

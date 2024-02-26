@@ -2,12 +2,22 @@ import { WebSocketServer } from 'ws';
 import { verifyRoomToken } from '../auth/RoomAuth';
 import { RoomAction } from '../types/RoomAction';
 import Room from './Room';
+import { roomCleanupInterval } from '../Environment';
 
 export const roomWebSocketServer: WebSocketServer = new WebSocketServer({
     noServer: true,
 });
 
 export const allRooms = new Map<string, Room>();
+
+const cleanupInterval = setInterval(() => {
+    allRooms.forEach((room, key) => {
+        if (room.canClose()) {
+            room.close();
+            allRooms.delete(key);
+        }
+    });
+}, roomCleanupInterval);
 
 roomWebSocketServer.on('connection', (ws, req) => {
     if (!req.url) {
@@ -115,6 +125,8 @@ roomWebSocketServer.on('connection', (ws, req) => {
         });
     });
 });
+
 roomWebSocketServer.on('close', () => {
     // cleanup
+    clearInterval(cleanupInterval);
 });
