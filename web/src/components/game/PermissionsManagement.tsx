@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { mutate } from 'swr';
 import { Game } from '../../types/Game';
 import UserSearch from '../UserSearch';
+import { alertError } from '../../lib/Utils';
 
 interface PermissionsManagementProps {
     slug: string;
@@ -54,7 +55,10 @@ export default function PermissionsManagement({
                                                 },
                                             );
                                             if (!res.ok) {
-                                                //TODO: handle the error
+                                                const error = await res.text();
+                                                alertError(
+                                                    `Unable to remove owner - ${error}`,
+                                                );
                                                 return;
                                             }
                                             updateData();
@@ -84,7 +88,8 @@ export default function PermissionsManagement({
                             body: JSON.stringify({ users: selectedUsers }),
                         });
                         if (!res.ok) {
-                            // TODO: do something with the error
+                            const error = await res.text();
+                            alertError(`Unable to add new owners - ${error}`);
                             return;
                         }
                         updateData();
@@ -121,7 +126,10 @@ export default function PermissionsManagement({
                                         },
                                     );
                                     if (!res.ok) {
-                                        //TODO: handle the error
+                                        const error = await res.text();
+                                        alertError(
+                                            `Unable to remove moderator - ${error}`,
+                                        );
                                         return;
                                     }
                                 }}
@@ -152,7 +160,10 @@ export default function PermissionsManagement({
                             },
                         );
                         if (!res.ok) {
-                            // TODO: do something with the error
+                            const error = await res.text();
+                            alertError(
+                                `Unable to add new moderators - ${error}`,
+                            );
                             return;
                         }
                         updateData();

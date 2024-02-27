@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useContext, useLayoutEffect } from 'react';
 import * as yup from 'yup';
 import { UserContext } from '../../../../context/UserContext';
+import { alertError } from '../../../../lib/Utils';
 
 const newGameValidationSchema = yup.object().shape({
     name: yup.string().required('Game name is required'),
@@ -49,7 +50,7 @@ export default function NewGame() {
                         });
                         if (!res.ok) {
                             const error = await res.text();
-                            //TODO: do something with server error
+                            alertError(`Unable to create game - ${error}}`);
                             return;
                         }
                         router.push('/');

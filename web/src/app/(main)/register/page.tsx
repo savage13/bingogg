@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useContext, useEffect } from 'react';
 import * as yup from 'yup';
 import { UserContext } from '../../../context/UserContext';
+import { alertError } from '../../../lib/Utils';
 
 const validationSchema = yup.object({
     email: yup
@@ -121,7 +122,10 @@ export default function Register() {
                             }),
                         });
                         if (!res.ok) {
-                            //TODO: handle errors
+                            const error = await res.text();
+                            alertError(
+                                `Unable to submit registration - ${error}`,
+                            );
                             return;
                         }
                         if (res.status === 201) {

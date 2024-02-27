@@ -2,6 +2,7 @@
 import { Field, Form, Formik } from 'formik';
 import { useState } from 'react';
 import * as yup from 'yup';
+import { alertError } from '../../../lib/Utils';
 
 const validationSchema = yup.object({
     email: yup
@@ -34,10 +35,13 @@ export default function ForgotPassword() {
                                 },
                             );
                             if (!res.ok) {
-                                //TODO: handle error
+                                const error = await res.text();
+                                alertError(
+                                    `Unable to submit reset request - ${error}`,
+                                );
                                 return;
                             }
-                            // setSuccess(true);
+                            setSuccess(true);
                         }}
                     >
                         {({ isValid, isSubmitting }) => (

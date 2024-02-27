@@ -12,6 +12,7 @@ import { useCallback, useEffect, useState } from 'react';
 import GoalEditor from './GoalEditor';
 import Select from 'react-select';
 import GoalUpload from './GoalUpload';
+import { alertError } from '../../../lib/Utils';
 
 enum SortOptions {
     DEFAULT,
@@ -79,7 +80,8 @@ export default function GoalManagement({
                 },
             });
             if (!res.ok) {
-                //TODO: handle the error
+                const error = await res.text();
+                alertError(`Failed to delete goal - ${error}`);
                 return;
             }
             mutateGoals();

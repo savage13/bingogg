@@ -19,6 +19,7 @@ import {
 import { Board, Cell } from '../types/Board';
 import { RoomData } from '../types/RoomData';
 import { ChatMessage, Player, ServerMessage } from '../types/ServerMessage';
+import { alertError } from '../lib/Utils';
 
 export enum ConnectionStatus {
     UNINITIALIZED, // the room connection is uninitialized and there is no authentication data present
@@ -319,7 +320,8 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
                 if (res.status === 404) {
                     notFound();
                 } else {
-                    //TODO: handle error
+                    const error = await res.text();
+                    alertError(`Unable to load room data - ${error}`);
                 }
                 return;
             }

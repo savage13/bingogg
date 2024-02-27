@@ -4,6 +4,7 @@ import { Fragment } from 'react';
 import { parseSRLv5BingoList } from '../../../lib/goals/SRLv5Parser';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamation } from '@fortawesome/free-solid-svg-icons';
+import { alertError } from '../../../lib/Utils';
 
 interface UploadFormProps {
     slug: string;
@@ -17,7 +18,7 @@ function SRLv5UploadForm({ slug, close }: UploadFormProps) {
             onSubmit={async ({ data }) => {
                 const parsedList = parseSRLv5BingoList(data);
                 if (!parsedList) {
-                    //TODO: handle error (unable to parse)
+                    alertError('Unable to parse file contents');
                     return;
                 }
 
@@ -44,7 +45,7 @@ function SRLv5UploadForm({ slug, close }: UploadFormProps) {
                     })
                     .flat();
                 if (invalid) {
-                    //TODO: handle error (invalid data)
+                    alertError('The data entered is invalid.');
                     return;
                 }
                 const res = await fetch('/api/goals/upload/srlv5', {
@@ -58,7 +59,8 @@ function SRLv5UploadForm({ slug, close }: UploadFormProps) {
                     }),
                 });
                 if (!res.ok) {
-                    //TODO: handle error
+                    const error = await res.text();
+                    alertError(`Could not upload results - ${error}`);
                     return;
                 }
                 close();

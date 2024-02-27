@@ -5,6 +5,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useCallback, useState } from 'react';
 import { useApi } from '../lib/Hooks';
 import { User } from '../types/User';
+import { alertError } from '../lib/Utils';
 
 interface UserSearchProps {
     isOpen: boolean;
@@ -43,7 +44,7 @@ export default function UserSearch({
     }
 
     if (error) {
-        // TODO: do something to alert the user of the error
+        alertError("Couldn't load user list.");
         return null;
     }
 

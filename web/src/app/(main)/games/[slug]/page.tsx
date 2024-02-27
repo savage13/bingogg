@@ -11,6 +11,7 @@ import HoverIcon from '../../../../components/HoverIcon';
 import PermissionsManagement from '../../../../components/game/PermissionsManagement';
 import GoalManagement from '../../../../components/game/goals/GoalManagement';
 import Toggle from '../../../../components/input/Toggle';
+import { alertError } from '../../../../lib/Utils';
 
 export default function Game({
     params: { slug },
@@ -22,13 +23,13 @@ export default function Game({
     const [isOwner, setIsOwner] = useState(false);
     const [canModerate, setCanModerate] = useState(false);
 
-    const [enabled, setEnabled] = useState(false);
-
     useLayoutEffect(() => {
         async function loadPermissions() {
             const res = await fetch(`/api/games/${slug}/permissions`);
             if (!res.ok) {
-                //TODO: handle error
+                if (res.status !== 401 && res.status !== 403) {
+                    alertError('Unable to determine game permissions.');
+                }
                 return;
             }
             const permissions = await res.json();
@@ -163,7 +164,10 @@ export default function Game({
                                             },
                                         );
                                         if (!res.ok) {
-                                            //TODO: do something with the error
+                                            const error = await res.text();
+                                            alertError(
+                                                `Failed to update game - ${error}`,
+                                            );
                                             return;
                                         }
                                         mutate(`/api/games/${slug}`);

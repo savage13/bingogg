@@ -1,16 +1,18 @@
 'use client';
-import { ReactNode } from 'react';
-import Header from '../../components/header/Header';
-import CookieConsent from 'react-cookie-consent';
-import Link from 'next/link';
-import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faDiscord,
     faGithub,
     faPatreon,
     faTwitter,
 } from '@fortawesome/free-brands-svg-icons';
+import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Link from 'next/link';
+import { ReactNode } from 'react';
+import CookieConsent from 'react-cookie-consent';
+import { ToastContainer } from 'react-toastify';
+import Header from '../../components/header/Header';
+import 'react-toastify/dist/ReactToastify.css';
 
 const icons: { icon: IconDefinition; url: string }[] = [
     { icon: faGithub, url: 'https://github.com/cjs8487/bingogg' },
@@ -57,6 +59,7 @@ export default function CoreLayout({ children }: { children: ReactNode }) {
                     </div>
                 </div>
             </div>
+            <ToastContainer />
         </div>
     );
 }

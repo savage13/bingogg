@@ -2,6 +2,7 @@
 import { Formik, Form, Field, ErrorMessage, FastField } from 'formik';
 import { useSearchParams } from 'next/navigation';
 import * as yup from 'yup';
+import { alertError } from '../../../lib/Utils';
 
 const validationSchema = yup.object({
     password: yup
@@ -43,7 +44,10 @@ export default function ResetPassword() {
                             body: JSON.stringify({ token, password }),
                         });
                         if (!res.ok) {
-                            //TODO: handle error
+                            const error = await res.text();
+                            alertError(
+                                `Unable to submit reset request - ${error}. You may need to request a new reset link.`,
+                            );
                             return;
                         }
                     }}

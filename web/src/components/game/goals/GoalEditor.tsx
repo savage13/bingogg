@@ -3,6 +3,7 @@ import { Field, FieldProps, Form, Formik } from 'formik';
 import CreatableSelect from 'react-select/creatable';
 import NumberInput from '@/components/input/NumberInput';
 import { KeyedMutator, mutate } from 'swr';
+import { alertError } from '../../../lib/Utils';
 interface GoalEditorProps {
     slug: string;
     goal: Goal;
@@ -50,7 +51,8 @@ export default function GoalEditor({
                         }),
                     });
                     if (!res.ok) {
-                        // TODO: handle error
+                        const error = await res.text();
+                        alertError(`Unable to create goal - ${error}`);
                         return;
                     }
                     mutateGoals();
@@ -83,7 +85,8 @@ export default function GoalEditor({
                         }),
                     });
                     if (!res.ok) {
-                        //TODO: handle error
+                        const error = await res.text();
+                        alertError(`Unable to update goal - ${error}`);
                         return;
                     }
                     mutateGoals();

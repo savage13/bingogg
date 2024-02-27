@@ -8,6 +8,7 @@ import {
 } from 'react';
 import { User } from '../types/User';
 import { useRouter } from 'next/navigation';
+import { alertError } from '../lib/Utils';
 
 interface UserContext {
     loggedIn: boolean;
@@ -42,7 +43,9 @@ export const UserContextProvider = ({ children }: React.PropsWithChildren) => {
         const res = await fetch('api/logout', { method: 'POST' });
         if (!res.ok) {
             if (res.status === 500) {
-                //TODO: handle error
+                alertError(
+                    'Unable to process logout request. Try again in a few moments.',
+                );
                 return;
             }
         }
