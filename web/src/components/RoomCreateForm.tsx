@@ -15,11 +15,11 @@ const roomValidationSchema = yup.object().shape({
     nickname: yup.string().required('Player nickname is required'),
     password: yup.string().required('Password is required'),
     game: yup.string().required('Game is required'),
-    variant: yup.string().required('Game variant is required'),
-    mode: yup
-        .string()
-        .required('Game mode is required')
-        .oneOf(['lines', 'blackout', 'lockout'], 'Invalid game mode'),
+    // variant: yup.string().required('Game variant is required'),
+    // mode: yup
+    //     .string()
+    //     .required('Game mode is required')
+    //     .oneOf(['lines', 'blackout', 'lockout'], 'Invalid game mode'),
 });
 
 function GenerationModeSelectField() {
@@ -165,7 +165,7 @@ export default function RoomCreateForm() {
                         className="mt-1 text-xs text-error-content"
                     />
                 </div>
-                <div className="flex gap-x-4">
+                {/* <div className="flex gap-x-4">
                     <div className="w-1/2">
                         <label>
                             <div>Variant</div>
@@ -193,7 +193,7 @@ export default function RoomCreateForm() {
                             className="mt-1 text-xs text-error-content"
                         />
                     </div>
-                </div>
+                </div> */}
                 <div className="rounded-md border border-text-lighter bg-foreground px-3 py-2 shadow-lg shadow-text-lighter/10">
                     <Disclosure>
                         {({ open }) => (

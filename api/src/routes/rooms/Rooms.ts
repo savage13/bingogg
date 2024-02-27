@@ -48,10 +48,10 @@ rooms.get('/', async (req, res) => {
 });
 
 rooms.post('/', async (req, res) => {
-    const { name, game, nickname, password, variant, mode, generationMode } =
+    const { name, game, nickname, password, /*variant, mode,*/ generationMode } =
         req.body;
 
-    if (!name || !game || !nickname || !variant || !mode) {
+    if (!name || !game || !nickname /*|| !variant || !mode*/) {
         res.status(400).send('Missing required element(s).');
         return;
     }

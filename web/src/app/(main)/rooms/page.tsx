@@ -55,12 +55,12 @@ export default function Rooms() {
                                     {room.name}
                                 </div>
                                 <div className="pb-2 text-sm">{room.slug}</div>
-                                <div className="pb-2 text-lg">{room.game}</div>
-                                <div className="flex text-sm">
+                                <div className=/*"pb-2 */"text-lg">{room.game}</div>
+                                {/* <div className="flex text-sm">
                                     <div>Variant</div>
                                     <div className="grow" />
                                     <div>Mode</div>
-                                </div>
+                                </div> */}
                             </div>
                         </Link>
                     </div>
