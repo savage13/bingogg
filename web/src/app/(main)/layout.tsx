@@ -39,23 +39,28 @@ export default function CoreLayout({ children }: { children: ReactNode }) {
             </CookieConsent>
             <div className="h-[calc(100%-60px)] p-4">{children}</div>
             <div className="bg-background">
-                <div className="rounded-t-md bg-primary-light p-2">
-                    <div className="mb-2 flex items-center gap-x-1 text-xl">
-                        {icons.map(({ icon, url }) => (
-                            <a key={icon.iconName} href={url}>
-                                <FontAwesomeIcon
-                                    icon={icon}
-                                    className="fa-fw aspect-square rounded-full px-1 py-1.5 hover:bg-primary-content hover:bg-opacity-40"
-                                />
-                            </a>
-                        ))}
+                <div className="flex items-end rounded-t-md bg-primary-light p-2">
+                    <div className="grow">
+                        <div className="mb-2 flex items-center gap-x-1 text-xl">
+                            {icons.map(({ icon, url }) => (
+                                <a key={icon.iconName} href={url}>
+                                    <FontAwesomeIcon
+                                        icon={icon}
+                                        className="fa-fw aspect-square rounded-full px-1 py-1.5 hover:bg-primary-content hover:bg-opacity-40"
+                                    />
+                                </a>
+                            ))}
+                        </div>
+                        <div className="text-xs">
+                            <div></div>© Copyright 2024 - 2024 Bingothon | All
+                            Rights Reserved |{' '}
+                            <Link href="/legal/privacy" className="underline">
+                                Privacy Policy
+                            </Link>
+                        </div>
                     </div>
-                    <div className="text-xs">
-                        <div></div>© Copyright 2024 - 2024 Bingothon | All
-                        Rights Reserved |{' '}
-                        <Link href="/legal/privacy" className="underline">
-                            Privacy Policy
-                        </Link>
+                    <div className="pr-1 text-xs">
+                        bingo.gg v{process.env.version}
                     </div>
                 </div>
             </div>
