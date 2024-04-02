@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 async function getRooms(): Promise<RoomData[]> {
-    const res = await fetch(`${process.env.API_PATH}/api/rooms`);
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_PATH}/api/rooms`);
     return res.json();
 }
 

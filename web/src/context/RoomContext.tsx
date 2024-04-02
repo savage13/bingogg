@@ -21,6 +21,11 @@ import { RoomData } from '../types/RoomData';
 import { ChatMessage, Player, ServerMessage } from '../types/ServerMessage';
 import { alertError } from '../lib/Utils';
 
+const websocketBase = (process.env.NEXT_PUBLIC_API_PATH ?? '').replace(
+    'http',
+    'ws',
+);
+
 export enum ConnectionStatus {
     UNINITIALIZED, // the room connection is uninitialized and there is no authentication data present
     CONNECTING, // the server has confirmed the password, but has not yet confirmed the room connection
@@ -143,7 +148,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
 
     // websocket
     const { sendJsonMessage } = useWebSocket(
-        `ws://localhost:8000/rooms/${slug}`,
+        `${websocketBase}/rooms/${slug}`,
         {
             share: true,
             heartbeat: {
