@@ -65,7 +65,7 @@ server.on('upgrade', (req, socket, head) => {
         return;
     }
     const [target, slug] = segments;
-    if (target === 'rooms') {
+    if (target === 'socket') {
         const room = allRooms.get(slug);
         if (!room) {
             return;

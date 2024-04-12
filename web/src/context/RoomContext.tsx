@@ -148,7 +148,7 @@ export function RoomContextProvider({ slug, children }: RoomContextProps) {
 
     // websocket
     const { sendJsonMessage } = useWebSocket(
-        `${websocketBase}/rooms/${slug}`,
+        `${websocketBase}/socket/${slug}`,
         {
             share: true,
             heartbeat: {
