@@ -8,6 +8,7 @@ import {
     useClick,
     useDismiss,
     useFloating,
+    useHover,
     useInteractions,
     useRole,
     useTransitionStyles,
@@ -27,12 +28,12 @@ export default function Header() {
         middleware: [shift({ padding: 5 })],
     });
 
-    const click = useClick(context);
+    const hover = useHover(context);
     const dismiss = useDismiss(context);
     const role = useRole(context, { role: 'menu' });
 
     const { getReferenceProps, getFloatingProps } = useInteractions([
-        click,
+        hover,
         dismiss,
         role,
     ]);
@@ -60,7 +61,7 @@ export default function Header() {
                         ref={refs.setReference}
                         {...getReferenceProps()}
                     >
-                        <HeaderLink href="">{user.username}</HeaderLink>
+                        <HeaderLink href="/profile">{user.username}</HeaderLink>
                     </div>
                     {isMounted && (
                         <div
