@@ -1,6 +1,7 @@
 import RoomCreateForm from '@/components/RoomCreateForm';
 import { Suspense } from 'react';
 import ActiveRoomList from '../../components/ActiveRoomList';
+import ToasterOven from '../../components/utilities/ToasterOven';
 
 export default async function Home() {
     return (
@@ -22,6 +23,7 @@ export default async function Home() {
                     <div className="pb-2 text-4xl">Create a New Room</div>
                     <RoomCreateForm />
                 </div>
+                <ToasterOven />
             </div>
         </div>
     );
