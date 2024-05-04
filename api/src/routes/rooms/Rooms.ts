@@ -10,6 +10,7 @@ import {
 } from '../../database/Rooms';
 import { gameForSlug } from '../../database/games/Games';
 import { chunk } from '../../util/Array';
+import actions from './Actions';
 
 const rooms = Router();
 
@@ -48,8 +49,13 @@ rooms.get('/', async (req, res) => {
 });
 
 rooms.post('/', async (req, res) => {
-    const { name, game, nickname, password, /*variant, mode,*/ generationMode } =
-        req.body;
+    const {
+        name,
+        game,
+        nickname,
+        password,
+        /*variant, mode,*/ generationMode,
+    } = req.body;
 
     if (!name || !game || !nickname /*|| !variant || !mode*/) {
         res.status(400).send('Missing required element(s).');
@@ -181,5 +187,7 @@ rooms.post('/:slug/authorize', (req, res) => {
     const token = createRoomToken(room);
     res.status(200).send({ authToken: token });
 });
+
+rooms.use('/actions', actions);
 
 export default rooms;

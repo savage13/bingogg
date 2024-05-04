@@ -6,12 +6,17 @@ import RoomChat from '@/components/room/RoomChat';
 import RoomInfo from '@/components/room/RoomInfo';
 import RoomLogin from '@/components/room/RoomLogin';
 import { ConnectionStatus, RoomContext } from '@/context/RoomContext';
-import { useContext } from 'react';
+import { useCallback, useContext } from 'react';
 import PlayerList from '../../../../components/room/PlayerList';
 
 export default function Room() {
-    const { connectionStatus, roomData, nickname, disconnect } =
-        useContext(RoomContext);
+    const {
+        connectionStatus,
+        roomData,
+        nickname,
+        disconnect,
+        createRacetimeRoom,
+    } = useContext(RoomContext);
 
     if (connectionStatus === ConnectionStatus.UNINITIALIZED) {
         return <RoomLogin />;
@@ -51,6 +56,17 @@ export default function Room() {
                         </div>
                         <ColorSelect />
                     </div>
+                </div>
+                <div className="h-fit rounded-md border bg-background p-2 shadow-md shadow-white/20">
+                    <div className="pb-2 text-lg font-semibold">
+                        racetime.gg
+                    </div>
+                    <button
+                        className="mx-2 mb-2 rounded-md border border-white px-1 py-1 text-sm"
+                        onClick={createRacetimeRoom}
+                    >
+                        Create racetime.gg race
+                    </button>
                 </div>
             </div>
             <div className="flex h-[70%] gap-x-8">
