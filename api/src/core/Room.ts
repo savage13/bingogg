@@ -56,6 +56,7 @@ export default class Room {
     identities: Map<string, RoomIdentity>;
     chatHistory: ChatMessage[];
     id: string;
+    racetimeUrl: string;
 
     lastGenerationMode: BoardGenerationMode;
 
@@ -66,6 +67,7 @@ export default class Room {
         slug: string,
         password: string,
         id: string,
+        racetimeUrl?: string,
     ) {
         this.name = name;
         this.game = game;
@@ -76,6 +78,7 @@ export default class Room {
         this.connections = new Map();
         this.chatHistory = [];
         this.id = id;
+        this.racetimeUrl = racetimeUrl ?? '';
 
         this.lastGenerationMode = BoardGenerationMode.RANDOM;
 
@@ -165,6 +168,7 @@ export default class Room {
                 slug: this.slug,
                 name: this.name,
                 gameSlug: this.gameSlug,
+                racetimeUrl: this.racetimeUrl,
             },
             players: this.getPlayers(),
         };
@@ -322,6 +326,20 @@ export default class Room {
             return true;
         }
         return false;
+    }
+
+    handleRacetimeRoomCreated(url: string) {
+        this.sendServerMessage({
+            action: 'updateRoomData',
+            roomData: {
+                game: this.game,
+                slug: this.slug,
+                name: this.name,
+                gameSlug: this.gameSlug,
+                racetimeUrl: url,
+            },
+        });
+        this.sendChat(`Racetime.gg room created ${url}`);
     }
 
     sendChat(message: string): void;

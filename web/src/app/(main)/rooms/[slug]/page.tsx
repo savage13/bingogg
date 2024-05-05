@@ -8,6 +8,7 @@ import RoomLogin from '@/components/room/RoomLogin';
 import { ConnectionStatus, RoomContext } from '@/context/RoomContext';
 import { useCallback, useContext } from 'react';
 import PlayerList from '../../../../components/room/PlayerList';
+import Link from 'next/link';
 
 export default function Room() {
     const {
@@ -61,12 +62,22 @@ export default function Room() {
                     <div className="pb-2 text-lg font-semibold">
                         racetime.gg
                     </div>
-                    <button
-                        className="mx-2 mb-2 rounded-md border border-white px-1 py-1 text-sm"
-                        onClick={createRacetimeRoom}
-                    >
-                        Create racetime.gg race
-                    </button>
+                    {!roomData?.racetimeUrl && (
+                        <button
+                            className="mx-2 mb-2 rounded-md border border-white px-1 py-1 text-sm"
+                            onClick={createRacetimeRoom}
+                        >
+                            Create racetime.gg race
+                        </button>
+                    )}
+                    {roomData?.racetimeUrl && (
+                        <>
+                            Connected{' '}
+                            <Link href={roomData.racetimeUrl}>
+                                {roomData.racetimeUrl}
+                            </Link>
+                        </>
+                    )}
                 </div>
             </div>
             <div className="flex h-[70%] gap-x-8">
