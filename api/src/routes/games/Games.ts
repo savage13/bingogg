@@ -11,6 +11,8 @@ import {
     removeOwner,
     updateGameCover,
     updateGameName,
+    updateRacetimeCategory,
+    updateRacetimeGoal,
     updateSRLv5Enabled,
 } from '../../database/games/Games';
 import { createGoal, goalsForGame } from '../../database/games/Goals';
@@ -53,7 +55,8 @@ games.post('/', async (req, res) => {
 
 games.post('/:slug', async (req, res) => {
     const { slug } = req.params;
-    const { name, coverImage, enableSRLv5 } = req.body;
+    const { name, coverImage, enableSRLv5, racetimeCategory, racetimeGoal } =
+        req.body;
 
     let result = undefined;
     if (name) {
@@ -64,6 +67,12 @@ games.post('/:slug', async (req, res) => {
     }
     if (enableSRLv5 !== undefined) {
         result = await updateSRLv5Enabled(slug, !!enableSRLv5);
+    }
+    if (racetimeCategory) {
+        result = await updateRacetimeCategory(slug, racetimeCategory);
+    }
+    if (racetimeGoal) {
+        result = await updateRacetimeGoal(slug, racetimeGoal);
     }
 
     if (!result) {
