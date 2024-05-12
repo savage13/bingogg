@@ -9,6 +9,8 @@ import { ConnectionStatus, RoomContext } from '@/context/RoomContext';
 import { useCallback, useContext } from 'react';
 import PlayerList from '../../../../components/room/PlayerList';
 import Link from 'next/link';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faRefresh } from '@fortawesome/free-solid-svg-icons';
 
 export default function Room() {
     const {
@@ -17,6 +19,7 @@ export default function Room() {
         nickname,
         disconnect,
         createRacetimeRoom,
+        updateRacetimeRoom,
     } = useContext(RoomContext);
 
     if (connectionStatus === ConnectionStatus.UNINITIALIZED) {
@@ -76,6 +79,10 @@ export default function Room() {
                             <Link href={roomData.racetimeUrl}>
                                 {roomData.racetimeUrl}
                             </Link>
+                            <FontAwesomeIcon
+                                icon={faRefresh}
+                                onClick={updateRacetimeRoom}
+                            />
                         </>
                     )}
                 </div>
