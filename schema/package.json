@@ -1,8 +1,7 @@
 {
-  "name": "schema",
+  "name": "@bingogg/types",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "generate": "ts-node Generate.ts"
   },
