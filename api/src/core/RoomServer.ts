@@ -25,17 +25,17 @@ roomWebSocketServer.on('connection', (ws, req) => {
         ws.close();
     }, 1000);
 
-    const pingTimeout = setTimeout(
-        () => {
-            let found = false;
-            allRooms.forEach((room) => {
-                if (found) return;
-                found = room.handleSocketClose(ws);
-            });
-            ws.close();
-        },
-        5 * 60 * 1000,
-    );
+    // const pingTimeout = setTimeout(
+    //     () => {
+    //         let found = false;
+    //         allRooms.forEach((room) => {
+    //             if (found) return;
+    //             found = room.handleSocketClose(ws);
+    //         });
+    //         ws.close();
+    //     },
+    //     5 * 60 * 1000,
+    // );
 
     // handlers
     ws.on('message', (message) => {
@@ -43,7 +43,7 @@ roomWebSocketServer.on('connection', (ws, req) => {
 
         if (messageString === 'ping') {
             ws.send('pong');
-            pingTimeout.refresh();
+            // pingTimeout.refresh();
             return;
         }
 
