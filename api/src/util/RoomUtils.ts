@@ -4,7 +4,7 @@ import { chunk } from './Array';
 export const listToBoard = (list: Goal[]) => {
     return chunk(
         list.map((g) => ({
-            goal: `${g.goal} (${g.difficulty})`,
+            goal: `${g.goal}`,
             description: g.description ?? '',
             colors: [],
         })),
