@@ -3,12 +3,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Dialog, Disclosure, Transition } from '@headlessui/react';
 import { Field, Form, Formik } from 'formik';
 import { Fragment, useCallback, useContext, useState } from 'react';
-import { useAsync } from 'react-use';
+import { useAsync, useCopyToClipboard } from 'react-use';
 import { RoomContext } from '../../context/RoomContext';
 import { Game } from '../../types/Game';
+import { toast } from 'react-toastify';
 
 export default function RoomInfo() {
-    const { roomData, regenerateCard } = useContext(RoomContext);
+    const { roomData, regenerateCard, board } = useContext(RoomContext);
 
     const [showControlModal, setShowControlModal] = useState(false);
 
@@ -33,6 +34,8 @@ export default function RoomInfo() {
         }
         return modes;
     }, [roomData]);
+
+    const [, copyToClipboard] = useCopyToClipboard();
 
     if (!roomData) {
         return (
@@ -221,6 +224,28 @@ export default function RoomInfo() {
                                                     Fit Goal Text
                                                 </button>
                                             </div>
+                                        </div>
+                                        <div className="pt-6">
+                                            <button
+                                                className="rounded-md border p-2 hover:bg-gray-700"
+                                                onClick={() => {
+                                                    const data = board.board
+                                                        .map((row) =>
+                                                            row.map((cell) => ({
+                                                                name: cell.goal,
+                                                            })),
+                                                        )
+                                                        .flat();
+                                                    copyToClipboard(
+                                                        JSON.stringify(data),
+                                                    );
+                                                    toast(
+                                                        'Copied bingosync goal list for this board to your clipboard',
+                                                    );
+                                                }}
+                                            >
+                                                Export to Bingosync
+                                            </button>
                                         </div>
                                     </div>
                                 </Dialog.Panel>
