@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { emailUsed, registerUser, usernameUsed } from '../../database/Users';
 import { pbkdf2Sync, randomBytes } from 'crypto';
+import * as EmailValidator from 'email-validator';
 
 const registration = Router();
 
@@ -29,7 +30,7 @@ registration.post('/register', async (req, res, next) => {
         res.status(400).send('Invalid email - unable to parse');
         return;
     }
-    if (!email.match(/^[\w\-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
+    if (!EmailValidator.validate(email)) {
         res.status(400).send('Invalid email - invalid format');
         return;
     }
